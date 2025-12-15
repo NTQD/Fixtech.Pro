@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: techfix_db
+    ports:
+      - '3306:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    depends_on:
+      - db
+
+  # Applications (Assumes built images or uses node base with verify)
+  # For local dev, run these via 'npm run start:dev' commands
+  # This section assumes we build a generic image for the repo
+
+  api-gateway:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: api-gateway
+    command: node dist/apps/api-gateway/main
+    ports:
+      - '3000:3000'
+    environment:
+      - DB_HOST=db
+      - JWT_SECRET=super-secret-key
+      - AUTH_SERVICE_URL=http://auth-service:3002
+      - CATALOG_SERVICE_URL=http://catalog-service:3003
+      - BOOKING_SERVICE_URL=http://booking-service:3004
+    depends_on:
+      - db
+
+  auth-service:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: auth-service
+    command: node dist/apps/auth-service/main
+    ports:
+      - '3002:3002'
+    environment:
+      - DB_HOST=db
+      - JWT_SECRET=super-secret-key
+    depends_on:
+      - db
+
+  catalog-service:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: catalog-service
+    command: node dist/apps/catalog-service/main
+    ports:
+      - '3003:3003'
+    environment:
+      - DB_HOST=db
+      - JWT_SECRET=super-secret-key
+    depends_on:
+      - db
+
+  booking-service:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: booking-service
+    command: node dist/apps/booking-service/main
+    ports:
+      - '3004:3004'
+    environment:
+      - DB_HOST=db
+      - JWT_SECRET=super-secret-key
+    depends_on:
+      - db
+
+volumes:
+  db_data:

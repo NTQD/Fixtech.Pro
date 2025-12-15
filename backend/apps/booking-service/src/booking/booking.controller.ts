@@ -1,0 +1,71 @@
+import { Controller, Get, Post, Body, UseGuards, Request, Patch, Param, Query } from '@nestjs/common';
+import { BookingService } from './booking.service';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+
+@ApiTags('Booking')
+@Controller('bookings')
+export class BookingController {
+    constructor(private readonly bookingService: BookingService) { }
+
+    @Post()
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Create a new booking with transaction' })
+    create(@Body() createBookingDto: any, @Request() req) {
+        return this.bookingService.createBooking(createBookingDto, req.user.userId);
+    }
+
+    @Get()
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get all bookings' })
+    findAll() {
+        return this.bookingService.findAll();
+    }
+
+    @Get('my-bookings')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get my bookings' })
+    findMyBookings(@Request() req) {
+        return this.bookingService.findMyBookings(req.user);
+    }
+
+    @Get('search')
+    @ApiOperation({ summary: 'Search bookings by ID or Phone' })
+    search(@Query('q') query: string) {
+        return this.bookingService.search(query);
+    }
+
+    @Patch(':id/status')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Update booking status' })
+    updateStatus(@Param('id') id: number, @Body('status') status: string) {
+        return this.bookingService.updateStatus(id, status);
+    }
+
+    @Patch(':id/assign')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Assign technician to booking' })
+    assignTechnician(@Param('id') id: number, @Body('technicianId') technicianId: number) {
+        return this.bookingService.assignTechnician(id, technicianId);
+    }
+    @Post(':id/parts')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Add part to booking' })
+    addPart(@Param('id') id: number, @Body() body: { partId: number; quantity: number }) {
+        return this.bookingService.addPartToBooking(id, body.partId, body.quantity);
+    }
+
+    @Post(':id/services')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Add service to booking' })
+    addService(@Param('id') id: number, @Body() body: { serviceId: string }) {
+        return this.bookingService.addServiceToBooking(id, body.serviceId);
+    }
+}

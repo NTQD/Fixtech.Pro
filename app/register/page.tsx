@@ -1,20 +1,61 @@
 'use client'
 
+// axios removed
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Wrench } from 'lucide-react'
+import { Wrench, Eye, EyeOff } from 'lucide-react'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Register:', { name, email, password })
+    setError('')
+
+    if (!name || !email || !phone || !password || !confirmPassword) {
+      setError('Vui lòng điền đầy đủ thông tin')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setError('Mật khẩu xác nhận không khớp')
+      return
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          full_name: name,
+          phone
+        }),
+      })
+
+      if (response.ok) {
+        alert('Đăng ký thành công! Vui lòng đăng nhập.')
+        window.location.href = '/login'
+      } else {
+        const data = await response.json()
+        setError(data.message || 'Đăng ký thất bại.')
+      }
+    } catch (err) {
+      console.error(err)
+      setError('Lỗi kết nối đến server.')
+    }
   }
 
   return (
@@ -54,25 +95,72 @@ export default function RegisterPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Mật khẩu</label>
+                <label className="text-sm font-medium">Số điện thoại</label>
                 <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type="tel"
+                  placeholder="0123456789"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   className="mt-1"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Xác nhận mật khẩu</label>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1"
-                />
+                <label className="text-sm font-medium">Mật khẩu</label>
+                <div className="relative mt-1">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="sr-only">
+                      {showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    </span>
+                  </Button>
+                </div>
               </div>
+              <div>
+                <label className="text-sm font-medium">Xác nhận mật khẩu</label>
+                <div className="relative mt-1">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="sr-only">
+                      {showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    </span>
+                  </Button>
+                </div>
+              </div>
+              {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
               <Button type="submit" className="w-full">Đăng ký</Button>
             </form>
             <div className="mt-6 text-center text-sm">
