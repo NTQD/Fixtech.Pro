@@ -4,6 +4,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+    app.enableCors(); // Enable CORS for Frontend Access
 
     // Proxy Configuration for Microservices
     const services = {
