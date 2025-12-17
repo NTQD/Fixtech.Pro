@@ -18,7 +18,7 @@ import { User } from './account/entities/user.entity';
             password: process.env.DB_PASSWORD || 'rootpassword',
             database: process.env.DB_DATABASE_AUTH || 'techfix_auth',
             entities: [User], // Register Shared User Entity
-            synchronize: true,
+            synchronize: false,
             autoLoadEntities: true,
         }),
         AccountModule,

@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Part } from './entities/part.entity';
@@ -25,6 +26,9 @@ export class CatalogService {
     }
 
     createService(data: Partial<Service>) {
+        if (!data.id) {
+            data.id = crypto.randomUUID();
+        }
         const service = this.servicesRepository.create(data);
         return this.servicesRepository.save(service);
     }

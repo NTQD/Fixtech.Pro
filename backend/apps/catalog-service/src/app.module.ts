@@ -22,7 +22,7 @@ import { JwtStrategy } from './auth/jwt.strategy';
             password: process.env.DB_PASSWORD || 'rootpassword',
             database: process.env.DB_DATABASE_CATALOG || 'techfix_catalog',
             entities: [Service, Part],
-            synchronize: true,
+            synchronize: false, // Disable auto-sync to prevent conflicts with init.sql
             autoLoadEntities: true,
         }),
         PassportModule,
