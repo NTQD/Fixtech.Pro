@@ -56,9 +56,13 @@ export default function ProfilePage() {
 
             const userRole = user.role.toLowerCase()
             const userEmail = user.email
+            const userAvatar = user.avatar_url
 
             setRole(userRole)
             setEmail(userEmail)
+            if (userAvatar) {
+                setAvatarPreview(userAvatar)
+            }
 
             // Set User Info from LocalStorage
             setName(user.name || (userRole === 'admin' ? 'Administrator' : 'Khách hàng'))

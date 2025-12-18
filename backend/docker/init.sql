@@ -1,3 +1,5 @@
+SET NAMES 'utf8mb4';
+
 CREATE DATABASE IF NOT EXISTS techfix_auth CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS techfix_catalog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS techfix_booking CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

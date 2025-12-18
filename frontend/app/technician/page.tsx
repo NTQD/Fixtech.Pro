@@ -95,6 +95,7 @@ export default function TechnicianPage() {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const router = useRouter()
     const [token, setToken] = useState<string | null>(null)
+    const [currentUser, setCurrentUser] = useState<any>(null)
 
     // Feature Refinement State
     const [availableParts, setAvailableParts] = useState<any[]>([])
@@ -128,6 +129,7 @@ export default function TechnicianPage() {
             if (!user || user.role.toUpperCase() !== 'TECHNICIAN' && user.role.toUpperCase() !== 'ADMIN') {
                 if (user.role.toUpperCase() !== 'TECHNICIAN') router.push('/login')
             }
+            setCurrentUser(user)
         } catch (e) {
             router.push('/login')
         }
@@ -467,17 +469,17 @@ export default function TechnicianPage() {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                                     <Avatar className="h-10 w-10">
-                                        <AvatarImage src="/avatars/tech.png" alt="@tech" />
-                                        <AvatarFallback className="bg-primary/10 text-primary font-bold">AT</AvatarFallback>
+                                        <AvatarImage src={currentUser?.avatar_url || "/avatars/tech.png"} alt="@tech" />
+                                        <AvatarFallback className="bg-primary/10 text-primary font-bold">{currentUser?.email?.[0].toUpperCase() || 'T'}</AvatarFallback>
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56" align="end" forceMount>
                                 <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium leading-none">Alex Tech</p>
+                                        <p className="text-sm font-medium leading-none">{currentUser?.name || currentUser?.full_name || 'Technician'}</p>
                                         <p className="text-xs leading-none text-muted-foreground">
-                                            tech@techfix.pro
+                                            {currentUser?.email}
                                         </p>
                                     </div>
                                 </DropdownMenuLabel>

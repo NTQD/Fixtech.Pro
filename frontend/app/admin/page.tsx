@@ -41,6 +41,8 @@ export default function AdminDashboard() {
     totalCustomers: 0
   })
 
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
   useEffect(() => {
     const userStr = localStorage.getItem('user')
     if (!userStr) {
@@ -53,6 +55,7 @@ export default function AdminDashboard() {
       if (!user || user.role.toUpperCase() !== 'ADMIN') {
         router.push('/login')
       }
+      setCurrentUser(user)
     } catch (e) {
       router.push('/login')
     }
@@ -249,17 +252,17 @@ export default function AdminDashboard() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src="/avatars/admin.png" alt="@admin" />
-                      <AvatarFallback className="bg-primary/10 text-primary font-bold">AD</AvatarFallback>
+                      <AvatarImage src={currentUser?.avatar_url || "/avatars/admin.png"} alt="@admin" />
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold">{currentUser?.email?.[0].toUpperCase() || 'A'}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Administrator</p>
+                      <p className="text-sm font-medium leading-none">{currentUser?.name || currentUser?.full_name || 'Administrator'}</p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        admin@techfix.pro
+                        {currentUser?.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>

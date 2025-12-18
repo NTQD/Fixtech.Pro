@@ -6,7 +6,7 @@ import { join } from 'path';
 @Module({
     imports: [
         ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '..', '..', 'uploads'), // Go up from dist/apps/api-gateway/main.js to root
+            rootPath: join(process.cwd(), 'uploads'),
             serveRoot: '/uploads',
         }),
     ],

@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useRouter } from 'next/navigation'
 
 export function Navbar() {
-    const [user, setUser] = useState<{ role: string, email: string } | null>(null)
+    const [user, setUser] = useState<{ role: string, email: string, avatar_url?: string } | null>(null)
     const [scrolled, setScrolled] = useState(false)
     const router = useRouter()
 
@@ -81,7 +81,7 @@ export function Navbar() {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-primary/10 hover:ring-primary/30 transition-all">
                                     <Avatar className="h-9 w-9">
-                                        <AvatarImage src="/avatars/01.png" alt="@user" />
+                                        <AvatarImage src={user.avatar_url || "/avatars/01.png"} alt="@user" />
                                         <AvatarFallback className="bg-primary/5 text-primary font-bold">
                                             {user.email[0].toUpperCase()}
                                         </AvatarFallback>
