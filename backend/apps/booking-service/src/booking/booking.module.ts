@@ -6,9 +6,11 @@ import { BookingItem } from './entities/booking-item.entity';
 import { BookingService } from './booking.service';
 import { BookingController } from './booking.controller';
 
+import { BookingHistory } from './entities/booking-history.entity';
+
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Booking, BookingItem]),
+        TypeOrmModule.forFeature([Booking, BookingItem, BookingHistory]),
         HttpModule,
     ],
     controllers: [BookingController],

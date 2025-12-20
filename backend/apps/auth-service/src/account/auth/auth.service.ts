@@ -14,7 +14,7 @@ export class AuthService {
     ) { }
 
     async register(registerDto: any): Promise<User> {
-        const { email, password, full_name, phone } = registerDto;
+        const { email, password, full_name, phone, avatar_url } = registerDto;
 
         const existingUser = await this.usersRepository.findOne({ where: { email } });
         if (existingUser) {
@@ -29,7 +29,9 @@ export class AuthService {
             password_hash,
             full_name,
             phone,
-            role: UserRole.CUSTOMER, // Default role
+            role: UserRole.CUSTOMER,
+            status: 1, // Default Active
+            avatar_url: avatar_url || null
         });
 
         return this.usersRepository.save(user);
@@ -45,6 +47,10 @@ export class AuthService {
     }
 
     async login(user: any) {
+        if (user.status === 0) {
+            throw new UnauthorizedException('Account is banned');
+        }
+
         const payload = { email: user.email, sub: user.id, role: user.role };
         return {
             access_token: this.jwtService.sign(payload),
@@ -53,7 +59,10 @@ export class AuthService {
                 email: user.email,
                 full_name: user.full_name,
                 role: user.role,
-                avatar_url: user.avatar_url
+                avatar_url: user.avatar_url,
+                status: user.status,
+                phone: user.phone,
+                created_at: user.created_at
             }
         };
     }

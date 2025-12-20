@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Wrench, LogOut, BarChart3, Calendar, Users, Settings, ChevronLeft, ChevronRight, User, DollarSign, ShoppingCart, Activity, CalendarDays, Download } from 'lucide-react'
+import { Wrench, LogOut, BarChart3, Calendar, Users, Settings, ChevronLeft, ChevronRight, User, DollarSign, ShoppingCart, Activity, CalendarDays, Download, Ban } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
@@ -71,13 +71,14 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     const token = localStorage.getItem('access_token')
     const headers = { 'Authorization': `Bearer ${token}` }
+    let fetchedUsers: any[] = []
 
     try {
       // Fetch Users
       const usersRes = await fetch('http://localhost:3000/users', { headers })
       if (usersRes.ok) {
-        const usersData = await usersRes.json()
-        setUsers(usersData)
+        fetchedUsers = await usersRes.json()
+        setUsers(fetchedUsers)
       }
 
       // Fetch Bookings
@@ -87,7 +88,10 @@ export default function AdminDashboard() {
         setBookings(bookingsData)
 
         // Calculate Stats
-        const totalRev = bookingsData.reduce((acc: number, curr: any) => acc + Number(curr.total_amount), 0)
+        const totalRev = bookingsData.reduce((acc: number, curr: any) => {
+          if (curr.status === 'CANCELLED') return acc;
+          return acc + Number(curr.total_amount);
+        }, 0)
         const pending = bookingsData.filter((b: any) => b.status === 'PENDING').length
         const completed = bookingsData.filter((b: any) => b.status === 'COMPLETED').length
 
@@ -95,7 +99,7 @@ export default function AdminDashboard() {
           totalRevenue: totalRev,
           pendingOrders: pending,
           completedOrders: completed,
-          totalCustomers: users.length // approximates
+          totalCustomers: fetchedUsers.length
         })
       }
     } catch (error) {
@@ -145,6 +149,50 @@ export default function AdminDashboard() {
       }
     } catch (e) {
       console.error("Assign error", e)
+    }
+  }
+
+  const handleUpdateUserRole = async (userId: number, newRole: string) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(`http://localhost:3000/users/${userId}/role`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: newRole })
+      });
+
+      if (res.ok) {
+        alert('Cập nhật vai trò thành công!');
+        fetchData();
+      } else {
+        alert('Cập nhật thất bại');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  const handleBanUser = async (userId: number) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(`http://localhost:3000/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        alert('Đã cấm tài khoản thành công!');
+        fetchData();
+      } else {
+        alert('Thao tác thất bại');
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -464,18 +512,53 @@ export default function AdminDashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>ID</TableHead>
+                      <TableHead>Tên đầy đủ</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Vai trò</TableHead>
-                      <TableHead>Họ tên</TableHead>
+                      <TableHead className="text-right">Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {users.map((u: any) => (
-                      <TableRow key={u.id}>
+                      <TableRow key={u.id} className={u.status === 0 ? 'opacity-50 bg-muted/50' : ''}>
                         <TableCell>{u.id}</TableCell>
-                        <TableCell>{u.email}</TableCell>
-                        <TableCell>{u.role}</TableCell>
-                        <TableCell>{u.first_name} {u.last_name}</TableCell>
+                        <TableCell className="font-medium">{u.full_name}</TableCell>
+                        <TableCell>
+                          <div>{u.email}</div>
+                          {u.status === 0 && <span className="text-xs text-red-500 font-bold">Bị cấm</span>}
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            disabled={u.status === 0 || u.role === 'ADMIN'}
+                            value={u.role}
+                            onValueChange={(val) => handleUpdateUserRole(u.id, val)}
+                          >
+                            <SelectTrigger className="w-[140px] h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="CUSTOMER">CUSTOMER</SelectItem>
+                              <SelectItem value="TECHNICIAN">TECHNICIAN</SelectItem>
+                              <SelectItem value="ADMIN">ADMIN</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {u.status !== 0 && u.role !== 'ADMIN' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-red-500 hover:text-red-700 hover:bg-red-100"
+                              onClick={() => {
+                                if (confirm(`Bạn có chắc chắn muốn cấm tài khoản ${u.email}?`)) {
+                                  handleBanUser(u.id);
+                                }
+                              }}
+                            >
+                              <Ban className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

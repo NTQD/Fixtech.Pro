@@ -1,13 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { BookingItem } from './booking-item.entity';
-
-export enum BookingStatus {
-    PENDING = 'PENDING',
-    CONFIRMED = 'CONFIRMED',
-    IN_PROGRESS = 'IN_PROGRESS',
-    COMPLETED = 'COMPLETED',
-    CANCELLED = 'CANCELLED',
-}
+import { BookingHistory } from './booking-history.entity';
+import { BookingStatus } from './booking-status.enum';
 
 @Entity('bookings')
 export class Booking {
@@ -55,6 +49,9 @@ export class Booking {
 
     @OneToMany(() => BookingItem, (item) => item.booking, { cascade: true })
     items: BookingItem[];
+
+    @OneToMany(() => BookingHistory, (history) => history.booking, { cascade: true })
+    history: BookingHistory[];
 
     @CreateDateColumn()
     created_at: Date;

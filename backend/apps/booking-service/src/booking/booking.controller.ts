@@ -20,8 +20,8 @@ export class BookingController {
     @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Get all bookings' })
-    findAll() {
-        return this.bookingService.findAll();
+    findAll(@Request() req) {
+        return this.bookingService.findAll(req.user);
     }
 
     @Get('my-bookings')
@@ -67,5 +67,10 @@ export class BookingController {
     @ApiOperation({ summary: 'Add service to booking' })
     addService(@Param('id') id: number, @Body() body: { serviceId: string }) {
         return this.bookingService.addServiceToBooking(id, body.serviceId);
+    }
+    @Patch(':id/cancel')
+    @ApiOperation({ summary: 'Cancel a booking' })
+    cancel(@Param('id') id: number, @Request() req) {
+        return this.bookingService.cancelBooking(id, req.user);
     }
 }

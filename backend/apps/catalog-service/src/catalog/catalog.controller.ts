@@ -24,12 +24,22 @@ export class CatalogController {
         return this.catalogService.createService(createServiceDto);
     }
 
+    @Get('services/:id')
+    @ApiOperation({ summary: 'Get service by ID' })
+    getService(@Param('id') id: string) {
+        return this.catalogService.findOneService(id);
+    }
+
     @Get('parts')
-    @ApiBearerAuth()
-    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'List all parts' })
     getParts() {
         return this.catalogService.findAllParts();
+    }
+
+    @Get('parts/:id')
+    @ApiOperation({ summary: 'Get part by ID' })
+    getPart(@Param('id') id: string) {
+        return this.catalogService.findOnePart(Number(id));
     }
 
     @Post('parts')

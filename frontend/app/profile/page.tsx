@@ -37,6 +37,7 @@ export default function ProfilePage() {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const [history, setHistory] = useState<any[]>([])
+    const [joinedDate, setJoinedDate] = useState('01/01/2024')
 
     useEffect(() => {
         const userStr = localStorage.getItem('user')
@@ -65,8 +66,12 @@ export default function ProfilePage() {
             }
 
             // Set User Info from LocalStorage
-            setName(user.name || (userRole === 'admin' ? 'Administrator' : 'Khách hàng'))
+            setName(user.full_name || (userRole === 'admin' ? 'Administrator' : 'Khách hàng'))
             setPhone(user.phone || '')
+            // Ensure created_at is handled
+            if (user.created_at) {
+                setJoinedDate(new Date(user.created_at).toLocaleDateString('vi-VN'))
+            }
 
             setIsLoading(false)
 
@@ -114,27 +119,83 @@ export default function ProfilePage() {
         }
     }
 
-    const handleSaveProfile = () => {
+    const handleSaveProfile = async () => {
         setIsSaving(true)
-        setTimeout(() => {
-            setIsSaving(false)
-            alert('Thông tin cá nhân và ảnh đại diện đã được cập nhật!')
-        }, 1000)
+        try {
+            const userStr = localStorage.getItem('user');
+            const token = localStorage.getItem('access_token');
+            if (!userStr || !token) return;
+            const user = JSON.parse(userStr);
+
+            const res = await fetch(`http://localhost:3000/users/${user.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    full_name: name,
+                    phone: phone,
+                    avatar_url: avatarPreview
+                })
+            });
+
+            if (res.ok) {
+                // Update local storage
+                const updatedUser = { ...user, full_name: name, phone: phone, avatar_url: avatarPreview };
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+
+                alert('Thông tin cá nhân và ảnh đại diện đã được cập nhật!');
+            } else {
+                alert('Cập nhật thất bại. Vui lòng thử lại.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Lỗi kết nối.');
+        } finally {
+            setIsSaving(false);
+        }
     }
 
-    const handleChangePassword = () => {
+    const handleChangePassword = async () => {
         if (newPassword !== confirmPassword) {
             alert('Mật khẩu mới không khớp!')
             return
         }
         setIsSaving(true)
-        setTimeout(() => {
-            setIsSaving(false)
-            setCurrentPassword('')
-            setNewPassword('')
-            setConfirmPassword('')
-            alert('Đổi mật khẩu thành công!')
-        }, 1000)
+        try {
+            const userStr = localStorage.getItem('user');
+            const token = localStorage.getItem('access_token');
+            if (!userStr || !token) return;
+            const user = JSON.parse(userStr);
+
+            const res = await fetch(`http://localhost:3000/users/${user.id}/password`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                })
+            });
+
+            if (res.ok) {
+                alert('Đổi mật khẩu thành công!');
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+            } else {
+                const data = await res.json();
+                alert(data.message || 'Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Lỗi kết nối.');
+        } finally {
+            setIsSaving(false);
+        }
     }
 
     if (isLoading) {
@@ -199,7 +260,7 @@ export default function ProfilePage() {
                             </div>
                             <div className="space-y-1">
                                 <Label className="text-xs text-muted-foreground">Tham gia từ</Label>
-                                <div className="font-medium">01/01/2024</div>
+                                <div className="font-medium">{joinedDate}</div>
                             </div>
                         </CardContent>
                     </Card>

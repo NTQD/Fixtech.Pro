@@ -1,62 +1,45 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { DataSource, Like } from 'typeorm';
-import { Booking, BookingStatus } from './entities/booking.entity';
+import { DataSource } from 'typeorm';
+import { Booking } from './entities/booking.entity';
+import { BookingStatus } from './entities/booking-status.enum';
 import { BookingItem } from './entities/booking-item.entity';
+import { BookingHistory } from './entities/booking-history.entity';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom, catchError, of } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class BookingService {
+    private authServiceUrl: string;
+    private catalogServiceUrl: string;
+
     constructor(
         private dataSource: DataSource,
-        private httpService: HttpService
-    ) { }
-
-    private async getUser(userId: number, token?: string) {
-        try {
-            const headers = token ? { Authorization: `Bearer ${token}` } : {};
-            // Assuming Auth Service internal endpoint or just getting user info
-            // For now, simpler validation: Check if user exists (mock or real call if we had an internal endpoint)
-            // But strict requirement says: "BookingService gửi một HTTP Request (GET) sang CatalogService"
-            // For User validation, we might skip or assume valid from JWT Middle
-            // But let's fetch profile if needed.
-            // Actually, we usually trust the token.
-            return true;
-        } catch (e) {
-            return false;
-        }
+        private httpService: HttpService,
+        private configService: ConfigService
+    ) {
+        this.authServiceUrl = this.configService.get<string>('AUTH_SERVICE_URL') || 'http://localhost:3002';
+        this.catalogServiceUrl = this.configService.get<string>('CATALOG_SERVICE_URL') || 'http://localhost:3003';
     }
 
     private async getPart(partId: number): Promise<any> {
         try {
-            const response = await lastValueFrom(this.httpService.get(`http://localhost:3003/catalog/parts/${partId}`));
+            const url = `${this.catalogServiceUrl}/catalog/parts/${partId}`;
+            const response = await lastValueFrom(this.httpService.get(url));
             return response.data;
         } catch (e) {
+            console.error(`Failed to fetch part ${partId} from ${this.catalogServiceUrl}/catalog/parts/${partId}`, e.message, e.response?.data);
             return null;
-        }
-    }
-
-    private async updatePartStock(partId: number, quantity: number) {
-        try {
-            // Catalog Service needs an endpoint to decrease stock technically, but for now we might fail strict atomicity without Saga.
-            // User requirement: "Khi bạn sửa code ở CatalogService... không bị ảnh hưởng".
-            // We will just validate existence and price for now. 
-            // Updating stock across services requires Distributed Transaction (Saga), which might be too advanced.
-            // But we can try a simple PATCH call if Catalog exposes it.
-            // Let's assume Catalog has a stock decrease endpoint or we just validate availability.
-            // For strict safety without Sagas, we might just validate. 
-            // But let's try to call PATCH.
-            // await lastValueFrom(this.httpService.patch(`http://localhost:3003/catalog/parts/${partId}/stock`, { quantity: -quantity }));
-        } catch (e) {
-            console.error('Failed to update stock remote', e);
         }
     }
 
     private async getService(serviceId: string): Promise<any> {
         try {
-            const response = await lastValueFrom(this.httpService.get(`http://localhost:3003/catalog/services/${serviceId}`));
+            const url = `${this.catalogServiceUrl}/catalog/services/${serviceId}`;
+            const response = await lastValueFrom(this.httpService.get(url));
             return response.data;
         } catch (e) {
+            console.error(`Failed to fetch service ${serviceId} from ${this.catalogServiceUrl}/catalog/services/${serviceId}`, e.message, e.response?.data);
             return null;
         }
     }
@@ -76,10 +59,8 @@ export class BookingService {
                 total_amount: 0,
             });
 
-            // Technician assignment logic simplified for now (random tech logic removed to keep simple as we can't query Users easily without API)
-            // Or fetch technicians from Auth service: GET /users?role=TECHNICIAN
             try {
-                const techResponse: any = await lastValueFrom(this.httpService.get('http://localhost:3002/users?role=TECHNICIAN'));
+                const techResponse: any = await lastValueFrom(this.httpService.get(`${this.authServiceUrl}/users?role=TECHNICIAN`));
                 const technicians = techResponse.data;
                 if (technicians && technicians.length > 0) {
                     const randomTech = technicians[Math.floor(Math.random() * technicians.length)];
@@ -91,6 +72,15 @@ export class BookingService {
 
             await queryRunner.manager.save(booking);
 
+            // Record Initial History
+            const history = queryRunner.manager.create(BookingHistory, {
+                booking,
+                booking_id: booking.id,
+                status: BookingStatus.PENDING,
+                note: 'Order created'
+            });
+            await queryRunner.manager.save(history);
+
             let totalAmount = 0;
 
             if (items && items.length > 0) {
@@ -101,10 +91,8 @@ export class BookingService {
                         const part = await this.getPart(item.part_id);
                         if (!part) throw new NotFoundException(`Part ${item.part_id} not found`);
                         if (part.stock < item.quantity) {
-                            // This check is optimistic since we don't lock remote DB
                             throw new BadRequestException(`Insufficient stock for part: ${part.name}`);
                         }
-                        // TODO: Remote stock update (Saga pattern needed for robust)
                         price = Number(part.price);
                     } else if (item.service_id) {
                         const service = await this.getService(item.service_id);
@@ -139,94 +127,28 @@ export class BookingService {
         }
     }
 
-    async findAll() {
-        const bookings = await this.dataSource.getRepository(Booking).find({
-            relations: ['items'],
-            order: { created_at: 'DESC' }
-        });
-
-        // Enrich Data: Fetch User, Service, Part info
-        // Promise.all for performance
-        // This is a naive implementation (N+1 problem over network). 
-        // In prod, use Dataloader or Batch API (GET /users?ids=1,2,3).
-        // For this task, we loop or strictly simple fetch.
-
-        // Let's do a simple enrichment for the demo.
-        return Promise.all(bookings.map(async (booking) => {
-            // Fetch User
-            const userResponse: any = await lastValueFrom(
-                this.httpService.get(`http://localhost:3002/users/${booking.user_id}`).pipe(
-                    catchError(() => of({ data: null }))
-                )
-            );
-            const user = userResponse.data;
-
-            // Enrich Items
-            const items = await Promise.all(booking.items.map(async (item) => {
-                let part = null;
-                let service = null;
-                if (item.part_id) {
-                    const pRes: any = await lastValueFrom(
-                        this.httpService.get(`http://localhost:3003/catalog/parts/${item.part_id}`).pipe(
-                            catchError(() => of({ data: null }))
-                        )
-                    );
-                    part = pRes.data;
-                }
-                if (item.service_id) {
-                    const sRes: any = await lastValueFrom(
-                        this.httpService.get(`http://localhost:3003/catalog/services/${item.service_id}`).pipe(
-                            catchError(() => of({ data: null }))
-                        )
-                    );
-                    service = sRes.data;
-                }
-                return { ...item, part, service };
-            }));
-
-            return { ...booking, user, items };
-        }));
-    }
-
-    async findMyBookings(user: any) {
+    async findAll(currentUser: any) {
         const whereCondition: any = {};
-        if (user.role === 'TECHNICIAN') {
-            whereCondition.technician_id = user.userId;
-        } else {
-            whereCondition.user_id = user.userId;
+
+        // Access Control
+        if (currentUser?.role === 'TECHNICIAN') {
+            whereCondition.technician_id = currentUser.userId;
+        }
+        if (currentUser?.role === 'CUSTOMER') {
+            whereCondition.user_id = currentUser.userId;
         }
 
         const bookings = await this.dataSource.getRepository(Booking).find({
             where: whereCondition,
-            relations: ['items'],
+            relations: ['items', 'history'],
             order: { created_at: 'DESC' }
         });
 
-        // Same enrichment logic (Should be refactored to helper)
-        return Promise.all(bookings.map(async (booking) => {
-            const items = await Promise.all(booking.items.map(async (item) => {
-                let part = null;
-                let service = null;
-                if (item.part_id) {
-                    const pRes: any = await lastValueFrom(
-                        this.httpService.get(`http://localhost:3003/catalog/parts/${item.part_id}`).pipe(
-                            catchError(() => of({ data: null }))
-                        )
-                    );
-                    part = pRes.data;
-                }
-                if (item.service_id) {
-                    const sRes: any = await lastValueFrom(
-                        this.httpService.get(`http://localhost:3003/catalog/services/${item.service_id}`).pipe(
-                            catchError(() => of({ data: null }))
-                        )
-                    );
-                    service = sRes.data;
-                }
-                return { ...item, part, service };
-            }));
-            return { ...booking, user, items }; // User is self, so just attach 'user' obj if needed or leave as is
-        }));
+        return this.enrichBookings(bookings);
+    }
+
+    async findMyBookings(user: any) {
+        return this.findAll(user);
     }
 
     async updateStatus(id: number, status: string) {
@@ -237,31 +159,40 @@ export class BookingService {
         if (!booking) throw new NotFoundException(`Booking not found`);
 
         booking.status = status as BookingStatus;
-        return this.dataSource.getRepository(Booking).save(booking);
+        const savedBooking = await this.dataSource.getRepository(Booking).save(booking);
+
+        // Record History
+        const history = this.dataSource.getRepository(BookingHistory).create({
+            booking,
+            booking_id: booking.id,
+            status: status as BookingStatus,
+            note: `Status updated to ${status}`
+        });
+        await this.dataSource.getRepository(BookingHistory).save(history);
+
+        return savedBooking;
     }
 
     async assignTechnician(bookingId: number, technicianId: number) {
         const booking = await this.dataSource.getRepository(Booking).findOne({ where: { id: bookingId } });
         if (!booking) throw new NotFoundException(`Booking found`);
 
-        // Validate Tech
         try {
-            await lastValueFrom(this.httpService.get(`http://localhost:3002/users/${technicianId}`));
+            await lastValueFrom(this.httpService.get(`${this.authServiceUrl}/users/${technicianId}`));
         } catch {
             throw new NotFoundException(`Technician not found`);
         }
 
-        booking.technician_id = technicianId; // Decoupled
+        booking.technician_id = technicianId;
         return this.dataSource.getRepository(Booking).save(booking);
     }
 
     async addPartToBooking(bookingId: number, partId: number, quantity: number) {
-        // Similar logic to create: Fetch part, check stock, add item
         const booking = await this.dataSource.getRepository(Booking).findOne({ where: { id: bookingId } });
         if (!booking) throw new NotFoundException(`Booking not found`);
 
-        const part = await this.getPart(partId);
-        if (!part) throw new NotFoundException(`Part not found`);
+        const part = await this.getPart(Number(partId));
+        if (!part) throw new NotFoundException(`Part not found (ID: ${partId})`);
 
         const bookingItem = this.dataSource.getRepository(BookingItem).create({
             booking,
@@ -271,6 +202,10 @@ export class BookingService {
             price: Number(part.price),
         });
         await this.dataSource.getRepository(BookingItem).save(bookingItem);
+
+        // Update Total
+        await this.recalculateBookingTotal(booking.id);
+
         return booking;
     }
 
@@ -279,7 +214,7 @@ export class BookingService {
         if (!booking) throw new NotFoundException(`Booking not found`);
 
         const service = await this.getService(serviceId);
-        if (!service) throw new NotFoundException(`Service not found`);
+        if (!service) throw new NotFoundException(`Service not found (ID: ${serviceId})`);
 
         const bookingItem = this.dataSource.getRepository(BookingItem).create({
             booking,
@@ -289,12 +224,128 @@ export class BookingService {
             price: Number(service.base_price),
         });
         await this.dataSource.getRepository(BookingItem).save(bookingItem);
+
+        // Update Total
+        await this.recalculateBookingTotal(booking.id);
+
         return booking;
     }
 
+    private async recalculateBookingTotal(bookingId: number) {
+        const booking = await this.dataSource.getRepository(Booking).findOne({
+            where: { id: bookingId },
+            relations: ['items']
+        });
+        if (!booking) return;
+
+        const total = booking.items.reduce((sum, item) => {
+            return sum + (Number(item.price) * Number(item.quantity));
+        }, 0);
+
+        booking.total_amount = total;
+        await this.dataSource.getRepository(Booking).save(booking);
+    }
+
     async search(query: string) {
-        // Search local DB
-        // Logic same
-        return [];
+        if (!query) return [];
+
+        const qb = this.dataSource.getRepository(Booking).createQueryBuilder('booking')
+            .leftJoinAndSelect('booking.items', 'items')
+            .leftJoinAndSelect('booking.history', 'history')
+            .orderBy('booking.created_at', 'DESC');
+
+        if (!isNaN(Number(query))) {
+            qb.where(
+                '(booking.id = :id OR booking.customer_phone LIKE :phone)',
+                { id: Number(query), phone: `%${query}%` }
+            );
+        } else {
+            qb.where('booking.customer_phone LIKE :phone', { phone: `%${query}%` });
+        }
+
+        const bookings = await qb.getMany();
+        return this.enrichBookings(bookings);
+    }
+
+    async cancelBooking(id: number, currentUser: any) {
+        const booking = await this.dataSource.getRepository(Booking).findOne({ where: { id } });
+        if (!booking) throw new NotFoundException(`Booking not found`);
+
+        // Removed strict ownership/phone check as requested for simpler UX.
+        // We rely on the fact that the user must know the Booking ID to even see this button.
+
+        // Status Check
+        if ([BookingStatus.IN_PROGRESS, BookingStatus.COMPLETED, BookingStatus.CANCELLED].includes(booking.status)) {
+            throw new BadRequestException(`Cannot cancel booking with status ${booking.status}`);
+        }
+
+        booking.status = BookingStatus.CANCELLED;
+        const savedBooking = await this.dataSource.getRepository(Booking).save(booking);
+
+        // Record History
+        const history = this.dataSource.getRepository(BookingHistory).create({
+            booking,
+            booking_id: booking.id,
+            status: BookingStatus.CANCELLED,
+            note: currentUser ? `Cancelled by user ${currentUser.username || currentUser.userId}` : `Cancelled by customer`
+        });
+        await this.dataSource.getRepository(BookingHistory).save(history);
+
+        return savedBooking;
+    }
+
+    private async enrichBookings(bookings: Booking[]) {
+        return Promise.all(bookings.map(async (booking) => {
+            let user = null;
+            let technician = null;
+
+            try {
+                const userResponse: any = await lastValueFrom(
+                    this.httpService.get(`${this.authServiceUrl}/users/${booking.user_id}`).pipe(
+                        catchError(() => of({ data: null }))
+                    )
+                );
+                user = userResponse.data;
+            } catch (e) { }
+
+            if (booking.technician_id) {
+                try {
+                    const techResponse: any = await lastValueFrom(
+                        this.httpService.get(`${this.authServiceUrl}/users/${booking.technician_id}`).pipe(
+                            catchError(() => of({ data: null }))
+                        )
+                    );
+                    technician = techResponse.data;
+                } catch (e) { }
+            }
+
+            const items = await Promise.all(booking.items.map(async (item) => {
+                let part = null;
+                let service = null;
+                if (item.part_id) {
+                    try {
+                        const pRes: any = await lastValueFrom(
+                            this.httpService.get(`${this.catalogServiceUrl}/catalog/parts/${item.part_id}`).pipe(
+                                catchError(() => of({ data: null }))
+                            )
+                        );
+                        part = pRes.data;
+                    } catch (e) { }
+                }
+                if (item.service_id) {
+                    try {
+                        const sRes: any = await lastValueFrom(
+                            this.httpService.get(`${this.catalogServiceUrl}/catalog/services/${item.service_id}`).pipe(
+                                catchError(() => of({ data: null }))
+                            )
+                        );
+                        service = sRes.data;
+                    } catch (e) { }
+                }
+                return { ...item, part, service };
+            }));
+
+            return { ...booking, user, technician, items };
+        }));
     }
 }

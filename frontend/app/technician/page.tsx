@@ -7,10 +7,13 @@ import { Textarea } from '@/components/ui/textarea'
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog'
+
+
 import {
     Select,
     SelectContent,
@@ -221,8 +224,8 @@ export default function TechnicianPage() {
     // Kanban Columns
     const kanbanColumns = [
         { id: 'PENDING', title: 'Chờ tiếp nhận', icon: AlertCircle, color: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' },
-        { id: 'IN_PROGRESS', title: 'Đang sửa chữa', icon: RotateCw, color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' },
         { id: 'CONFIRMED', title: 'Đã tiếp nhận', icon: CheckCircle2, color: 'text-orange-600 bg-orange-50 dark:bg-orange-900/20' },
+        { id: 'IN_PROGRESS', title: 'Đang sửa chữa', icon: RotateCw, color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' },
         { id: 'COMPLETED', title: 'Hoàn thành', icon: CheckCircle, color: 'text-green-600 bg-green-50 dark:bg-green-900/20' },
     ]
 
@@ -338,7 +341,7 @@ export default function TechnicianPage() {
             // 2. Add Parts
             if (partsToAdd.length > 0) {
                 for (const part of partsToAdd) {
-                    await fetch(`http://localhost:3000/bookings/${selectedJob.id}/parts`, {
+                    const res = await fetch(`http://localhost:3000/bookings/${selectedJob.id}/parts`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -346,13 +349,14 @@ export default function TechnicianPage() {
                         },
                         body: JSON.stringify({ partId: part.partId, quantity: part.quantity })
                     })
+                    if (!res.ok) throw new Error(`Failed to add part: ${part.name}`)
                 }
             }
 
             // 3. Add Services [NEW]
             if (servicesToAdd.length > 0) {
                 for (const svc of servicesToAdd) {
-                    await fetch(`http://localhost:3000/bookings/${selectedJob.id}/services`, {
+                    const res = await fetch(`http://localhost:3000/bookings/${selectedJob.id}/services`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -360,6 +364,7 @@ export default function TechnicianPage() {
                         },
                         body: JSON.stringify({ serviceId: svc.serviceId })
                     })
+                    if (!res.ok) throw new Error(`Failed to add service: ${svc.name}`)
                 }
             }
 
@@ -368,9 +373,9 @@ export default function TechnicianPage() {
             setIsModalOpen(false)
             alert('Cập nhật thành công!')
 
-        } catch (e) {
+        } catch (e: any) {
             console.error(e)
-            alert('Có lỗi xảy ra khi cập nhật.')
+            alert(`Có lỗi xảy ra: ${e.message}`)
         } finally {
             setIsSaving(false)
         }
@@ -742,6 +747,9 @@ export default function TechnicianPage() {
                 <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Chi tiết sửa chữa: #{selectedJob?.displayId || selectedJob?.id}</DialogTitle>
+                        <DialogDescription>
+                            Cập nhật thông tin sửa chữa, thêm linh kiện hoặc dịch vụ cho đơn hàng này.
+                        </DialogDescription>
                     </DialogHeader>
                     {selectedJob && (
                         <div className="space-y-6 py-4">

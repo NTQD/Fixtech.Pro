@@ -48,7 +48,12 @@ export default function LoginPage() {
           }
         }
       } else {
-        setError('Đăng nhập thất bại. Kiểm tra lại email hoặc mật khẩu.')
+        const errData = await response.json();
+        if (errData.message === 'Account is banned') {
+          setError('Tài khoản của bạn đã bị cấm. Vui lòng liên hệ quản trị viên.');
+        } else {
+          setError('Đăng nhập thất bại. Kiểm tra lại email hoặc mật khẩu.');
+        }
       }
     } catch (err) {
       console.error(err)

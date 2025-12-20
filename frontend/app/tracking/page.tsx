@@ -58,38 +58,45 @@ function TrackingContent() {
 
     const mapBookingToTracking = (b: any) => {
         // Map backend status to timeline steps
-        // Backend statuses: Pending, Confirmed, In Progress, Completed, Cancelled
         const steps = [
-            { id: 'pending', label: 'Đã tiếp nhận' },
-            { id: 'confirmed', label: 'Đang kiểm tra' },
-            { id: 'in_progress', label: 'Đang sửa chữa' },
-            { id: 'completed', label: 'Hoàn tất' }
+            { id: 'PENDING', label: 'Đã tiếp nhận' },
+            { id: 'CONFIRMED', label: 'Đang kiểm tra' },
+            { id: 'IN_PROGRESS', label: 'Đang sửa chữa' },
+            { id: 'COMPLETED', label: 'Hoàn tất' }
         ]
 
-        let currentStepIndex = 0
-        const statusLower = b.status.toLowerCase()
+        const history = b.history || [];
+        const currentStatus = b.status;
 
-        if (statusLower === 'pending') currentStepIndex = 0
-        else if (statusLower === 'confirmed') currentStepIndex = 1
-        else if (statusLower === 'in progress' || statusLower === 'in_progress') currentStepIndex = 2
-        else if (statusLower === 'completed') currentStepIndex = 3
-        else currentStepIndex = -1 // Cancelled or unknown
+        // Helper to find time for a specific status
+        const getTimeForStatus = (statusId: string) => {
+            // Find the *first* time this status was recorded (or last, depending on preference. Usually first occurrence)
+            // But usually we want to know when it *entered* that stage.
+            const entry = history.find((h: any) => h.status === statusId);
+            if (entry) {
+                return new Date(entry.created_at).toLocaleString('vi-VN');
+            }
+            // Fallback for PENDING if history missing (legacy)
+            if (statusId === 'PENDING' && b.created_at) {
+                return new Date(b.created_at).toLocaleString('vi-VN');
+            }
+            return '-';
+        }
+
+        // Determine if a step is "passed" or "active"
+        // We can use the index of the current status in the steps array
+        const statusOrder = ['PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+        const currentStatusIndex = statusOrder.indexOf(currentStatus);
 
         const timeline = steps.map((s, index) => {
-            let time = '-'
-            if (index === 0) {
-                time = b.created_at ? new Date(b.created_at).toLocaleString('vi-VN') : new Date().toLocaleString('vi-VN')
-            } else if (index === currentStepIndex) {
-                time = b.updated_at ? new Date(b.updated_at).toLocaleString('vi-VN') : '-'
-            } else if (index === 3 && currentStepIndex === 3) {
-                time = b.updated_at ? new Date(b.updated_at).toLocaleString('vi-VN') : '-'
-            }
+            const isCompleted = index <= currentStatusIndex && currentStatusIndex !== -1;
+            const time = getTimeForStatus(s.id);
 
             return {
                 status: s.id,
                 label: s.label,
-                completed: index <= currentStepIndex,
-                time: time
+                completed: isCompleted,
+                time: isCompleted && time === '-' ? (index === currentStatusIndex ? new Date(b.updated_at).toLocaleString('vi-VN') : '-') : time
             }
         })
 
@@ -100,8 +107,8 @@ function TrackingContent() {
             service: b.issue_description,
             estimatedCompletion: b.scheduled_date ? new Date(b.scheduled_date).toLocaleDateString('vi-VN') : 'N/A',
             timeline,
-            items: b.items || [], // [NEW] Pass items
-            total_amount: b.total_amount // [NEW] Pass total
+            items: b.items || [],
+            total_amount: b.total_amount
         }
     }
 
@@ -140,8 +147,44 @@ function TrackingContent() {
                                 <CardTitle className="text-xl">Đơn hàng #BK-{trackingResult.id}</CardTitle>
                                 <p className="text-sm text-muted-foreground mt-1">Thiết bị: {trackingResult.device}</p>
                             </div>
-                            <div className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
-                                {trackingResult.status}
+                            <div className="flex gap-2 items-center">
+                                {['PENDING', 'CONFIRMED'].includes(trackingResult.status) && (
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={async () => {
+                                            if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.')) {
+                                                try {
+                                                    const token = localStorage.getItem('token');
+                                                    const headers: any = { 'Content-Type': 'application/json' };
+                                                    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                                                    const res = await fetch(`http://localhost:3000/bookings/${trackingResult.id}/cancel`, {
+                                                        method: 'PATCH',
+                                                        headers
+                                                    });
+
+                                                    if (!res.ok) {
+                                                        const err = await res.json();
+                                                        throw new Error(err.message || 'Hủy thất bại');
+                                                    }
+
+                                                    alert('Đã hủy đơn hàng thành công');
+                                                    handleSearch(null, trackingResult.id.toString()); // Refresh
+                                                } catch (e: any) {
+                                                    alert(e.message);
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        Hủy đơn hàng
+                                    </Button>
+                                )}
+                                <div className={`px-3 py-1 rounded-full text-sm font-medium ${trackingResult.status === 'CANCELLED' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                                    }`}>
+                                    {trackingResult.status}
+                                </div>
                             </div>
                         </div>
                     </CardHeader>
