@@ -61,6 +61,8 @@ services:
       - JWT_SECRET=super-secret-key
     depends_on:
       - db
+    volumes:
+      - ./uploads:/usr/src/app/uploads
 
   catalog-service:
     build:

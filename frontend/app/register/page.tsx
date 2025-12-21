@@ -1,11 +1,11 @@
 'use client'
 
-// axios removed
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Wrench, Eye, EyeOff } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -41,16 +41,24 @@ export default function RegisterPage() {
           email,
           password,
           full_name: name,
-          phone
+          phone,
+          avatar_url: 'http://localhost:3000/uploads/avatars/user.png' // Set default avatar path explicitly
         }),
       })
 
       if (response.ok) {
-        alert('Đăng ký thành công! Vui lòng đăng nhập.')
-        window.location.href = '/login'
+        toast.success('Đăng ký thành công!', {
+          description: 'Chào mừng bạn đến với TechFix Pro. Vui lòng đăng nhập.',
+          duration: 3000,
+        })
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 1500)
       } else {
         const data = await response.json()
-        setError(data.message || 'Đăng ký thất bại.')
+        const errorMsg = data.message || 'Đăng ký thất bại.'
+        setError(errorMsg)
+        toast.error('Đăng ký thất bại', { description: errorMsg })
       }
     } catch (err) {
       console.error(err)

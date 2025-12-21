@@ -35,6 +35,8 @@ export const metadata: Metadata = {
   },
 }
 
+import { Toaster } from '@/components/ui/sonner'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -44,6 +46,7 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased`}>
         {children}
+        <Toaster position="top-right" />
         <Analytics />
       </body>
     </html>

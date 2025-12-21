@@ -246,7 +246,7 @@ export class BookingService {
         await this.dataSource.getRepository(Booking).save(booking);
     }
 
-    async search(query: string) {
+    async search(query: string, user: any) {
         if (!query) return [];
 
         const qb = this.dataSource.getRepository(Booking).createQueryBuilder('booking')
@@ -255,12 +255,27 @@ export class BookingService {
             .orderBy('booking.created_at', 'DESC');
 
         if (!isNaN(Number(query))) {
-            qb.where(
-                '(booking.id = :id OR booking.customer_phone LIKE :phone)',
-                { id: Number(query), phone: `%${query}%` }
-            );
+            const isShortQuery = query.length < 6; // Avoid broad phone matches for short numbers
+            if (isShortQuery) {
+                // Strict ID search only for short numbers
+                qb.where('booking.id = :id', { id: Number(query) });
+            } else {
+                // ID OR Phone for longer numbers
+                qb.where(
+                    '(booking.id = :id OR booking.customer_phone LIKE :phone)',
+                    { id: Number(query), phone: `%${query}%` }
+                );
+            }
         } else {
             qb.where('booking.customer_phone LIKE :phone', { phone: `%${query}%` });
+        }
+
+        // Restrict access for non-admin/tech users
+        const role = user.role.toLowerCase();
+        if (role !== 'admin' && !role.includes('tech')) {
+            // For customers, ONLY show their own bookings.
+            // We can match by user_id
+            qb.andWhere('booking.user_id = :userId', { userId: user.userId });
         }
 
         const bookings = await qb.getMany();

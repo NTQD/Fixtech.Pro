@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,7 +35,18 @@ function TrackingContent() {
         setTrackingResult(null)
 
         try {
-            const res = await fetch(`http://localhost:3000/bookings/search?q=${encodeURIComponent(query)}`)
+            const token = localStorage.getItem('access_token')
+            const headers: any = { 'Content-Type': 'application/json' }
+            if (token) headers['Authorization'] = `Bearer ${token}`
+
+            const res = await fetch(`http://localhost:3000/bookings/search?q=${encodeURIComponent(query)}`, {
+                headers
+            })
+
+            if (res.status === 401 || res.status === 403) {
+                setError('Bạn không có quyền truy cập đơn hàng này hoặc phiên đăng nhập đã hết hạn.')
+                return;
+            }
             if (!res.ok) throw new Error('Không tìm thấy đơn hàng')
 
             const data = await res.json()
@@ -153,28 +165,35 @@ function TrackingContent() {
                                         variant="destructive"
                                         size="sm"
                                         onClick={async () => {
-                                            if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.')) {
-                                                try {
-                                                    const token = localStorage.getItem('token');
-                                                    const headers: any = { 'Content-Type': 'application/json' };
-                                                    if (token) headers['Authorization'] = `Bearer ${token}`;
+                                            toast('Hủy đơn hàng?', {
+                                                description: 'Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.',
+                                                action: {
+                                                    label: 'Xác nhận hủy',
+                                                    onClick: async () => {
+                                                        try {
+                                                            const token = localStorage.getItem('token');
+                                                            const headers: any = { 'Content-Type': 'application/json' };
+                                                            if (token) headers['Authorization'] = `Bearer ${token}`;
 
-                                                    const res = await fetch(`http://localhost:3000/bookings/${trackingResult.id}/cancel`, {
-                                                        method: 'PATCH',
-                                                        headers
-                                                    });
+                                                            const res = await fetch(`http://localhost:3000/bookings/${trackingResult.id}/cancel`, {
+                                                                method: 'PATCH',
+                                                                headers
+                                                            });
 
-                                                    if (!res.ok) {
-                                                        const err = await res.json();
-                                                        throw new Error(err.message || 'Hủy thất bại');
+                                                            if (!res.ok) {
+                                                                const err = await res.json();
+                                                                throw new Error(err.message || 'Hủy thất bại');
+                                                            }
+
+                                                            toast.success('Đã hủy đơn hàng thành công');
+                                                            handleSearch(null, trackingResult.id.toString()); // Refresh
+                                                        } catch (e: any) {
+                                                            toast.error(e.message);
+                                                        }
                                                     }
-
-                                                    alert('Đã hủy đơn hàng thành công');
-                                                    handleSearch(null, trackingResult.id.toString()); // Refresh
-                                                } catch (e: any) {
-                                                    alert(e.message);
-                                                }
-                                            }
+                                                },
+                                                cancel: { label: 'Quay lại', onClick: () => { } }
+                                            })
                                         }}
                                     >
                                         Hủy đơn hàng
@@ -246,23 +265,23 @@ function TrackingContent() {
                                     {trackingResult.items.map((item: any) => (
                                         <tr key={item.id} className="border-b last:border-0 hover:bg-muted/20">
                                             <td className="py-3 px-6">
-                                                <div className="font-medium">{item.service ? item.service.title : (item.part ? item.part.name : 'Unknown')}</div>
+                                                <div className="font-medium">{item.service ? item.service.name : (item.part ? item.part.name : 'Unknown')}</div>
                                             </td>
                                             <td className="py-3 px-4 text-center">
-                                                <span className={`px-2 py-0.5 rounded-full text-xs border ${item.service ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-purple-50 text-purple-700 border-purple-200'}`}>
+                                                <span className={`px-2 py-0.5 rounded-full text-xs border whitespace-nowrap ${item.service ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-purple-50 text-purple-700 border-purple-200'}`}>
                                                     {item.service ? 'Dịch vụ' : 'Linh kiện'}
                                                 </span>
                                             </td>
                                             <td className="py-3 px-4 text-center">{item.quantity}</td>
-                                            <td className="py-3 px-6 text-right">{Number(item.price).toLocaleString()} đ</td>
-                                            <td className="py-3 px-6 text-right font-medium">{(Number(item.price) * item.quantity).toLocaleString()} đ</td>
+                                            <td className="py-3 px-6 text-right whitespace-nowrap">{Number(item.price).toLocaleString()} đ</td>
+                                            <td className="py-3 px-6 text-right font-medium whitespace-nowrap">{(Number(item.price) * item.quantity).toLocaleString()} đ</td>
                                         </tr>
                                     ))}
                                 </tbody>
                                 <tfoot className="bg-muted/20 font-medium">
                                     <tr>
                                         <td colSpan={4} className="py-4 px-6 text-right text-base">Tổng cộng:</td>
-                                        <td className="py-4 px-6 text-right text-base text-primary font-bold">
+                                        <td className="py-4 px-6 text-right text-base text-primary font-bold whitespace-nowrap">
                                             {Number(trackingResult.total_amount).toLocaleString()} đ
                                         </td>
                                     </tr>

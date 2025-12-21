@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ArrowLeft, Camera, Loader2, Save, Eye, EyeOff } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { toast } from 'sonner'
 
 export default function ProfilePage() {
     const router = useRouter()
@@ -22,6 +23,7 @@ export default function ProfilePage() {
     const [name, setName] = useState('')
     const [phone, setPhone] = useState('')
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
     // Password Fields
     const [currentPassword, setCurrentPassword] = useState('')
@@ -111,6 +113,7 @@ export default function ProfilePage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
+            setSelectedFile(file)
             const reader = new FileReader()
             reader.onloadend = () => {
                 setAvatarPreview(reader.result as string)
@@ -127,6 +130,30 @@ export default function ProfilePage() {
             if (!userStr || !token) return;
             const user = JSON.parse(userStr);
 
+            let newAvatarUrl = user.avatar_url;
+
+            // 1. Upload Avatar if selected
+            if (selectedFile) {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const uploadRes = await fetch(`http://localhost:3000/users/${user.id}/avatar`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!uploadRes.ok) {
+                    throw new Error('Upload ảnh thất bại');
+                }
+
+                const uploadData = await uploadRes.json();
+                newAvatarUrl = uploadData.avatar_url;
+            }
+
+            // 2. Update Info
             const res = await fetch(`http://localhost:3000/users/${user.id}`, {
                 method: 'PATCH',
                 headers: {
@@ -136,22 +163,26 @@ export default function ProfilePage() {
                 body: JSON.stringify({
                     full_name: name,
                     phone: phone,
-                    avatar_url: avatarPreview
+                    // Don't send avatar_url here to avoid overwriting with Base64 or old URL if we just uploaded
                 })
             });
 
             if (res.ok) {
                 // Update local storage
-                const updatedUser = { ...user, full_name: name, phone: phone, avatar_url: avatarPreview };
+                const updatedUser = { ...user, full_name: name, phone: phone, avatar_url: newAvatarUrl };
                 localStorage.setItem('user', JSON.stringify(updatedUser));
 
-                alert('Thông tin cá nhân và ảnh đại diện đã được cập nhật!');
+                // Update state to real URL (replace base64 preview)
+                setAvatarPreview(newAvatarUrl);
+                setSelectedFile(null);
+
+                toast.success('Thông tin cá nhân và ảnh đại diện đã được cập nhật!');
             } else {
-                alert('Cập nhật thất bại. Vui lòng thử lại.');
+                toast.error('Cập nhật thất bại. Vui lòng thử lại.');
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            alert('Lỗi kết nối.');
+            toast.error(e.message || 'Lỗi kết nối.');
         } finally {
             setIsSaving(false);
         }
@@ -159,7 +190,7 @@ export default function ProfilePage() {
 
     const handleChangePassword = async () => {
         if (newPassword !== confirmPassword) {
-            alert('Mật khẩu mới không khớp!')
+            toast.error('Mật khẩu mới không khớp!')
             return
         }
         setIsSaving(true)
@@ -182,17 +213,17 @@ export default function ProfilePage() {
             });
 
             if (res.ok) {
-                alert('Đổi mật khẩu thành công!');
+                toast.success('Đổi mật khẩu thành công!');
                 setCurrentPassword('');
                 setNewPassword('');
                 setConfirmPassword('');
             } else {
                 const data = await res.json();
-                alert(data.message || 'Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.');
+                toast.error(data.message || 'Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.');
             }
         } catch (e) {
             console.error(e);
-            alert('Lỗi kết nối.');
+            toast.error('Lỗi kết nối.');
         } finally {
             setIsSaving(false);
         }

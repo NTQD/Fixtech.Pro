@@ -56,9 +56,16 @@ build/
 vite.config.ts.timestamp-*
 .vite/
 
+
 # =========================
 #  Node.js backend
 # =========================
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/uploads/avatars/user.png
+!backend/uploads/avatars/admin.png
+!backend/uploads/avatars/technician.png
 # PM2 logs
 .pids
 *.pid

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -371,11 +372,11 @@ export default function TechnicianPage() {
             // Refresh
             await fetchBookings(token)
             setIsModalOpen(false)
-            alert('Cập nhật thành công!')
+            toast.success('Cập nhật thành công!')
 
         } catch (e: any) {
             console.error(e)
-            alert(`Có lỗi xảy ra: ${e.message}`)
+            toast.error(`Có lỗi xảy ra: ${e.message}`)
         } finally {
             setIsSaving(false)
         }

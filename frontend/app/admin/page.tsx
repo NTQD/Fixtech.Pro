@@ -5,6 +5,9 @@ import Link from 'next/link'
 import { Wrench, LogOut, BarChart3, Calendar, Users, Settings, ChevronLeft, ChevronRight, User, DollarSign, ShoppingCart, Activity, CalendarDays, Download, Ban } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner' // Added import
+
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -121,8 +124,9 @@ export default function AdminDashboard() {
 
       if (res.ok) {
         fetchData() // Refresh data
+        toast.success('Cập nhật trạng thái thành công')
       } else {
-        alert('Cập nhật thất bại!')
+        toast.error('Cập nhật thất bại!')
       }
     } catch (error) {
       console.error("Error updating status", error)
@@ -143,9 +147,9 @@ export default function AdminDashboard() {
 
       if (res.ok) {
         fetchData()
-        alert('Đã phân công kỹ thuật viên!')
+        toast.success('Đã phân công kỹ thuật viên!')
       } else {
-        alert('Lỗi phân công!')
+        toast.error('Lỗi phân công!')
       }
     } catch (e) {
       console.error("Assign error", e)
@@ -165,10 +169,10 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        alert('Cập nhật vai trò thành công!');
+        toast.success('Cập nhật vai trò thành công!');
         fetchData();
       } else {
-        alert('Cập nhật thất bại');
+        toast.error('Cập nhật thất bại');
       }
     } catch (e) {
       console.error(e);
@@ -186,10 +190,10 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        alert('Đã cấm tài khoản thành công!');
+        toast.success('Đã cấm tài khoản thành công!');
         fetchData();
       } else {
-        alert('Thao tác thất bại');
+        toast.error('Thao tác thất bại');
       }
     } catch (e) {
       console.error(e);
@@ -550,9 +554,17 @@ export default function AdminDashboard() {
                               size="icon"
                               className="text-red-500 hover:text-red-700 hover:bg-red-100"
                               onClick={() => {
-                                if (confirm(`Bạn có chắc chắn muốn cấm tài khoản ${u.email}?`)) {
-                                  handleBanUser(u.id);
-                                }
+                                toast(`Cấm tài khoản ${u.email}?`, {
+                                  description: 'Hành động này sẽ ngăn người dùng đăng nhập.',
+                                  action: {
+                                    label: 'Xác nhận',
+                                    onClick: () => handleBanUser(u.id)
+                                  },
+                                  cancel: {
+                                    label: 'Hủy',
+                                    onClick: () => { }
+                                  }
+                                })
                               }}
                             >
                               <Ban className="h-4 w-4" />

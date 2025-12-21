@@ -1,9 +1,12 @@
-import { Controller, Get, Param, Query, NotFoundException, Body, Patch, Delete, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Param, Query, NotFoundException, Body, Patch, Delete, BadRequestException, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity'; // Local import
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import * as bcrypt from 'bcrypt';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
 
 @ApiTags('Users')
 @Controller('users')
@@ -86,6 +89,35 @@ export class UsersController {
         if (!user) throw new NotFoundException(`User not found`);
 
         user.status = 0; // Ban (0 = Banned, 1 = Active)
+        return this.usersRepository.save(user);
+    }
+
+    @Post(':id/avatar')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: (req, file, cb) => {
+                const uploadPath = join(process.cwd(), 'uploads/avatars');
+                console.log('Upload Path:', uploadPath);
+                cb(null, uploadPath);
+            },
+            filename: (req, file, cb) => {
+                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+                return cb(null, `${randomName}${extname(file.originalname)}`);
+            }
+        })
+    }))
+    @ApiOperation({ summary: 'Upload user avatar' })
+    async uploadAvatar(@Param('id') id: number, @UploadedFile() file: any) {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) throw new NotFoundException(`User not found`);
+
+        const filename = file.filename;
+        console.log('Saved Avatar:', filename);
+
+        // Construct public URL
+        const avatarUrl = `http://localhost:3000/uploads/avatars/${file.filename}`;
+
+        user.avatar_url = avatarUrl;
         return this.usersRepository.save(user);
     }
 }

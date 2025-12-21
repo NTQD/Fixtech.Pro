@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -58,7 +59,7 @@ export default function BookingWizardPage() {
     const handleSubmit = async () => {
         const token = localStorage.getItem('access_token')
         if (!token) {
-            alert('Vui lòng đăng nhập để đặt lịch!')
+            toast.error('Vui lòng đăng nhập để đặt lịch!')
             router.push('/login')
             return
         }
@@ -109,11 +110,11 @@ export default function BookingWizardPage() {
             } else {
                 const errData = await res.json()
                 console.error('Wizard Error:', JSON.stringify(errData, null, 2))
-                alert(`Lỗi đặt lịch: ${errData.message || JSON.stringify(errData)}`)
+                toast.error(`Lỗi đặt lịch: ${errData.message || JSON.stringify(errData)}`)
             }
         } catch (error) {
             console.error('Network Error:', error)
-            alert('Lỗi kết nối server!')
+            toast.error('Lỗi kết nối server!')
         }
     }
 

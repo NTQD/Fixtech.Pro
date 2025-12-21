@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Calendar } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -33,7 +34,7 @@ export default function BookingPage() {
 
     const token = localStorage.getItem('access_token')
     if (!token) {
-      alert('Vui lòng đăng nhập để đặt lịch!')
+      toast.error('Vui lòng đăng nhập để đặt lịch!')
       router.push('/login')
       return
     }
@@ -60,15 +61,15 @@ export default function BookingPage() {
       })
 
       if (res.ok) {
-        alert('Đặt lịch thành công! Chúng tôi sẽ liên hệ sớm.')
+        toast.success('Đặt lịch thành công! Chúng tôi sẽ liên hệ sớm.')
         router.push('/profile') // Redirect to profile to see the new booking
       } else {
         const errData = await res.json()
-        alert(`Đặt lịch thất bại: ${errData.message || 'Lỗi không xác định'}`)
+        toast.error(`Đặt lịch thất bại: ${errData.message || 'Lỗi không xác định'}`)
       }
     } catch (error) {
       console.error('Booking Error:', error)
-      alert('Có lỗi xảy ra khi kết nối server')
+      toast.error('Có lỗi xảy ra khi kết nối server')
     }
   }
 

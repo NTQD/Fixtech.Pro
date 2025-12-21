@@ -33,9 +33,11 @@ export class BookingController {
     }
 
     @Get('search')
-    @ApiOperation({ summary: 'Search bookings by ID or Phone' })
-    search(@Query('q') query: string) {
-        return this.bookingService.search(query);
+    @UseGuards(AuthGuard('jwt')) // Add Guard
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Search bookings by ID or Phone (Restricted)' })
+    search(@Query('q') query: string, @Request() req) { // Add Request
+        return this.bookingService.search(query, req.user); // Pass user
     }
 
     @Patch(':id/status')
