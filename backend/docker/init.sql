@@ -26,13 +26,13 @@ CREATE TABLE IF NOT EXISTS users (
 -- Password is 'password' (bcrypt hash)
 
 INSERT IGNORE INTO users (email, password_hash, full_name, role, phone, avatar_url, created_at, updated_at) VALUES
-('admin@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Administrator', 'ADMIN', '0900000001', 'http://localhost:3000/uploads/avatars/admin.png', NOW(), NOW()),
-('admin1@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Administrator 2', 'ADMIN', '0900000002', 'http://localhost:3000/uploads/avatars/admin.png', NOW(), NOW()),
-('tech@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Technician 1', 'TECHNICIAN', '0900000003', 'http://localhost:3000/uploads/avatars/technician.png', NOW(), NOW()),
-('tech1@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Technician 2', 'TECHNICIAN', '0900000004', 'http://localhost:3000/uploads/avatars/technician.png', NOW(), NOW()),
-('tech2@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Technician 3', 'TECHNICIAN', '0900000005', 'http://localhost:3000/uploads/avatars/technician.png', NOW(), NOW()),
-('tech3@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Technician 4', 'TECHNICIAN', '0900000006', 'http://localhost:3000/uploads/avatars/technician.png', NOW(), NOW()),
-('test@mail.com', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Vu LN', 'CUSTOMER', '0961887630', 'http://localhost:3000/uploads/avatars/user.png', NOW(), NOW());
+('admin@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Administrator', 'ADMIN', '0900000001', 'http://localhost:3000/public/avatars/admin.png', NOW(), NOW()),
+('admin1@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Administrator 2', 'ADMIN', '0900000002', 'http://localhost:3000/public/avatars/admin.png', NOW(), NOW()),
+('tech@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Technician 1', 'TECHNICIAN', '0900000003', 'http://localhost:3000/public/avatars/technician.png', NOW(), NOW()),
+('tech1@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Technician 2', 'TECHNICIAN', '0900000004', 'http://localhost:3000/public/avatars/technician.png', NOW(), NOW()),
+('tech2@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Technician 3', 'TECHNICIAN', '0900000005', 'http://localhost:3000/public/avatars/technician.png', NOW(), NOW()),
+('tech3@techfix.pro', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Technician 4', 'TECHNICIAN', '0900000006', 'http://localhost:3000/public/avatars/technician.png', NOW(), NOW()),
+('test@mail.com', '$2b$10$iPm07F9ALCW.c9ofOCChpeQ9sdsSyimRGJ13E/N973GHg/VSoyrFa', 'Vu LN', 'CUSTOMER', '0961887630', 'http://localhost:3000/public/avatars/user.png', NOW(), NOW());
 
 USE techfix_catalog;
 

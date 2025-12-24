@@ -46,11 +46,27 @@ import {
     MoreHorizontal,
     AlertCircle,
     RotateCw,
+    Check,
     CheckCircle,
     Plus,
     Trash,
-    Save
+    Save,
+    ChevronsUpDown,
 } from 'lucide-react'
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -110,6 +126,7 @@ export default function TechnicianPage() {
     const [selectedPartId, setSelectedPartId] = useState<string>('')
     const [selectedServiceId, setSelectedServiceId] = useState<string>('') // [NEW]
     const [partQuantity, setPartQuantity] = useState<number>(1)
+    const [openPartCombobox, setOpenPartCombobox] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
     // Dashboard Calendar State
@@ -473,9 +490,14 @@ export default function TechnicianPage() {
                     <div className="flex items-center gap-3">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                                <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-black/10 hover:ring-black/30 dark:ring-white dark:hover:ring-white/90 transition-all">
                                     <Avatar className="h-10 w-10">
-                                        <AvatarImage src={currentUser?.avatar_url || "/avatars/tech.png"} alt="@tech" />
+                                        <AvatarImage
+                                            className={!currentUser?.avatar_url || ['user.png', 'admin.png', 'tech.png', 'technician.png', 'default'].some(s => currentUser.avatar_url?.includes(s)) ? "dark:invert" : ""}
+                                            src={currentUser?.avatar_url?.replace(/\/uploads\/avatars?/, '/public/avatars') || (currentUser?.role === 'TECHNICIAN' ? 'http://localhost:3000/public/avatars/technician.png' : "/avatars/tech.png")}
+                                            alt="@tech"
+                                            onError={(e) => e.currentTarget.src = "/placeholder-user.jpg"}
+                                        />
                                         <AvatarFallback className="bg-primary/10 text-primary font-bold">{currentUser?.email?.[0].toUpperCase() || 'T'}</AvatarFallback>
                                     </Avatar>
                                 </Button>
@@ -860,18 +882,58 @@ export default function TechnicianPage() {
                                 <div className="flex items-end gap-3 bg-card p-3 border border-border rounded-lg">
                                     <div className="flex-1 space-y-2 min-w-0">
                                         <label className="text-xs font-medium">Thêm vật tư/linh kiện</label>
-                                        <Select value={selectedPartId} onValueChange={setSelectedPartId}>
-                                            <SelectTrigger className="h-auto whitespace-normal text-left">
-                                                <SelectValue placeholder="Chọn linh kiện..." />
-                                            </SelectTrigger>
-                                            <SelectContent className="max-w-[400px]">
-                                                {availableParts.map(part => (
-                                                    <SelectItem key={part.id} value={part.id.toString()} className="whitespace-normal break-words">
-                                                        {part.name} (Tồn: {part.stock}) - {Number(part.price).toLocaleString()} đ
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <Popover open={openPartCombobox} onOpenChange={setOpenPartCombobox}>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    role="combobox"
+                                                    aria-expanded={openPartCombobox}
+                                                    className="w-full justify-between font-normal h-auto py-3 whitespace-normal text-left"
+                                                >
+                                                    <span className="truncate-none">
+                                                        {selectedPartId
+                                                            ? (() => {
+                                                                const p = availableParts.find((part) => part.id.toString() === selectedPartId)
+                                                                return p ? `${p.name} (Tồn: ${p.stock}) - ${Number(p.price).toLocaleString()} đ` : "Chọn linh kiện..."
+                                                            })()
+                                                            : "Tìm kiếm linh kiện..."}
+                                                    </span>
+                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-[400px] p-0" align="start">
+                                                <Command>
+                                                    <CommandInput placeholder="Nhập tên linh kiện..." />
+                                                    <CommandList>
+                                                        <CommandEmpty>Không tìm thấy linh kiện.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            {availableParts.map((part) => (
+                                                                <CommandItem
+                                                                    key={part.id}
+                                                                    value={`${part.name} ${part.id}`} // Search by name
+                                                                    onSelect={(currentValue) => {
+                                                                        console.log("Selected part:", part.id);
+                                                                        setSelectedPartId(part.id.toString() === selectedPartId ? "" : part.id.toString())
+                                                                        setOpenPartCombobox(false)
+                                                                    }}
+                                                                >
+                                                                    <Check
+                                                                        className={cn(
+                                                                            "mr-2 h-4 w-4",
+                                                                            selectedPartId === part.id.toString() ? "opacity-100" : "opacity-0"
+                                                                        )}
+                                                                    />
+                                                                    <div className="flex flex-col">
+                                                                        <span>{part.name}</span>
+                                                                        <span className="text-xs text-muted-foreground">Tồn: {part.stock} • {Number(part.price).toLocaleString()} đ</span>
+                                                                    </div>
+                                                                </CommandItem>
+                                                            ))}
+                                                        </CommandGroup>
+                                                    </CommandList>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
                                     </div>
                                     <div className="w-20 space-y-2">
                                         <label className="text-xs font-medium">SL</label>

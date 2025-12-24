@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Wrench, User, LogOut, LayoutDashboard } from 'lucide-react'
+import { Wrench, User, LogOut, LayoutDashboard, Sun, Moon, Laptop } from 'lucide-react'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,11 +11,20 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useRouter } from 'next/navigation'
 
+import { useTheme } from "next-themes"
+
+import { useConfig } from '@/contexts/ConfigContext'
+
 export function Navbar() {
+    const { config } = useConfig()
+    const { setTheme } = useTheme()
     const [user, setUser] = useState<{ role: string, email: string, avatar_url?: string } | null>(null)
     const [scrolled, setScrolled] = useState(false)
     const router = useRouter()
@@ -58,7 +67,7 @@ export function Navbar() {
                     <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
                         <Wrench className="w-5 h-5 text-primary-foreground" />
                     </div>
-                    <span className="font-bold text-lg tracking-tight">TechFix Pro</span>
+                    <span className="font-bold text-lg tracking-tight">{config.storeName}</span>
                 </Link>
 
                 {/* Centered Navigation */}
@@ -79,16 +88,24 @@ export function Navbar() {
                     {user ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-primary/10 hover:ring-primary/30 transition-all">
+                                <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-black/10 hover:ring-black/30 dark:ring-white dark:hover:ring-white/90 transition-all">
                                     <Avatar className="h-9 w-9">
-                                        <AvatarImage src={user.avatar_url || "/avatars/01.png"} alt="@user" />
+                                        <AvatarImage
+                                            className={!user.avatar_url || ['user.png', 'admin.png', 'tech.png', 'technician.png', 'default'].some(s => user.avatar_url?.includes(s)) ? "dark:invert" : ""}
+                                            src={user.avatar_url?.replace(/\/uploads\/avatars?/, '/public/avatars') || "http://localhost:3000/public/avatars/user.png"}
+                                            alt="@user"
+                                            onError={(e) => {
+                                                console.error("Failed to load avatar:", e.currentTarget.src);
+                                                e.currentTarget.src = "/placeholder-user.jpg";
+                                            }}
+                                        />
                                         <AvatarFallback className="bg-primary/5 text-primary font-bold">
                                             {user.email[0].toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="end" forceMount>
+                            <DropdownMenuContent className="w-56" align="end">
                                 <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
                                         <p className="text-sm font-medium leading-none">Tài khoản</p>
@@ -117,6 +134,28 @@ export function Navbar() {
                                         <span>Hồ sơ cá nhân</span>
                                     </Link>
                                 </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger>
+                                        <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                        <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                                        <span>Giao diện</span>
+                                    </DropdownMenuSubTrigger>
+                                    <DropdownMenuSubContent>
+                                        <DropdownMenuItem onClick={() => setTheme("light")}>
+                                            <Sun className="mr-2 h-4 w-4" />
+                                            <span>Sáng</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setTheme("dark")}>
+                                            <Moon className="mr-2 h-4 w-4" />
+                                            <span>Tối</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setTheme("system")}>
+                                            <Laptop className="mr-2 h-4 w-4" />
+                                            <span>Hệ thống</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuSub>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                                     <LogOut className="mr-2 h-4 w-4" />

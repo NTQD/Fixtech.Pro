@@ -1,7 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import { Wrench, Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react'
+import { useConfig } from '@/contexts/ConfigContext'
 
 export function Footer() {
+    const { config } = useConfig()
+
     return (
         <footer className="bg-card border-t border-border">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -13,10 +18,10 @@ export function Footer() {
                             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                                 <Wrench className="w-5 h-5 text-primary-foreground" />
                             </div>
-                            <span className="font-bold text-lg">TechFix Pro</span>
+                            <span className="font-bold text-lg">{config.storeName}</span>
                         </Link>
                         <p className="text-sm text-muted-foreground leading-relaxed">
-                            Dịch vụ sửa chữa và nâng cấp laptop chuyên nghiệp, uy tín hàng đầu. Cam kết chất lượng và bảo hành dài hạn.
+                            {config.welcomeText || 'Dịch vụ sửa chữa và nâng cấp laptop chuyên nghiệp, uy tín hàng đầu. Cam kết chất lượng và bảo hành dài hạn.'}
                         </p>
                     </div>
 
@@ -48,15 +53,15 @@ export function Footer() {
                         <ul className="space-y-4 text-sm text-muted-foreground">
                             <li className="flex items-center gap-2">
                                 <MapPin className="w-4 h-4 text-primary" />
-                                <span>56 Đ. Trần Phú, P. Mộ Lao, Hà Đông, Hà Nội</span>
+                                <span>{config.address}</span>
                             </li>
                             <li className="flex items-center gap-2">
                                 <Phone className="w-4 h-4 text-primary" />
-                                <span>1900 1009</span>
+                                <span>{config.phone}</span>
                             </li>
                             <li className="flex items-center gap-2">
                                 <Mail className="w-4 h-4 text-primary" />
-                                <span>support@techfix.pro</span>
+                                <span>{config.email}</span>
                             </li>
                         </ul>
                         <div className="flex gap-4 mt-4">
@@ -74,7 +79,7 @@ export function Footer() {
                 </div>
 
                 <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground">
-                    <p>&copy; 2025 TechFix Pro. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} {config.storeName}. All rights reserved.</p>
                 </div>
             </div>
         </footer>

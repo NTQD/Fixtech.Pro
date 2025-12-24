@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ArrowLeft, Camera, Loader2, Save, Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, Camera, Loader2, Save, Eye, EyeOff, Star } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
+import { RatingModal } from '@/components/booking/rating-modal'
 
 export default function ProfilePage() {
     const router = useRouter()
@@ -40,6 +41,12 @@ export default function ProfilePage() {
 
     const [history, setHistory] = useState<any[]>([])
     const [joinedDate, setJoinedDate] = useState('01/01/2024')
+    const [reviewStats, setReviewStats] = useState({ score: 0, count: 0 })
+
+    // Rating State
+    const [isRatingOpen, setIsRatingOpen] = useState(false)
+    const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null)
+    const [isSubmittingRating, setIsSubmittingRating] = useState(false)
 
     useEffect(() => {
         const userStr = localStorage.getItem('user')
@@ -64,7 +71,7 @@ export default function ProfilePage() {
             setRole(userRole)
             setEmail(userEmail)
             if (userAvatar) {
-                setAvatarPreview(userAvatar)
+                setAvatarPreview(userAvatar.replace(/\/uploads\/avatars?/, '/public/avatars'))
             }
 
             // Set User Info from LocalStorage
@@ -81,6 +88,27 @@ export default function ProfilePage() {
             if (tokenStr) {
                 fetchHistory(tokenStr)
             }
+            // Fetch latest user details (including reputation)
+            const fetchUserDetails = async () => {
+                try {
+                    const res = await fetch(`http://localhost:3000/users/${user.id}`, {
+                        headers: { 'Authorization': `Bearer ${tokenStr}` }
+                    });
+                    if (res.ok) {
+                        const userData = await res.json();
+                        setReviewStats({
+                            score: Number(userData.reputation_score) || 0,
+                            count: Number(userData.total_rated_orders) || 0
+                        });
+                        // Update other fields if needed, but local storage is usually enough for basic info
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch user details", e);
+                }
+            };
+
+            if (tokenStr) fetchUserDetails();
+
         } catch (e) {
             router.push('/login')
         }
@@ -229,6 +257,45 @@ export default function ProfilePage() {
         }
     }
 
+    const handleRateClick = (bookingId: number) => {
+        setSelectedBookingId(bookingId)
+        setIsRatingOpen(true)
+    }
+
+    const handleRateSubmit = async (rating: number, comment: string) => {
+        if (!selectedBookingId) return
+        setIsSubmittingRating(true)
+        try {
+            const token = localStorage.getItem('access_token')
+            const res = await fetch(`http://localhost:3000/bookings/${selectedBookingId}/rate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    technician_rating: rating,
+                    comment: comment
+                })
+            })
+
+            if (res.ok) {
+                toast.success('Cảm ơn bạn đã đánh giá!')
+                setIsRatingOpen(false)
+                // Refresh history to update is_rated status
+                const tokenStr = localStorage.getItem('access_token')
+                if (tokenStr) fetchHistory(tokenStr)
+            } else {
+                const data = await res.json()
+                toast.error(data.message || 'Gửi đánh giá thất bại')
+            }
+        } catch (e) {
+            toast.error('Lỗi kết nối')
+        } finally {
+            setIsSubmittingRating(false)
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -256,8 +323,15 @@ export default function ProfilePage() {
                     <Card>
                         <CardHeader className="text-center">
                             <div className="mx-auto w-32 h-32 relative mb-4 group cursor-pointer" onClick={handleAvatarClick}>
-                                <Avatar className="w-32 h-32 transition-opacity group-hover:opacity-80">
-                                    <AvatarImage src={avatarPreview || defaultAvatar} className="object-cover" />
+                                <Avatar className="w-32 h-32 transition-opacity group-hover:opacity-80 ring-4 ring-black/10 dark:ring-white">
+                                    <AvatarImage
+                                        src={avatarPreview || defaultAvatar}
+                                        className={`object-cover ${!avatarPreview || ['user.png', 'admin.png', 'tech.png', 'technician.png', 'default'].some(s => avatarPreview?.includes(s)) ? 'dark:invert' : ''}`}
+                                        onError={(e) => {
+                                            console.error("Avatar error", e.currentTarget.src);
+                                            e.currentTarget.src = "/placeholder-user.jpg";
+                                        }}
+                                    />
                                     <AvatarFallback className="text-4xl">{avatarFallback}</AvatarFallback>
                                 </Avatar>
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
@@ -281,6 +355,18 @@ export default function ProfilePage() {
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
+                            {role === 'technician' && (
+                                <div className="space-y-1">
+                                    <Label className="text-xs text-muted-foreground">Độ uy tín</Label>
+                                    <div className="flex items-center gap-2 font-medium text-amber-600">
+                                        <div className="flex items-center bg-amber-100 px-2 py-1 rounded-md">
+                                            <Star className="w-4 h-4 fill-current mr-1" />
+                                            <span>{reviewStats.score}</span>
+                                        </div>
+                                        <span className="text-muted-foreground text-sm">({reviewStats.count} đánh giá)</span>
+                                    </div>
+                                </div>
+                            )}
                             <div className="space-y-1">
                                 <Label className="text-xs text-muted-foreground">Email</Label>
                                 <div className="font-medium break-all">{email}</div>
@@ -486,9 +572,16 @@ export default function ProfilePage() {
                                                                 </p>
                                                             )}
                                                         </div>
-                                                        <Button variant="outline" size="sm" asChild className="hover:bg-primary hover:text-primary-foreground transition-colors">
-                                                            <Link href={`/tracking?id=${booking.id}`}>Chi tiết</Link>
-                                                        </Button>
+                                                        <div className="flex gap-2">
+                                                            {booking.status === 'COMPLETED' && !booking.is_rated && (
+                                                                <Button size="sm" onClick={() => handleRateClick(booking.id)} className="bg-yellow-500 hover:bg-yellow-600 text-white">
+                                                                    Đánh giá
+                                                                </Button>
+                                                            )}
+                                                            <Button variant="outline" size="sm" asChild className="hover:bg-primary hover:text-primary-foreground transition-colors">
+                                                                <Link href={`/tracking?id=${booking.id}`}>Chi tiết</Link>
+                                                            </Button>
+                                                        </div>
                                                     </div>
                                                 )
                                             })
@@ -500,6 +593,13 @@ export default function ProfilePage() {
                     </div>
                 </div>
             </div>
+
+            <RatingModal
+                isOpen={isRatingOpen}
+                onClose={() => setIsRatingOpen(false)}
+                onSubmit={handleRateSubmit}
+                isSubmitting={isSubmittingRating}
+            />
         </div>
     )
 }

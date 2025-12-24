@@ -7,7 +7,37 @@ import { Footer } from '@/components/layout/Footer'
 import Link from 'next/link'
 import { ArrowRight, CheckCircle, Laptop, Wrench, Shield, Clock } from 'lucide-react'
 
+import { AutoImageSlider } from '@/components/ui/auto-image-slider'
+
 export default function LandingPage() {
+  const heroImages = [
+    "http://localhost:3000/public/home/lap1.webp",
+    "http://localhost:3000/public/home/lap2.webp",
+    "http://localhost:3000/public/home/lap3.webp",
+    "http://localhost:3000/public/home/lap4.webp",
+    "http://localhost:3000/public/home/lap5.webp"
+  ];
+
+  const whyChooseUsImages = [
+    "http://localhost:3000/public/home/book.webp",
+    "http://localhost:3000/public/home/good_tech.webp",
+    "http://localhost:3000/public/home/price_ok.webp",
+    "http://localhost:3000/public/home/guarantee.webp"
+  ];
+
+  const testimonials = [
+    { name: "Minh Tuấn", device: "MacBook Pro 2020", comment: "Máy mình bị vô nước tưởng chừng như bỏ đi rồi, may mà đem qua TechFix cứu được mainboard. Giá cả hợp lý, nhân viên nhiệt tình.", rating: 5, color: "bg-blue-100 text-blue-700" },
+    { name: "Bảo Châu", device: "Dell Inspiron", comment: "Nâng cấp SSD và RAM ở đây rất nhanh, lấy ngay trong 30 phút. Máy chạy mượt hơn hẳn. Rất hài lòng!", rating: 5, color: "bg-purple-100 text-purple-700" },
+    { name: "Xuân Trường", device: "Asus TUF Gaming", comment: "Dịch vụ chuyên nghiệp, có bảo hành đàng hoàng. Mình hay vệ sinh máy ở đây, kỹ thuật viên làm rất kỹ.", rating: 5, color: "bg-green-100 text-green-700" },
+    { name: "Ngọc Lan", device: "HP Pavilion", comment: "Thay màn hình chính hãng giá tốt hơn hãng nhiều. Màu sắc đẹp, không bị ám vàng. Vote 5 sao!", rating: 5, color: "bg-pink-100 text-pink-700" },
+    { name: "Minh Đức", device: "Lenovo ThinkPad", comment: "Cài lại Win bản quyền và bộ Office rất nhanh. Kỹ thuật viên hướng dẫn tận tình cách backup dữ liệu.", rating: 5, color: "bg-orange-100 text-orange-700" },
+    { name: "Thành Nam", device: "Acer Nitro 5", comment: "Tra keo tản nhiệt xong máy mát hẳn, chơi game không còn bị drop FPS nữa. Tuyệt vời!", rating: 5, color: "bg-red-100 text-red-700" },
+    { name: "Văn Ba", device: "Sony Vaio cũ", comment: "Máy chú cũ rồi mà các cháu vẫn sửa được, cứu lại được bao nhiêu ảnh kỷ niệm. Cảm ơn cửa hàng nhiều lắm.", rating: 5, color: "bg-indigo-100 text-indigo-700" },
+    { name: "Mỹ Hạnh", device: "MacBook Air M1", comment: "Cài bộ Adobe trọn gói dùng mượt mà, không bị lỗi vặt. Sẽ giới thiệu bạn bè qua đây.", rating: 5, color: "bg-teal-100 text-teal-700" },
+    { name: "Như Quỳnh", device: "Surface Pro 7", comment: "Thay pin chính hãng dùng trâu như mới mua. Nhân viên tư vấn rất có tâm, không vẽ bệnh.", rating: 5, color: "bg-yellow-100 text-yellow-700" },
+    { name: "Thanh Tùng", device: "MSI Gaming", comment: "Sửa nguồn laptop gaming uy tín nhất khu vực này. Bảo hành 6 tháng yên tâm hẳn.", rating: 5, color: "bg-cyan-100 text-cyan-700" }
+  ];
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
@@ -27,7 +57,7 @@ export default function LandingPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/booking/wizard">
-                    <Button size="lg" className="h-14 px-8 text-lg shadow-lg shadow-primary/20">
+                    <Button size="lg" className="h-14 px-8 text-lg shadow-lg shadow-primary/20 hover:scale-105 hover:shadow-primary/40 transition-all duration-300">
                       Đặt lịch ngay <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                   </Link>
@@ -48,11 +78,8 @@ export default function LandingPage() {
               </div>
               <div className="relative lg:block">
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border bg-card p-2">
-                  <div className="aspect-[4/3] bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
-                    {/* Placeholder for Hero Image */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-purple-500/10" />
-                    <Laptop className="w-32 h-32 text-primary/20" />
-
+                  <div className="aspect-[4/3] bg-muted rounded-xl bg-transparent relative overflow-hidden">
+                    <AutoImageSlider images={heroImages} interval={2000} className="rounded-xl" />
                   </div>
                 </div>
               </div>
@@ -69,7 +96,7 @@ export default function LandingPage() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              <Card className="hover:shadow-lg transition-all hover:border-primary/50 cursor-pointer group">
+              <Card className="hover:shadow-xl hover:-translate-y-2 transition-all duration-300 hover:border-primary/50 cursor-pointer group">
                 <CardContent className="p-8 space-y-4">
                   <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Wrench className="w-7 h-7" />
@@ -84,7 +111,7 @@ export default function LandingPage() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-all hover:border-primary/50 cursor-pointer group">
+              <Card className="hover:shadow-xl hover:-translate-y-2 transition-all duration-300 hover:border-primary/50 cursor-pointer group">
                 <CardContent className="p-8 space-y-4">
                   <div className="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-900/20 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Laptop className="w-7 h-7" />
@@ -99,7 +126,7 @@ export default function LandingPage() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-all hover:border-primary/50 cursor-pointer group">
+              <Card className="hover:shadow-xl hover:-translate-y-2 transition-all duration-300 hover:border-primary/50 cursor-pointer group">
                 <CardContent className="p-8 space-y-4">
                   <div className="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/20 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Shield className="w-7 h-7" />
@@ -118,55 +145,46 @@ export default function LandingPage() {
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-24 bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold mb-12">Khách hàng nói gì về chúng tôi?</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="p-8 text-left space-y-4">
-                  <div className="flex text-yellow-500">
-                    {[1, 2, 3, 4, 5].map(i => <span key={i}>★</span>)}
-                  </div>
-                  <p className="text-muted-foreground italic">"Máy mình bị vô nước tưởng chừng như bỏ đi rồi, may mà đem qua TechFix cứu được mainboard. Giá cả hợp lý, nhân viên nhiệt tình."</p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-border">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-700">A</div>
-                    <div>
-                      <h4 className="font-bold text-sm">Anh Tuấn</h4>
-                      <p className="text-xs text-muted-foreground">MacBook Pro 2020</p>
+        <section className="py-24 bg-background overflow-hidden relative">
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12">
+            <h2 className="text-3xl font-bold">Khách hàng nói gì về chúng tôi?</h2>
+            <p className="text-muted-foreground mt-2">Hơn 10,000 khách hàng hài lòng với dịch vụ tại TechFix Pro</p>
+          </div>
+
+          <div className="relative w-full">
+            <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-6">
+              {[...testimonials, ...testimonials].map((t, i) => (
+                <Card key={i} className="flex-shrink-0 w-[350px] md:w-[400px] hover:shadow-lg transition-all border-primary/10 bg-card/50 backdrop-blur-sm">
+                  <CardContent className="p-6 text-left space-y-3">
+                    {/* Row 1: Avatar + Name */}
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${t.color}`}>
+                        {t.name.split(' ').pop()?.[0]}
+                      </div>
+                      <h4 className="font-bold text-md">{t.name}</h4>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="p-8 text-left space-y-4">
-                  <div className="flex text-yellow-500">
-                    {[1, 2, 3, 4, 5].map(i => <span key={i}>★</span>)}
-                  </div>
-                  <p className="text-muted-foreground italic">"Nâng cấp SSD và RAM ở đây rất nhanh, lấy ngay trong 30 phút. Máy chạy mượt hơn hẳn. Rất hài lòng!"</p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-border">
-                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center font-bold text-purple-700">M</div>
-                    <div>
-                      <h4 className="font-bold text-sm">Chị Mai</h4>
-                      <p className="text-xs text-muted-foreground">Dell Inspiron</p>
+
+                    {/* Row 2: Stars */}
+                    <div className="flex text-yellow-500">
+                      {[1, 2, 3, 4, 5].map(star => <span key={star}>★</span>)}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="p-8 text-left space-y-4">
-                  <div className="flex text-yellow-500">
-                    {[1, 2, 3, 4, 5].map(i => <span key={i}>★</span>)}
-                  </div>
-                  <p className="text-muted-foreground italic">"Dịch vụ chuyên nghiệp, có bảo hành đàng hoàng. Mình hay vệ sinh máy ở đây, kỹ thuật viên làm rất kỹ."</p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-border">
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center font-bold text-green-700">H</div>
-                    <div>
-                      <h4 className="font-bold text-sm">Bạn Huy</h4>
-                      <p className="text-xs text-muted-foreground">Asus TUF Gaming</p>
+
+                    {/* Row 3: Device */}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                      <Laptop className="w-3 h-3" />
+                      {t.device}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+
+                    {/* Row 4: Comment */}
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      "{t.comment}"
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </section>
@@ -195,19 +213,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center justify-center">
                 <div className="w-full max-w-md aspect-square bg-gradient-to-br from-primary/10 to-secondary/10 rounded-3xl flex items-center justify-center border border-border/50 shadow-2xl relative overflow-hidden">
-                  {/* Decorative elements */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full" />
-                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/10 rounded-tr-full" />
-
-                  <div className="relative z-10 text-center">
-                    <div className="w-24 h-24 bg-background rounded-2xl shadow-lg mx-auto mb-4 flex items-center justify-center">
-                      <Shield className="w-12 h-12 text-primary" />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="h-2 w-32 bg-muted rounded-full mx-auto" />
-                      <div className="h-2 w-24 bg-muted/50 rounded-full mx-auto" />
-                    </div>
-                  </div>
+                  <AutoImageSlider images={whyChooseUsImages} interval={2000} className="rounded-3xl" />
                 </div>
               </div>
             </div>
@@ -223,7 +229,7 @@ export default function LandingPage() {
             </p>
             <div className="flex gap-4 justify-center">
               <Link href="/booking/wizard">
-                <Button size="lg" variant="secondary" className="text-lg px-8 py-6 h-auto font-semibold shadow-lg hover:shadow-xl transition-all">
+                <Button size="lg" variant="secondary" className="text-lg px-8 py-6 h-auto font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                   Đặt lịch ngay
                 </Button>
               </Link>

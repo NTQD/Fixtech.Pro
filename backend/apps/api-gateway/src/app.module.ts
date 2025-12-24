@@ -5,10 +5,15 @@ import { join } from 'path';
 
 @Module({
     imports: [
-        ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), 'uploads'),
-            serveRoot: '/uploads',
-        }),
+        ServeStaticModule.forRoot(
+            {
+                rootPath: join(process.cwd(), 'public'),
+                serveRoot: '/public',
+                serveStaticOptions: {
+                    index: false,
+                },
+            },
+        ),
     ],
     controllers: [AppController],
     providers: [],

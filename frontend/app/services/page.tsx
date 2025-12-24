@@ -99,7 +99,7 @@ export default function ServicesPage() {
           {/* Service Cards */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
             {filteredServices.map((service) => (
-              <Card key={service.id} className={`flex flex-col ${service.popular ? 'border-primary ring-1 ring-primary/20 shadow-lg' : ''}`}>
+              <Card key={service.id} className={`flex flex-col hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group ${service.popular ? 'border-primary ring-1 ring-primary/20 shadow-lg' : ''}`}>
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
                     <service.icon className="w-6 h-6" />

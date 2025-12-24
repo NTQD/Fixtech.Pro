@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Patch, Delete } from '@nestjs/common';
 import { CatalogService } from './catalog.service';
 import { Part } from './entities/part.entity';
 import { Service } from './entities/service.entity';
@@ -48,5 +48,35 @@ export class CatalogController {
     @ApiOperation({ summary: 'Create new part (Admin only)' })
     createPart(@Body() createPartDto: any) {
         return this.catalogService.createPart(createPartDto);
+    }
+
+    @Patch('parts/:id')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({ summary: 'Update part (Admin only)' })
+    updatePart(@Param('id') id: string, @Body() updatePartDto: any) {
+        return this.catalogService.updatePart(Number(id), updatePartDto);
+    }
+
+    @Delete('parts/:id')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({ summary: 'Delete part (Admin only)' })
+    deletePart(@Param('id') id: string) {
+        return this.catalogService.deletePart(Number(id));
+    }
+
+    @Get('config')
+    @ApiOperation({ summary: 'Get all system configurations' })
+    getConfigs() {
+        return this.catalogService.getAllConfigs();
+    }
+
+    @Post('config')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({ summary: 'Update system configurations (Admin only)' })
+    updateConfigs(@Body() configs: any) {
+        return this.catalogService.updateConfigs(configs);
     }
 }

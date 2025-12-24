@@ -3,7 +3,8 @@ import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Part } from './entities/part.entity';
-import { Service } from './entities/service.entity'; // Updated import
+import { Service } from './entities/service.entity';
+import { SystemConfig } from './entities/system-config.entity';
 
 @Injectable()
 export class CatalogService {
@@ -12,6 +13,8 @@ export class CatalogService {
         private servicesRepository: Repository<Service>,
         @InjectRepository(Part)
         private partsRepository: Repository<Part>,
+        @InjectRepository(SystemConfig)
+        private configRepository: Repository<SystemConfig>,
     ) { }
 
     // --- Services CRUD ---
@@ -53,5 +56,42 @@ export class CatalogService {
         const part = await this.findOnePart(id);
         part.stock += quantityChange;
         return this.partsRepository.save(part);
+    }
+
+    async updatePart(id: number, data: Partial<Part>) {
+        await this.partsRepository.update(id, data);
+        return this.findOnePart(id);
+    }
+
+    async deletePart(id: number) {
+        const result = await this.partsRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException(`Part ${id} not found`);
+        }
+        return { message: 'Part deleted successfully' };
+    }
+
+    // --- Config CRUD ---
+    async getAllConfigs() {
+        const configs = await this.configRepository.find();
+        // Convert to Key-Value object
+        return configs.reduce((acc, curr) => {
+            acc[curr.key] = curr.value;
+            return acc;
+        }, {});
+    }
+
+    async updateConfigs(configs: Record<string, string>) {
+        const promises = Object.entries(configs).map(async ([key, value]) => {
+            let config = await this.configRepository.findOne({ where: { key } });
+            if (config) {
+                config.value = value;
+            } else {
+                config = this.configRepository.create({ key, value });
+            }
+            return this.configRepository.save(config);
+        });
+        await Promise.all(promises);
+        return this.getAllConfigs();
     }
 }

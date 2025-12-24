@@ -4,6 +4,7 @@ import { Booking } from './entities/booking.entity';
 import { BookingStatus } from './entities/booking-status.enum';
 import { BookingItem } from './entities/booking-item.entity';
 import { BookingHistory } from './entities/booking-history.entity';
+import { BookingReview } from './entities/booking-review.entity';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom, catchError, of } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
@@ -148,7 +149,14 @@ export class BookingService {
     }
 
     async findMyBookings(user: any) {
-        return this.findAll(user);
+        // STRICTLY return bookings created by this user ID, ignoring their Admin/Tech role.
+        // This is for the "Profile" page where they view their own personal requests.
+        const bookings = await this.dataSource.getRepository(Booking).find({
+            where: { user_id: user.userId },
+            relations: ['items', 'history'],
+            order: { created_at: 'DESC' }
+        });
+        return this.enrichBookings(bookings);
     }
 
     async updateStatus(id: number, status: string) {
@@ -309,10 +317,59 @@ export class BookingService {
         return savedBooking;
     }
 
+    async rateBooking(bookingId: number, ratingDto: { technician_rating: number, comment: string }, user: any) {
+        const booking = await this.dataSource.getRepository(Booking).findOne({ where: { id: bookingId } });
+        if (!booking) throw new NotFoundException(`Booking not found`);
+
+        if (booking.user_id !== user.userId) {
+            throw new BadRequestException(`You can only rate your own bookings`);
+        }
+
+        if (booking.status !== BookingStatus.COMPLETED) {
+            throw new BadRequestException(`Only completed bookings can be rated`);
+        }
+
+        if (!booking.technician_id) {
+            // Technically shouldn't happen for completed bookings, but safety check
+            throw new BadRequestException(`No technician assigned to this booking`);
+        }
+
+        // Check availability using BookingReview entity
+        // I need to make sure BookingReview is imported. I will add it to the top imports in a separate check or assume it's added.
+        // Actually, let's use the string name 'BookingReview' or import it.
+        // I will add the import in a separate block to be safe.
+        const existingReview = await this.dataSource.getRepository(BookingReview).findOne({ where: { booking_id: bookingId } });
+        if (existingReview) {
+            throw new BadRequestException(`This booking has already been rated`);
+        }
+
+        const review = this.dataSource.getRepository(BookingReview).create({
+            booking_id: bookingId,
+            technician_rating: ratingDto.technician_rating,
+            comment: ratingDto.comment
+        });
+
+        await this.dataSource.getRepository(BookingReview).save(review);
+
+        // Update Technician Reputation
+        try {
+            await lastValueFrom(this.httpService.patch(`${this.authServiceUrl}/users/${booking.technician_id}/reputation`, {
+                rating: ratingDto.technician_rating
+            }));
+        } catch (e) {
+            console.error(`Failed to update reputation for technician ${booking.technician_id}`, e.message);
+            // We don't rollback the review because the rating is valid, just the sync failed. 
+            // We could re-sync later or log it.
+        }
+
+        return review;
+    }
+
     private async enrichBookings(bookings: Booking[]) {
         return Promise.all(bookings.map(async (booking) => {
             let user = null;
             let technician = null;
+            let review = null;
 
             try {
                 const userResponse: any = await lastValueFrom(
@@ -333,6 +390,10 @@ export class BookingService {
                     technician = techResponse.data;
                 } catch (e) { }
             }
+
+            try {
+                review = await this.dataSource.getRepository(BookingReview).findOne({ where: { booking_id: booking.id } });
+            } catch (e) { }
 
             const items = await Promise.all(booking.items.map(async (item) => {
                 let part = null;
@@ -360,7 +421,7 @@ export class BookingService {
                 return { ...item, part, service };
             }));
 
-            return { ...booking, user, technician, items };
+            return { ...booking, user, technician, items, is_rated: !!review, review };
         }));
     }
 }

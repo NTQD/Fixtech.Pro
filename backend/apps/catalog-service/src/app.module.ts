@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { CatalogModule } from './catalog/catalog.module';
 import { Service } from './catalog/entities/service.entity';
 import { Part } from './catalog/entities/part.entity';
+import { SystemConfig } from './catalog/entities/system-config.entity';
 import { JwtStrategy } from './auth/jwt.strategy';
 
 @Module({
@@ -21,8 +22,8 @@ import { JwtStrategy } from './auth/jwt.strategy';
             username: process.env.DB_USERNAME || 'root',
             password: process.env.DB_PASSWORD || 'rootpassword',
             database: process.env.DB_DATABASE_CATALOG || 'techfix_catalog',
-            entities: [Service, Part],
-            synchronize: false, // Disable auto-sync to prevent conflicts with init.sql
+            entities: [Service, Part, SystemConfig],
+            synchronize: true, // Enable for dev to create tables
             autoLoadEntities: true,
         }),
         PassportModule,

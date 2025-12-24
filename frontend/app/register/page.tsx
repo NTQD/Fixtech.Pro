@@ -42,7 +42,7 @@ export default function RegisterPage() {
           password,
           full_name: name,
           phone,
-          avatar_url: 'http://localhost:3000/uploads/avatars/user.png' // Set default avatar path explicitly
+          avatar_url: 'http://localhost:3000/public/avatars/user.png' // Set default avatar path explicitly
         }),
       })
 
@@ -117,7 +117,7 @@ export default function RegisterPage() {
                 <div className="relative mt-1">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pr-10"
@@ -145,7 +145,7 @@ export default function RegisterPage() {
                 <div className="relative mt-1">
                   <Input
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pr-10"

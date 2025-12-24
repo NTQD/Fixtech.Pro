@@ -46,7 +46,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./uploads:/usr/src/app/uploads
+      - ./public:/usr/src/app/public
 
   auth-service:
     build:
@@ -62,7 +62,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./uploads:/usr/src/app/uploads
+      - ./public:/usr/src/app/public
 
   catalog-service:
     build:

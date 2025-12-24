@@ -75,4 +75,12 @@ export class BookingController {
     cancel(@Param('id') id: number, @Request() req) {
         return this.bookingService.cancelBooking(id, req.user);
     }
+
+    @Post(':id/rate')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Rate a completed booking' })
+    rate(@Param('id') id: number, @Body() body: { technician_rating: number, comment: string }, @Request() req) {
+        return this.bookingService.rateBooking(id, body, req.user);
+    }
 }

@@ -92,11 +92,24 @@ export class UsersController {
         return this.usersRepository.save(user);
     }
 
+    @Patch(':id/unban')
+    @ApiOperation({ summary: 'Unban user (Activate)' })
+    async unbanUser(@Param('id') id: number) {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) throw new NotFoundException(`User not found`);
+
+        user.status = 1; // Unban (Activate)
+        return this.usersRepository.save(user);
+    }
+
     @Post(':id/avatar')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: (req, file, cb) => {
-                const uploadPath = join(process.cwd(), 'uploads/avatars');
+                // Ensure directory exists or let middleware handle it if set up, 
+                // but standard diskStorage expects dir to exist often.
+                // Assuming public/avatars exists as per previous steps.
+                const uploadPath = join(process.cwd(), 'public/avatars');
                 console.log('Upload Path:', uploadPath);
                 cb(null, uploadPath);
             },
@@ -115,9 +128,28 @@ export class UsersController {
         console.log('Saved Avatar:', filename);
 
         // Construct public URL
-        const avatarUrl = `http://localhost:3000/uploads/avatars/${file.filename}`;
+        const avatarUrl = `http://localhost:3000/public/avatars/${file.filename}`;
 
         user.avatar_url = avatarUrl;
+        return this.usersRepository.save(user);
+    }
+    @Patch(':id/reputation')
+    @ApiOperation({ summary: 'Update technician reputation score' })
+    async updateReputation(@Param('id') id: number, @Body('rating') rating: number) {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) throw new NotFoundException(`User not found`);
+
+        if (rating < 1 || rating > 5) {
+            throw new BadRequestException('Rating must be between 1 and 5');
+        }
+
+        user.total_stars += rating;
+        user.total_rated_orders += 1;
+
+        // Calculate average and round to 1 decimal place
+        const avg = user.total_stars / user.total_rated_orders;
+        user.reputation_score = Math.round(avg * 10) / 10;
+
         return this.usersRepository.save(user);
     }
 }

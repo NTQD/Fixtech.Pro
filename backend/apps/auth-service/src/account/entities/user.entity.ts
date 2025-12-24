@@ -38,6 +38,15 @@ export class User {
     @Column({ default: 1 })
     status: number;
 
+    @Column({ type: 'decimal', precision: 3, scale: 1, default: 0 })
+    reputation_score: number;
+
+    @Column({ default: 0 })
+    total_stars: number;
+
+    @Column({ default: 0 })
+    total_rated_orders: number;
+
     @CreateDateColumn()
     created_at: Date;
 
