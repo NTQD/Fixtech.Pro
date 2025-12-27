@@ -8,6 +8,7 @@ import { BookingReview } from './entities/booking-review.entity';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom, catchError, of } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { parseDuration } from './utils/time.utils'; // Added import
 
 @Injectable()
 export class BookingService {
@@ -60,16 +61,46 @@ export class BookingService {
                 total_amount: 0,
             });
 
+            let assignedTechnicianId = null;
+
+            // --- SMART ASSIGNMENT LOGIC ---
             try {
-                const techResponse: any = await lastValueFrom(this.httpService.get(`${this.authServiceUrl}/users?role=TECHNICIAN`));
-                const technicians = techResponse.data;
-                if (technicians && technicians.length > 0) {
-                    const randomTech = technicians[Math.floor(Math.random() * technicians.length)];
-                    booking.technician_id = randomTech.id;
+                // 1. Calculate Total Duration
+                let totalDurationMinutes = 0;
+                if (items && items.length > 0) {
+                    for (const item of items) {
+                        if (item.service_id) {
+                            const service = await this.getService(item.service_id);
+                            if (service) {
+                                totalDurationMinutes += parseDuration(service.estimated_duration);
+                            } else {
+                                totalDurationMinutes += 60; // Default buffer
+                            }
+                        }
+                    }
                 }
+                if (totalDurationMinutes === 0) totalDurationMinutes = 60; // Default if no services
+
+                // 2. Find Available Technician
+                assignedTechnicianId = await this.checkTechnicianAvailability(
+                    bookingData.scheduled_date,
+                    bookingData.scheduled_time,
+                    totalDurationMinutes
+                );
+
+                if (!assignedTechnicianId) {
+                    throw new BadRequestException('Tất cả kỹ thuật viên đều bận vào khung giờ này. Vui lòng chọn giờ khác.');
+                }
+                booking.technician_id = assignedTechnicianId;
+
             } catch (e) {
-                console.log('Failed to fetch technicians', e.message);
+                // If the error is our specific "Busy" error, we must re-throw it to stop the booking
+                if (e instanceof BadRequestException) {
+                    throw e;
+                }
+                console.log('Failed to check availability or fetch technicians, falling back to random (unsafe)', e.message);
             }
+            // -----------------------------
 
             await queryRunner.manager.save(booking);
 
@@ -239,7 +270,7 @@ export class BookingService {
         return booking;
     }
 
-    private async recalculateBookingTotal(bookingId: number) {
+    async recalculateBookingTotal(bookingId: number) {
         const booking = await this.dataSource.getRepository(Booking).findOne({
             where: { id: bookingId },
             relations: ['items']
@@ -252,6 +283,78 @@ export class BookingService {
 
         booking.total_amount = total;
         await this.dataSource.getRepository(Booking).save(booking);
+    }
+
+    // --- AVAILABILITY LOGIC ---
+    async checkTechnicianAvailability(date: Date, time: string, durationMinutes: number): Promise<number | null> {
+        // 1. Fetch All Technicians
+        let technicians: any[] = [];
+        try {
+            const techResponse: any = await lastValueFrom(this.httpService.get(`${this.authServiceUrl}/users?role=TECHNICIAN`));
+            technicians = techResponse.data;
+        } catch (e) {
+            console.error("Failed to fetch technicians for availability check", e);
+            return null;
+        }
+
+        if (!technicians || technicians.length === 0) return null;
+
+        // 2. Calculate Request Time Window
+        // date is likely a string or Date object. We need to combine it with time "HH:mm:ss"
+        const reqStart = new Date(`${date}T${time}`);
+        // If date format is strict, ensure it matches. Assuming YYYY-MM-DD from frontend.
+        const reqEnd = new Date(reqStart.getTime() + durationMinutes * 60000);
+
+        // 3. Check Each Technician
+        for (const tech of technicians) {
+            const isBusy = await this.isTechnicianBusy(tech.id, date, reqStart, reqEnd);
+            if (!isBusy) {
+                return tech.id; // Found a free tech!
+            }
+        }
+
+        return null; // All busy
+    }
+
+    private async isTechnicianBusy(techId: number, dateStr: any, reqStart: Date, reqEnd: Date): Promise<boolean> {
+        // Find existing bookings for this tech on this date
+        // Note: In TypeORM, querying date strings can be database specific. 
+        // We'll fetch all bookings for this tech on this day.
+        const bookings = await this.dataSource.getRepository(Booking).createQueryBuilder('booking')
+            .leftJoinAndSelect('booking.items', 'items')
+            .where('booking.technician_id = :techId', { techId })
+            .andWhere('booking.scheduled_date = :dateStr', { dateStr })
+            .andWhere('booking.status IN (:...statuses)', { statuses: [BookingStatus.PENDING, BookingStatus.IN_PROGRESS] })
+            .getMany();
+
+        for (const booking of bookings) {
+            // Calculate duration of THIS booking
+            // We need to fetch services to know duration? 
+            // This is expensive. Optimization: Store 'estimated_end_time' in Booking entity in future.
+            // For now, we fetch catalog service for each item? 
+            // To ensure performance, let's assume a default or fetch. 
+            // Better: We stored `service_id` in items.
+
+            let bookingDuration = 0;
+            for (const item of booking.items) {
+                if (item.service_id) {
+                    const service = await this.getService(item.service_id); // Cached or fast fetch
+                    bookingDuration += parseDuration(service?.estimated_duration);
+                }
+            }
+            if (bookingDuration === 0) bookingDuration = 60;
+
+            const existingStart = new Date(`${booking.scheduled_date}T${booking.scheduled_time}`);
+            const existingEnd = new Date(existingStart.getTime() + bookingDuration * 60000);
+
+            // Check Overlap
+            // (StartA < EndB) and (EndA > StartB)
+            if (reqStart < existingEnd && reqEnd > existingStart) {
+                return true; // Overlap found, tech is busy
+            }
+        }
+
+        return false;
     }
 
     async search(query: string, user: any) {
