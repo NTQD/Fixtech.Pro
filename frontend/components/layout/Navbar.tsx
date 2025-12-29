@@ -23,7 +23,7 @@ import { useTheme } from "next-themes"
 import { useConfig } from '@/contexts/ConfigContext'
 
 export function Navbar() {
-    const { config } = useConfig()
+    const { config, unratedCount } = useConfig()
     const { setTheme } = useTheme()
     const [user, setUser] = useState<{ role: string, email: string, avatar_url?: string } | null>(null)
     const [scrolled, setScrolled] = useState(false)
@@ -103,6 +103,11 @@ export function Navbar() {
                                             {user.email[0].toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
+                                    {unratedCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-background">
+                                            {unratedCount}
+                                        </span>
+                                    )}
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56" align="end">

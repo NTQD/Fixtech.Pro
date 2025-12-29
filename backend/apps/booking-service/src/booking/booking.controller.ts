@@ -32,6 +32,14 @@ export class BookingController {
         return this.bookingService.findMyBookings(req.user);
     }
 
+    @Get('notifications/count')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get unrated booking count' })
+    getNotificationCount(@Request() req) {
+        return this.bookingService.countUnratedCompletedBookings(req.user.userId);
+    }
+
     @Get('search')
     @UseGuards(AuthGuard('jwt')) // Add Guard
     @ApiBearerAuth()

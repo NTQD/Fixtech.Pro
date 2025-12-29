@@ -316,6 +316,23 @@ export class BookingService {
         return null; // All busy
     }
 
+    async countUnratedCompletedBookings(userId: number): Promise<number> {
+        const count = await this.dataSource.getRepository(Booking).createQueryBuilder('booking')
+            .where('booking.user_id = :userId', { userId })
+            .andWhere('booking.status = :status', { status: BookingStatus.COMPLETED })
+            .andWhere(qb => {
+                const subQuery = qb.subQuery()
+                    .select('review.id')
+                    .from(BookingReview, 'review')
+                    .where('review.booking_id = booking.id')
+                    .getQuery();
+                return 'NOT EXISTS ' + subQuery;
+            })
+            .getCount();
+
+        return count;
+    }
+
     private async isTechnicianBusy(techId: number, dateStr: any, reqStart: Date, reqEnd: Date): Promise<boolean> {
         // Find existing bookings for this tech on this date
         // Note: In TypeORM, querying date strings can be database specific. 

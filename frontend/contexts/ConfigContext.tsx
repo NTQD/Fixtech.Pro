@@ -30,18 +30,23 @@ const defaultConfig: SystemConfig = {
 
 interface ConfigContextType {
     config: SystemConfig
+    unratedCount: number
     refreshConfig: () => Promise<void>
+    refreshNotifications: () => Promise<void>
 }
 
 const ConfigContext = createContext<ConfigContextType>({
     config: defaultConfig,
-    refreshConfig: async () => { }
+    unratedCount: 0,
+    refreshConfig: async () => { },
+    refreshNotifications: async () => { }
 })
 
 export const useConfig = () => useContext(ConfigContext)
 
 export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
     const [config, setConfig] = useState<SystemConfig>(defaultConfig)
+    const [unratedCount, setUnratedCount] = useState(0)
 
     const fetchConfig = async () => {
         try {
@@ -62,12 +67,32 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const fetchNotifications = async () => {
+        const token = localStorage.getItem('access_token')
+        if (!token) return
+
+        try {
+            const res = await fetch('http://localhost:3000/bookings/notifications/count', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (res.ok) {
+                const data = await res.json() // returns number directly from service return? Controller returns number.
+                // Wait, NestJS controller default returns just the value if it's a primitive? Or object?
+                // service returns number. Controller returns number.
+                setUnratedCount(Number(data) || 0)
+            }
+        } catch (error) {
+            console.error("Failed to fetch notifications", error)
+        }
+    }
+
     useEffect(() => {
         fetchConfig()
+        fetchNotifications()
     }, [])
 
     return (
-        <ConfigContext.Provider value={{ config, refreshConfig: fetchConfig }}>
+        <ConfigContext.Provider value={{ config, unratedCount, refreshConfig: fetchConfig, refreshNotifications: fetchNotifications }}>
             {children}
         </ConfigContext.Provider>
     )

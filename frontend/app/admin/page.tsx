@@ -80,7 +80,7 @@ export default function AdminDashboard() {
   // Inventory State
   const [parts, setParts] = useState<any[]>([])
   const [partSearch, setPartSearch] = useState('')
-  const [partSort, setPartSort] = useState('price-asc')
+  const [partSort, setPartSort] = useState('id-asc')
   const [isPartModalOpen, setIsPartModalOpen] = useState(false)
   const [editingPart, setEditingPart] = useState<any>(null)
   const [partForm, setPartForm] = useState({ name: '', price: 0, stock: 0, description: '' })
@@ -667,7 +667,7 @@ export default function AdminDashboard() {
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="search"
-                      placeholder="Tìm ID, Tên, SĐT..."
+                      placeholder="Tìm theo Tên, SĐT..."
                       className="w-[250px] pl-9"
                       value={bookingSearch}
                       onChange={(e) => setBookingSearch(e.target.value)}
@@ -883,7 +883,7 @@ export default function AdminDashboard() {
                       <SelectValue placeholder="Sắp xếp" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="default">Mặc định</SelectItem>
+                      <SelectItem value="id-asc">Mặc định</SelectItem>
                       <SelectItem value="price-asc">Giá tăng dần</SelectItem>
                       <SelectItem value="price-desc">Giá giảm dần</SelectItem>
                     </SelectContent>

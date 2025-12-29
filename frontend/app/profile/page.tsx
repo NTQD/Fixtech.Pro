@@ -12,8 +12,10 @@ import { ArrowLeft, Camera, Loader2, Save, Eye, EyeOff, Star } from 'lucide-reac
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { RatingModal } from '@/components/booking/rating-modal'
+import { useConfig } from '@/contexts/ConfigContext' // Added import
 
 export default function ProfilePage() {
+    const { unratedCount, refreshNotifications } = useConfig() // Consume context
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(true)
     const [role, setRole] = useState<string | null>(null)
@@ -285,6 +287,7 @@ export default function ProfilePage() {
                 // Refresh history to update is_rated status
                 const tokenStr = localStorage.getItem('access_token')
                 if (tokenStr) fetchHistory(tokenStr)
+                refreshNotifications() // Refresh badge count
             } else {
                 const data = await res.json()
                 toast.error(data.message || 'Gửi đánh giá thất bại')
@@ -388,7 +391,14 @@ export default function ProfilePage() {
                             <TabsList className="grid w-full grid-cols-3">
                                 <TabsTrigger value="general">Thông tin chung</TabsTrigger>
                                 <TabsTrigger value="security">Bảo mật</TabsTrigger>
-                                <TabsTrigger value="bookings">Lịch sử đơn hàng</TabsTrigger>
+                                <TabsTrigger value="bookings" className="relative">
+                                    Lịch sử đơn hàng
+                                    {unratedCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-background">
+                                            {unratedCount}
+                                        </span>
+                                    )}
+                                </TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="general">

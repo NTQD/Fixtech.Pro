@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import * as React from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -134,6 +135,14 @@ export default function TechnicianPage() {
     const [calendarView, setCalendarView] = useState<CalendarView>('month')
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     const [activeTab, setActiveTab] = useState('kanban')
+    const [partSearch, setPartSearch] = useState('')
+    const commandListRef = React.useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (commandListRef.current) {
+            commandListRef.current.scrollTop = 0
+        }
+    }, [partSearch])
 
     useEffect(() => {
         const userStr = localStorage.getItem('user')
@@ -882,7 +891,7 @@ export default function TechnicianPage() {
                                 <div className="flex items-end gap-3 bg-card p-3 border border-border rounded-lg">
                                     <div className="flex-1 space-y-2 min-w-0">
                                         <label className="text-xs font-medium">Thêm vật tư/linh kiện</label>
-                                        <Popover open={openPartCombobox} onOpenChange={setOpenPartCombobox}>
+                                        <Popover open={openPartCombobox} onOpenChange={setOpenPartCombobox} modal={true}>
                                             <PopoverTrigger asChild>
                                                 <Button
                                                     variant="outline"
@@ -901,34 +910,39 @@ export default function TechnicianPage() {
                                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                 </Button>
                                             </PopoverTrigger>
-                                            <PopoverContent className="w-[400px] p-0" align="start">
-                                                <Command>
-                                                    <CommandInput placeholder="Nhập tên linh kiện..." />
-                                                    <CommandList>
+                                            <PopoverContent className="w-[400px] p-0 z-[200]" align="start">
+                                                <Command shouldFilter={false}>
+                                                    <CommandInput placeholder="Nhập tên linh kiện..." value={partSearch} onValueChange={setPartSearch} />
+                                                    <CommandList
+                                                        ref={commandListRef}
+                                                        className="max-h-[300px] overflow-y-auto overscroll-contain pointer-events-auto"
+                                                    >
                                                         <CommandEmpty>Không tìm thấy linh kiện.</CommandEmpty>
                                                         <CommandGroup>
-                                                            {availableParts.map((part) => (
-                                                                <CommandItem
-                                                                    key={part.id}
-                                                                    value={`${part.name} ${part.id}`} // Search by name
-                                                                    onSelect={(currentValue) => {
-                                                                        console.log("Selected part:", part.id);
-                                                                        setSelectedPartId(part.id.toString() === selectedPartId ? "" : part.id.toString())
-                                                                        setOpenPartCombobox(false)
-                                                                    }}
-                                                                >
-                                                                    <Check
-                                                                        className={cn(
-                                                                            "mr-2 h-4 w-4",
-                                                                            selectedPartId === part.id.toString() ? "opacity-100" : "opacity-0"
-                                                                        )}
-                                                                    />
-                                                                    <div className="flex flex-col">
-                                                                        <span>{part.name}</span>
-                                                                        <span className="text-xs text-muted-foreground">Tồn: {part.stock} • {Number(part.price).toLocaleString()} đ</span>
-                                                                    </div>
-                                                                </CommandItem>
-                                                            ))}
+                                                            {availableParts
+                                                                .filter(part => part.name.toLowerCase().includes(partSearch.toLowerCase()))
+                                                                .map((part) => (
+                                                                    <CommandItem
+                                                                        key={part.id}
+                                                                        value={`${part.name} ${part.id}`} // Search by name
+                                                                        onSelect={(currentValue) => {
+                                                                            console.log("Selected part:", part.id);
+                                                                            setSelectedPartId(part.id.toString() === selectedPartId ? "" : part.id.toString())
+                                                                            setOpenPartCombobox(false)
+                                                                        }}
+                                                                    >
+                                                                        <Check
+                                                                            className={cn(
+                                                                                "mr-2 h-4 w-4",
+                                                                                selectedPartId === part.id.toString() ? "opacity-100" : "opacity-0"
+                                                                            )}
+                                                                        />
+                                                                        <div className="flex flex-col">
+                                                                            <span>{part.name}</span>
+                                                                            <span className="text-xs text-muted-foreground">Tồn: {part.stock} • {Number(part.price).toLocaleString()} đ</span>
+                                                                        </div>
+                                                                    </CommandItem>
+                                                                ))}
                                                         </CommandGroup>
                                                     </CommandList>
                                                 </Command>
