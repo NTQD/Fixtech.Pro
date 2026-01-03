@@ -226,12 +226,26 @@ export class BookingService {
         return this.dataSource.getRepository(Booking).save(booking);
     }
 
-    async addPartToBooking(bookingId: number, partId: number, quantity: number) {
+    async addPartToBooking(bookingId: number, partId: number, quantity: number, token?: string) {
         const booking = await this.dataSource.getRepository(Booking).findOne({ where: { id: bookingId } });
         if (!booking) throw new NotFoundException(`Booking not found`);
 
         const part = await this.getPart(Number(partId));
         if (!part) throw new NotFoundException(`Part not found (ID: ${partId})`);
+
+        if (part.stock < quantity) {
+             throw new BadRequestException(`Hết hàng! Linh kiện ${part.name} hiện chỉ còn ${part.stock} trong kho.`);
+        }
+
+        // Decrease Stock in Catalog
+        try {
+            const updateUrl = `${this.catalogServiceUrl}/catalog/parts/${part.id}`;
+            const headers = token ? { 'Authorization': token } : {};
+            await lastValueFrom(this.httpService.patch(updateUrl, { stock: part.stock - quantity }, { headers }));
+        } catch (e) {
+            console.error("Failed to update part stock", e.message);
+            throw new BadRequestException('Lỗi cập nhật kho. Vui lòng thử lại.');
+        }
 
         const bookingItem = this.dataSource.getRepository(BookingItem).create({
             booking,
@@ -283,6 +297,14 @@ export class BookingService {
 
         booking.total_amount = total;
         await this.dataSource.getRepository(Booking).save(booking);
+    }
+
+    async updateTechNotes(bookingId: number, techNotes: string) {
+        const booking = await this.dataSource.getRepository(Booking).findOne({ where: { id: bookingId } });
+        if (!booking) throw new NotFoundException(`Booking not found`);
+        
+        booking.tech_notes = techNotes;
+        return this.dataSource.getRepository(Booking).save(booking);
     }
 
     // --- AVAILABILITY LOGIC ---

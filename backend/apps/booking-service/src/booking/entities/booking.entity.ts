@@ -47,6 +47,9 @@ export class Booking {
     @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
     total_amount: number;
 
+    @Column({ type: 'text', nullable: true })
+    tech_notes: string;
+
     @OneToMany(() => BookingItem, (item) => item.booking, { cascade: true })
     items: BookingItem[];
 

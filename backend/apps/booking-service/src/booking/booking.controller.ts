@@ -67,8 +67,8 @@ export class BookingController {
     @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Add part to booking' })
-    addPart(@Param('id') id: number, @Body() body: { partId: number; quantity: number }) {
-        return this.bookingService.addPartToBooking(id, body.partId, body.quantity);
+    addPart(@Param('id') id: number, @Body() body: { partId: number; quantity: number }, @Request() req) {
+        return this.bookingService.addPartToBooking(id, body.partId, body.quantity, req.headers.authorization);
     }
 
     @Post(':id/services')
@@ -90,5 +90,13 @@ export class BookingController {
     @ApiOperation({ summary: 'Rate a completed booking' })
     rate(@Param('id') id: number, @Body() body: { technician_rating: number, comment: string }, @Request() req) {
         return this.bookingService.rateBooking(id, body, req.user);
+    }
+
+    @Patch(':id/notes')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Update tech notes on a booking' })
+    updateNotes(@Param('id') id: number, @Body('tech_notes') techNotes: string) {
+        return this.bookingService.updateTechNotes(id, techNotes);
     }
 }

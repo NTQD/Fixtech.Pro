@@ -120,7 +120,8 @@ function TrackingContent() {
             estimatedCompletion: b.scheduled_date ? new Date(b.scheduled_date).toLocaleDateString('vi-VN') : 'N/A',
             timeline,
             items: b.items || [],
-            total_amount: b.total_amount
+            total_amount: b.total_amount,
+            technician: b.technician ? (b.technician.full_name || b.technician.username) : 'Chưa phân công'
         }
     }
 
@@ -158,6 +159,7 @@ function TrackingContent() {
                             <div>
                                 <CardTitle className="text-xl">Đơn hàng #BK-{trackingResult.id}</CardTitle>
                                 <p className="text-sm text-muted-foreground mt-1">Thiết bị: {trackingResult.device}</p>
+                                <p className="text-sm text-muted-foreground">Kỹ thuật viên phụ trách: {trackingResult.technician}</p>
                             </div>
                             <div className="flex gap-2 items-center">
                                 {['PENDING', 'CONFIRMED'].includes(trackingResult.status) && (
