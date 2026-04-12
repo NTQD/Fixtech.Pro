@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Patch, Delete, UseInterceptors } from '@nestjs/common';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { CatalogService } from './catalog.service';
 import { Part } from './entities/part.entity';
 import { Service } from './entities/service.entity';
@@ -68,6 +69,8 @@ export class CatalogController {
 
     @Get('config')
     @ApiOperation({ summary: 'Get all system configurations' })
+    @UseInterceptors(CacheInterceptor)
+    @CacheKey('configs')
     getConfigs() {
         return this.catalogService.getAllConfigs();
     }

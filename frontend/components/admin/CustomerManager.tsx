@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input'
 import { Search, Ban, LockOpen, Star } from 'lucide-react'
 import { useState } from 'react'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 interface CustomerManagerProps {
     users: any[]
@@ -14,6 +15,7 @@ interface CustomerManagerProps {
 
 export function CustomerManager({ users, updateUserRole, banUser, unbanUser }: CustomerManagerProps) {
     const [customerSearch, setCustomerSearch] = useState('')
+    const [userToBan, setUserToBan] = useState<number | null>(null)
 
     const filteredUsers = users.filter(u => {
         const term = customerSearch.toLowerCase()
@@ -98,11 +100,7 @@ export function CustomerManager({ users, updateUserRole, banUser, unbanUser }: C
                                                 variant="ghost"
                                                 size="icon"
                                                 className="text-red-500 hover:text-red-700 hover:bg-red-100"
-                                                onClick={() => {
-                                                    if (confirm('Bạn có chắc chắn muốn cấm người dùng này?')) {
-                                                        banUser(u.id)
-                                                    }
-                                                }}
+                                                onClick={() => setUserToBan(u.id)}
                                             >
                                                 <Ban className="h-4 w-4" />
                                             </Button>
@@ -123,6 +121,31 @@ export function CustomerManager({ users, updateUserRole, banUser, unbanUser }: C
                     </TableBody>
                 </Table>
             </div>
+            <AlertDialog open={!!userToBan} onOpenChange={(open) => !open && setUserToBan(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Bạn có chắc chắn muốn cấm người dùng này?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tài khoản vi phạm sẽ bị khóa và không thể truy cập hoặc sử dụng dịch vụ trên hệ thống. Bạn có thể mở khóa lại sau này.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Hủy bỏ</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={() => {
+                                if (userToBan !== null) {
+                                    banUser(userToBan);
+                                    setUserToBan(null);
+                                }
+                            }} 
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            Cấm người dùng
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
+

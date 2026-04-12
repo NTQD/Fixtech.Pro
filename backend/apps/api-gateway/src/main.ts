@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import * as cluster from 'cluster';
+import * as os from 'os';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -24,6 +26,25 @@ async function bootstrap() {
 
     // Gateway runs on 3000
     await app.listen(3000);
-    console.log(`API Gateway is running on: ${await app.getUrl()}`);
+    // console.log(`API Gateway is running on: ${await app.getUrl()}`);
 }
-bootstrap();
+
+const clusterModule = cluster as any;
+if (clusterModule.isPrimary || clusterModule.isMaster) {
+    const numCPUs = Math.min(os.cpus().length, 8); // Max 8 workers to prevent memory overload
+    console.log(`API Gateway Primary server is running on PID: ${process.pid}`);
+    console.log(`Spawning ${numCPUs} worker processes for multi-threaded handling...`);
+
+    for (let i = 0; i < numCPUs; i++) {
+        clusterModule.fork();
+    }
+
+    clusterModule.on('exit', (worker, code, signal) => {
+        console.log(`Worker ${worker.process.pid} died. Restarting...`);
+        clusterModule.fork();
+    });
+} else {
+    bootstrap().then(() => {
+        console.log(`API Gateway Worker started on PID: ${process.pid}`);
+    });
+}
