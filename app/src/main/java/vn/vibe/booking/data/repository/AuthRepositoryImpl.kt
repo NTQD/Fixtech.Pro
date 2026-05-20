@@ -2,13 +2,12 @@ package vn.vibe.booking.data.repository
 
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
 import vn.vibe.booking.data.remote.ApiClient
-import vn.vibe.booking.data.remote.ApiException
 import vn.vibe.booking.data.remote.AuthApi
 import vn.vibe.booking.domain.model.AuthResult
 import vn.vibe.booking.domain.model.UserInfo
 import vn.vibe.booking.domain.repository.AuthRepository
+import java.io.IOException
 
 class AuthRepositoryImpl(
     private val api: AuthApi
@@ -18,27 +17,36 @@ class AuthRepositoryImpl(
         val responseJson = ApiClient.parseObject(api.login(phone, password))
         ApiClient.requireSuccess(responseJson)
 
-        val result = responseJson.getJSONObject("result")
+        val result = responseJson.optJSONObject("data")
+            ?: responseJson.optJSONObject("result")
+            ?: responseJson
+
+        val token = result.optString("accessToken").ifBlank { result.optString("token") }
+        val userId = result.optLong("userId", 0L)
+
         AuthResult(
-            token = result.getString("token"),
-            userId = result.getLong("userId")
+            token = token,
+            userId = userId
         )
     }
 
     override suspend fun register(name: String, phone: String, password: String): Result<String> = runCatching {
         val responseJson = ApiClient.parseObject(api.register(name, phone, password))
         ApiClient.requireSuccess(responseJson)
-        responseJson.getString("message")
+        responseJson.optString("message").ifBlank { "Đăng ký thành công" }
     }
 
     override suspend fun getUserInfo(token: String): Result<UserInfo> = runCatching {
         val responseJson = parseResponse(api.fetchUserInfo(token))
-        ensureSuccess(responseJson)
+        ApiClient.requireSuccess(responseJson)
 
-        val result = responseJson.getJSONObject("result")
+        val result = responseJson.optJSONObject("data")
+            ?: responseJson.optJSONObject("result")
+            ?: responseJson
+
         UserInfo(
             id = result.optLong("id"),
-            roleName = result.optString("roleName"),
+            roleName = result.optString("role").ifBlank { result.optString("roleName") },
             name = result.optString("name"),
             avatar = result.optString("avatar").takeIf { it.isNotBlank() },
             phone = result.optString("phone").takeIf { it.isNotBlank() },
@@ -52,11 +60,5 @@ class AuthRepositoryImpl(
         } catch (e: JSONException) {
             throw IOException("Invalid server response", e)
         }
-    }
-
-    private fun ensureSuccess(responseJson: JSONObject) {
-        val code = responseJson.optInt("code", -1)
-        val message = responseJson.optString("message").ifBlank { "Unknown server error" }
-        if (code != 200) throw ApiException(code, message)
     }
 }

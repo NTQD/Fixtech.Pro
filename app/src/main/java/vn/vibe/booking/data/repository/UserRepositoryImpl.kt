@@ -3,10 +3,10 @@ package vn.vibe.booking.data.repository
 import org.json.JSONException
 import org.json.JSONObject
 import vn.vibe.booking.data.remote.ApiException
-import java.io.IOException
 import vn.vibe.booking.data.remote.AuthApi
 import vn.vibe.booking.domain.model.UserInfo
 import vn.vibe.booking.domain.repository.UserRepository
+import java.io.IOException
 
 class UserRepositoryImpl(
     private val api: AuthApi

@@ -1,0 +1,13 @@
+server:
+  port: ${BACKEND_PORT:9100}
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/ecom?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: root
+    password: root
+
+logging:
+  level:
+    org:
+      jooq: DEBUG

@@ -2,7 +2,6 @@ package vn.vibe.booking.core.network
 
 import okhttp3.Interceptor
 import okhttp3.Response
-import vn.vibe.booking.domain.repository.TokenRepository
 
 class AuthInterceptor(
     private val tokenProvider: () -> String?

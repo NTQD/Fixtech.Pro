@@ -1,10 +1,10 @@
 package vn.vibe.booking.presentation.app
 
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -16,6 +16,7 @@ import vn.vibe.booking.presentation.auth.LoginScreen
 import vn.vibe.booking.presentation.auth.RegisterScreen
 import vn.vibe.booking.presentation.home.HomeScreen
 import vn.vibe.booking.presentation.home.HomeViewModel
+import vn.vibe.booking.presentation.theme.BookingTheme
 
 private object Routes {
     const val LOGIN = "login"
@@ -46,45 +47,51 @@ fun BookingApp(
         )
     )
 
-    Surface(modifier = modifier, color = MaterialTheme.colorScheme.background) {
-        NavHost(
-            navController = navController,
-            startDestination = if (token.isNullOrBlank()) Routes.LOGIN else Routes.HOME
-        ) {
-            composable(Routes.LOGIN) {
-                LoginScreen(
-                    viewModel = authViewModel,
-                    onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
-                    onLoginSuccess = {
-                        navController.navigate(Routes.HOME) {
-                            popUpTo(Routes.LOGIN) { inclusive = true }
+    BookingTheme {
+        Surface(modifier = modifier) {
+            Scaffold { innerPadding ->
+                Box(modifier = androidx.compose.ui.Modifier) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = if (token.isNullOrBlank()) Routes.LOGIN else Routes.HOME
+                    ) {
+                        composable(Routes.LOGIN) {
+                            LoginScreen(
+                                viewModel = authViewModel,
+                                onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
+                                onLoginSuccess = {
+                                    navController.navigate(Routes.HOME) {
+                                        popUpTo(Routes.LOGIN) { inclusive = true }
+                                    }
+                                },
+                                contentPadding = innerPadding
+                            )
                         }
-                    },
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-                )
-            }
 
-            composable(Routes.REGISTER) {
-                RegisterScreen(
-                    viewModel = authViewModel,
-                    onBackToLogin = { navController.popBackStack() },
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-                )
-            }
-
-            composable(Routes.HOME) {
-                HomeScreen(
-                    viewModel = homeViewModel,
-                    token = token,
-                    onLogout = {
-                        homeViewModel.logout {
-                            navController.navigate(Routes.LOGIN) {
-                                popUpTo(Routes.HOME) { inclusive = true }
-                            }
+                        composable(Routes.REGISTER) {
+                            RegisterScreen(
+                                viewModel = authViewModel,
+                                onBackToLogin = { navController.popBackStack() },
+                                contentPadding = innerPadding
+                            )
                         }
-                    },
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-                )
+
+                        composable(Routes.HOME) {
+                            HomeScreen(
+                                viewModel = homeViewModel,
+                                token = token,
+                                onLogout = {
+                                    homeViewModel.logout {
+                                        navController.navigate(Routes.LOGIN) {
+                                            popUpTo(Routes.HOME) { inclusive = true }
+                                        }
+                                    }
+                                },
+                                contentPadding = innerPadding
+                            )
+                        }
+                    }
+                }
             }
         }
     }

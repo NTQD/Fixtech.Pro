@@ -1,0 +1,56 @@
+spring:
+  output:
+    ansi:
+      enabled: ALWAYS
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: iamapooritstuden@gmail.com
+    password: "jvlx ipuh kxdv avyo"
+    properties:
+        mail:
+            smtp:
+            auth: true
+            starttls:
+                enable: true
+
+#logging:
+#  level:
+#    org.jooq.tools.LoggerListener: OFF
+#    org.jooq.Constants: OFF
+#    root: OFF
+#    vn.aeoc: INFO
+
+security:
+  enabled: true
+  jwt:
+    enabled: true
+    secret-key: Tuandeptraibodoithe@/~matkhaubimatsieumanh
+    header: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+    expired-in: 15552000000
+
+minio:
+  endpoint: http://minio:9000
+  bucket: ${MINIO_BUCKET:ecom}
+  access-key: ${MINIO_ROOT_USER:minioadmin}
+  secret-key: ${MINIO_ROOT_PASSWORD:minioadmin}
+
+socketio:
+  host: 0.0.0.0
+  port: ${SOCKET_IO_PORT:9090}
+
+app:
+  name: Ecommerce
+  version: 1.0.0
+system:
+  enabled-register: true
+internal:
+  app:
+    app-api-key: XXX
