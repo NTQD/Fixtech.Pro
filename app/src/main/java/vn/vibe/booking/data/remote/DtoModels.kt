@@ -3,6 +3,19 @@ package vn.vibe.booking.data.remote
 import org.json.JSONArray
 import org.json.JSONObject
 
+data class ApiListResponseDto<T>(
+    val items: List<T>,
+    val page: Int,
+    val limit: Int,
+    val total: Int
+)
+
+data class ApiResultDto<T>(
+    val success: Boolean,
+    val message: String,
+    val data: T?
+)
+
 data class ServiceCategoryDto(
     val id: Long,
     val name: String,
@@ -56,6 +69,13 @@ data class BookingHistoryDto(
     val toStatus: String,
     val note: String?,
     val createdAt: String?
+)
+
+data class ReviewDto(
+    val id: Long,
+    val bookingCode: String,
+    val rating: Int,
+    val comment: String?
 )
 
 private fun JSONObject.optStringOrNull(name: String): String? = optString(name).takeIf { it.isNotBlank() }
@@ -115,7 +135,25 @@ fun JSONObject.toBookingDetailDto() = BookingDetailDto(
     statusHistory = optJSONArray("statusHistory")?.let { arr -> List(arr.length()) { i -> arr.getJSONObject(i).toBookingHistoryDto() } }.orEmpty()
 )
 
+fun JSONObject.toReviewDto() = ReviewDto(
+    id = optLong("id"),
+    bookingCode = optString("bookingCode"),
+    rating = optInt("rating"),
+    comment = optStringOrNull("comment")
+)
+
 fun JSONObject.itemsArray(name: String): List<JSONObject> {
     val array: JSONArray = optJSONObject(name)?.optJSONArray("items") ?: optJSONArray(name) ?: return emptyList()
     return List(array.length()) { index -> array.getJSONObject(index) }
+}
+
+fun JSONObject.toItemsPage(): ApiListResponseDto<JSONObject> {
+    val data = optJSONObject("data") ?: this
+    val items = data.optJSONArray("items")?.let { arr -> List(arr.length()) { i -> arr.getJSONObject(i) } }.orEmpty()
+    return ApiListResponseDto(
+        items = items,
+        page = data.optInt("page", 1),
+        limit = data.optInt("limit", 20),
+        total = data.optInt("total", items.size)
+    )
 }

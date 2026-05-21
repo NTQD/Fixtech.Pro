@@ -43,7 +43,8 @@ fun BookingApp(
     val homeViewModel: HomeViewModel = viewModel(
         factory = HomeViewModel.Factory(
             userRepository = appContainer.userRepository,
-            tokenRepository = appContainer.tokenRepository
+            tokenRepository = appContainer.tokenRepository,
+            homeRepository = appContainer.homeRepository
         )
     )
 

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import vn.vibe.booking.data.remote.ApiException
 import vn.vibe.booking.domain.repository.TokenRepository
 import vn.vibe.booking.domain.usecase.LoginUseCase
 import vn.vibe.booking.domain.usecase.RegisterUseCase
@@ -36,11 +37,15 @@ class AuthViewModel(
             loginUseCase(phone, password)
                 .onSuccess { result ->
                     tokenRepository.saveToken(result.token)
-                    _loginState.update { AuthUiState(message = "Xin chào user #${result.userId}") }
+                    _loginState.update { AuthUiState(isLoading = false, message = "Xin chào user #${result.userId}") }
                     onSuccess()
                 }
-                .onFailure {
-                    _loginState.update { AuthUiState(error = it.message ?: "Đăng nhập thất bại") }
+                .onFailure { throwable ->
+                    val errorMessage = when (throwable) {
+                        is ApiException -> throwable.message
+                        else -> throwable.message ?: "Đăng nhập thất bại"
+                    }
+                    _loginState.update { AuthUiState(isLoading = false, error = errorMessage) }
                 }
         }
     }
@@ -50,11 +55,15 @@ class AuthViewModel(
         viewModelScope.launch {
             registerUseCase(name, phone, password)
                 .onSuccess { successMessage ->
-                    _registerState.update { AuthUiState(message = successMessage) }
+                    _registerState.update { AuthUiState(isLoading = false, message = successMessage) }
                     onSuccess()
                 }
-                .onFailure {
-                    _registerState.update { AuthUiState(error = it.message ?: "Đăng ký thất bại") }
+                .onFailure { throwable ->
+                    val errorMessage = when (throwable) {
+                        is ApiException -> throwable.message
+                        else -> throwable.message ?: "Đăng ký thất bại"
+                    }
+                    _registerState.update { AuthUiState(isLoading = false, error = errorMessage) }
                 }
         }
     }

@@ -11,6 +11,8 @@ import vn.vibe.booking.data.remote.RepairServiceApi
 import vn.vibe.booking.data.remote.ReviewApi
 import vn.vibe.booking.data.remote.ServiceCategoryApi
 import vn.vibe.booking.data.repository.AuthRepositoryImpl
+import vn.vibe.booking.data.repository.HomeRepository
+import vn.vibe.booking.data.repository.HomeRepositoryImpl
 import vn.vibe.booking.data.repository.UserRepositoryImpl
 import vn.vibe.booking.domain.repository.AuthRepository
 import vn.vibe.booking.domain.repository.TokenRepository
@@ -40,6 +42,7 @@ class AppContainer(context: Context) {
 
     val authRepository: AuthRepository = AuthRepositoryImpl(authApi)
     val userRepository: UserRepository = UserRepositoryImpl(authApi)
+    val homeRepository: HomeRepository = HomeRepositoryImpl(serviceCategoryApi, repairServiceApi, bookingApi, reviewApi)
 
     val loginUseCase = LoginUseCase(authRepository)
     val registerUseCase = RegisterUseCase(authRepository)

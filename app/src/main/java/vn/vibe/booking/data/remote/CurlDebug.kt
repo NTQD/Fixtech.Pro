@@ -1,39 +1,40 @@
 package vn.vibe.booking.data.remote
 
+import okhttp3.Request
 import org.json.JSONObject
 
 object CurlDebug {
-    fun post(url: String, body: String, headers: Map<String, String> = emptyMap()): String {
+    fun request(request: Request): String {
         return buildString {
             append("curl --location '")
-            append(url)
-            append("' \\\n")
-            headers.forEach { (key, value) ->
-                append("--header '")
-                append(key)
-                append(": ")
-                append(escapeSingleQuotes(value))
-                append("' \\\n")
-            }
-            append("--data-raw'")
-            append(escapeSingleQuotes(body))
+            append(request.url)
             append("'")
-        }
+
+            if (request.method != "GET") {
+                append(" \\\n")
+                request.headers.names().forEach { name ->
+                    val value = request.header(name).orEmpty()
+                    append("--header '")
+                    append(name)
+                    append(": ")
+                    append(escapeSingleQuotes(value))
+                    append("' \\\n")
+                }
+                request.body?.let { body ->
+                    val bodyText = requestBodyToString(request)
+                    append("--data '")
+                    append(escapeSingleQuotes(bodyText))
+                    append("'")
+                }
+            }
+        }.trimEnd()
     }
 
-    fun get(url: String, headers: Map<String, String> = emptyMap()): String {
-        return buildString {
-            append("curl --location '")
-            append(url)
-            append("' \\\n")
-            headers.forEach { (key, value) ->
-                append("--header '")
-                append(key)
-                append(": ")
-                append(escapeSingleQuotes(value))
-                append("' \\\n")
-            }
-        }.trimEnd('\n', ' ', '\\')
+    private fun requestBodyToString(request: Request): String {
+        val body = request.body ?: return ""
+        val buffer = okio.Buffer()
+        body.writeTo(buffer)
+        return buffer.readUtf8()
     }
 
     private fun escapeSingleQuotes(value: String): String {

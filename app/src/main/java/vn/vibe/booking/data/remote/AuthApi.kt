@@ -28,10 +28,8 @@ class AuthApi(
         val payload = JSONObject()
             .put("name", name)
             .put("phone", phone)
-            .put("email", "")
             .put("password", password)
             .put("plainPassword", password)
-            .put("role", "USER")
             .toString()
         postJson("$baseUrl/authenticate/register", payload)
     }
@@ -63,12 +61,24 @@ class AuthApi(
     }
 
     private fun execute(request: Request): String {
+        println("[API-REQUEST] ${request.method} ${request.url}")
+        println("[API-CURL] ${CurlDebug.request(request)}")
+
         client.newCall(request).execute().use { response ->
             val body = response.body?.string().orEmpty()
+            println("[API-RESPONSE] ${response.code} ${response.message} -> $body")
+
             if (!response.isSuccessful) {
-                throw IOException("HTTP ${response.code}: $body")
+                throw ApiException(response.code, extractMessage(body, response.message))
             }
             return body
         }
+    }
+
+    private fun extractMessage(body: String, fallback: String): String {
+        return runCatching {
+            val json = JSONObject(body)
+            json.optString("message").ifBlank { json.optString("error").ifBlank { fallback } }
+        }.getOrDefault(fallback)
     }
 }
