@@ -45,6 +45,18 @@ class BookingApi(client: OkHttpClient) : BaseApiService(client) {
         return get("/bookings/me$query", auth(token))
     }
 
+    suspend fun getAdminBookings(keyword: String? = null, status: String? = null, customerId: Int? = null, technicianId: Int? = null, page: Int = 1, limit: Int = 20, token: String): String {
+        val query = buildString {
+            append("?page=").append(page)
+            append("&limit=").append(limit)
+            if (!keyword.isNullOrBlank()) append("&keyword=").append(keyword)
+            if (!status.isNullOrBlank()) append("&status=").append(status)
+            if (customerId != null) append("&customerId=").append(customerId)
+            if (technicianId != null) append("&technicianId=").append(technicianId)
+        }
+        return get("/admin/bookings$query", auth(token))
+    }
+
     suspend fun getBookingDetail(id: Long, token: String): String = get("/bookings/$id", auth(token))
 
     suspend fun cancelBooking(id: Long, reason: String, token: String): String {

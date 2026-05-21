@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import vn.vibe.booking.data.remote.AdminUserDto
 import vn.vibe.booking.data.remote.BookingSummaryDto
 import vn.vibe.booking.data.remote.RepairServiceDto
 import vn.vibe.booking.data.remote.ReviewDto
@@ -38,6 +39,9 @@ class HomeViewModel(
     private val _categoriesState = MutableStateFlow<UiState<List<ServiceCategoryDto>>>(UiState.Idle)
     val categoriesState: StateFlow<UiState<List<ServiceCategoryDto>>> = _categoriesState.asStateFlow()
 
+    private val _usersState = MutableStateFlow<UiState<List<AdminUserDto>>>(UiState.Idle)
+    val usersState: StateFlow<UiState<List<AdminUserDto>>> = _usersState.asStateFlow()
+
     fun loadUserInfo(token: String?) {
         if (token.isNullOrBlank()) return
         _userState.value = UiState.Loading
@@ -50,33 +54,30 @@ class HomeViewModel(
 
     fun loadServices(token: String?) {
         _servicesState.value = UiState.Loading
-        viewModelScope.launch {
-            val result = homeRepository.getServices(token)
-            _servicesState.value = result
-        }
+        viewModelScope.launch { _servicesState.value = homeRepository.getServices(token) }
     }
 
     fun loadBookings(token: String?) {
         if (token.isNullOrBlank()) return
         _bookingsState.value = UiState.Loading
-        viewModelScope.launch {
-            _bookingsState.value = homeRepository.getMyBookings(token)
-        }
+        viewModelScope.launch { _bookingsState.value = homeRepository.getMyBookings(token) }
     }
 
     fun loadServiceReviews(serviceId: Long) {
         _reviewsState.value = UiState.Loading
-        viewModelScope.launch {
-            _reviewsState.value = homeRepository.getServiceReviews(serviceId)
-        }
+        viewModelScope.launch { _reviewsState.value = homeRepository.getServiceReviews(serviceId) }
     }
 
     fun loadCategories(token: String?) {
         if (token.isNullOrBlank()) return
         _categoriesState.value = UiState.Loading
-        viewModelScope.launch {
-            _categoriesState.value = homeRepository.getCategories(token)
-        }
+        viewModelScope.launch { _categoriesState.value = homeRepository.getCategories(token) }
+    }
+
+    fun loadUsers(token: String?) {
+        if (token.isNullOrBlank()) return
+        _usersState.value = UiState.Loading
+        viewModelScope.launch { _usersState.value = homeRepository.getUsers(token) }
     }
 
     fun logout(onLoggedOut: () -> Unit) {
@@ -87,6 +88,7 @@ class HomeViewModel(
             _bookingsState.value = UiState.Idle
             _reviewsState.value = UiState.Idle
             _categoriesState.value = UiState.Idle
+            _usersState.value = UiState.Idle
             onLoggedOut()
         }
     }

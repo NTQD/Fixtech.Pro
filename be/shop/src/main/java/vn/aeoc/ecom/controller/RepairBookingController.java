@@ -47,6 +47,17 @@ public class RepairBookingController {
         return Mapper.map(bookingService.getById(id), ApiResponse::okEntity);
     }
 
+    @GetMapping("/admin/bookings")
+    @IsAdmin
+    public ResponseEntity<ApiResponse<Page<RepairBooking>>> adminList(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Integer customerId,
+            @RequestParam(required = false) Integer technicianId,
+            Pageable pageable) {
+        return Mapper.map(bookingService.getByCriteria(keyword, status, customerId, technicianId, pageable), ApiResponse::okEntity);
+    }
+
     @PostMapping("/bookings/{id}/cancel")
     @IsUser
     public ResponseEntity<ApiResponse<String>> cancel(@PathVariable Integer id, @RequestBody BookingCancelRequest request) {

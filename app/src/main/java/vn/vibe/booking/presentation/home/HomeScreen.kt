@@ -47,21 +47,32 @@ fun HomeScreen(
     contentPadding: PaddingValues
 ) {
     val userState by viewModel.userState.collectAsStateWithLifecycle()
+    val userInfo = (userState as? UiState.Success<UserInfo>)?.data
+    val isAdmin = userInfo?.role.equals("ADMIN", ignoreCase = true)
+
     var selectedTab by remember { mutableIntStateOf(0) }
     var menuExpanded by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf("") }
 
+    val visibleTabs = remember(isAdmin) {
+        HomeTab.entries.filter { it != HomeTab.Console || isAdmin }
+    }
+    val hasTabs = visibleTabs.isNotEmpty()
+
     LaunchedEffect(token) {
         viewModel.loadUserInfo(token)
+        viewModel.loadServices(token)
+        viewModel.loadBookings(token)
+        viewModel.loadCategories(token)
+        if (isAdmin) viewModel.loadUsers(token)
     }
 
-    val userInfo = (userState as? UiState.Success<UserInfo>)?.data
+    if (selectedTab >= visibleTabs.size) selectedTab = 0
+
     val isLoading = userState is UiState.Loading
     val error = (userState as? UiState.Error)?.message
 
-    val screenBg = Brush.linearGradient(
-        colors = listOf(Color(0xFF050816), Color(0xFF0B1220), Color(0xFF111827))
-    )
+    val screenBg = Brush.linearGradient(colors = listOf(Color(0xFF050816), Color(0xFF0B1220), Color(0xFF111827)))
     val accent = Brush.linearGradient(listOf(Color(0xFF8B5CF6), Color(0xFF06B6D4)))
 
     Box(
@@ -79,13 +90,16 @@ fun HomeScreen(
                 onLogout = onLogout
             )
 
-            NavigationTabs(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
+            if (hasTabs) {
+                NavigationTabs(selectedTab = selectedTab, tabs = visibleTabs, onTabSelected = { selectedTab = it })
+            }
 
             Box(modifier = Modifier.fillMaxSize()) {
-                when (HomeTab.entries[selectedTab]) {
+                when (visibleTabs[selectedTab]) {
                     HomeTab.Home -> HomeDashboard(userInfo = userInfo, isLoading = isLoading, error = error, accent = accent)
                     HomeTab.Services -> ServiceCatalogScreen(search = search, onSearchChange = { search = it })
                     HomeTab.Bookings -> BookingTimelineScreen()
+                    HomeTab.Console -> AdminConsoleScreen(viewModel = viewModel, token = token, contentPadding = PaddingValues(0.dp))
                     HomeTab.Profile -> ProfileScreen(userInfo = userInfo, accent = accent, onLogout = onLogout)
                 }
             }
@@ -103,63 +117,28 @@ private fun HomeTopBar(
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 6.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Avatar(
-                avatarUrl = userInfo?.avatar,
-                accent = Brush.linearGradient(listOf(Color(0xFF8B5CF6), Color(0xFF06B6D4))),
-                size = 38.dp
-            )
+            Avatar(avatarUrl = userInfo?.avatar, accent = Brush.linearGradient(listOf(Color(0xFF8B5CF6), Color(0xFF06B6D4))), size = 38.dp)
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text("Repair Booking", color = Color(0xFF94A3B8), fontSize = 10.sp)
-                Text(
-                    text = userInfo?.name ?: "Chào mừng bạn",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1
-                )
+                Text(text = userInfo?.name ?: "Chào mừng bạn", color = Color.White, style = MaterialTheme.typography.titleSmall, maxLines = 1)
             }
-            IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.Menu, contentDescription = null, tint = Color.White)
-            }
+            IconButton(onClick = onMenuClick) { Icon(Icons.Default.Menu, contentDescription = null, tint = Color.White) }
         }
-
-        DropdownMenu(
-            expanded = menuExpanded,
-            onDismissRequest = onDismissMenu,
-            modifier = Modifier.width(150.dp)
-        ) {
-            DropdownMenuItem(
-                text = { Text("Đăng xuất", fontSize = 12.sp) },
-                leadingIcon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null) },
-                onClick = {
-                    onDismissMenu()
-                    onLogout()
-                }
-            )
+        DropdownMenu(expanded = menuExpanded, onDismissRequest = onDismissMenu, modifier = Modifier.width(150.dp)) {
+            DropdownMenuItem(text = { Text("Đăng xuất", fontSize = 12.sp) }, leadingIcon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null) }, onClick = { onDismissMenu(); onLogout() })
         }
     }
 }
 
 @Composable
-private fun NavigationTabs(selectedTab: Int, onTabSelected: (Int) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        HomeTab.entries.forEachIndexed { index, tab ->
-            FilterChip(
-                selected = selectedTab == index,
-                onClick = { onTabSelected(index) },
-                label = { Text(tab.label) },
-                leadingIcon = { Icon(tab.icon, contentDescription = null) }
-            )
+private fun NavigationTabs(selectedTab: Int, tabs: List<HomeTab>, onTabSelected: (Int) -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        tabs.forEachIndexed { index, tab ->
+            FilterChip(selected = selectedTab == index, onClick = { onTabSelected(index) }, label = { tab.label?.let { Text(it) } }, leadingIcon = { Icon(tab.icon, contentDescription = null) })
         }
     }
 }

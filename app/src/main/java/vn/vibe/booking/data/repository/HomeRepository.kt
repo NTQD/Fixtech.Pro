@@ -1,14 +1,16 @@
 package vn.vibe.booking.data.repository
 
 import org.json.JSONObject
+import vn.vibe.booking.data.remote.AdminApi
+import vn.vibe.booking.data.remote.AdminUserDto
 import vn.vibe.booking.data.remote.BookingApi
 import vn.vibe.booking.data.remote.BookingSummaryDto
 import vn.vibe.booking.data.remote.RepairServiceApi
 import vn.vibe.booking.data.remote.RepairServiceDto
 import vn.vibe.booking.data.remote.ReviewApi
 import vn.vibe.booking.data.remote.ReviewDto
-import vn.vibe.booking.data.remote.ServiceCategoryApi
 import vn.vibe.booking.data.remote.ServiceCategoryDto
+import vn.vibe.booking.data.remote.toAdminUserDto
 import vn.vibe.booking.data.remote.toBookingSummaryDto
 import vn.vibe.booking.data.remote.toItemsPage
 import vn.vibe.booking.data.remote.toRepairServiceDto
@@ -18,50 +20,57 @@ import vn.vibe.booking.domain.model.UiState
 
 interface HomeRepository {
     suspend fun getCategories(token: String, keyword: String? = null, page: Int = 1, limit: Int = 20): UiState<List<ServiceCategoryDto>>
+    suspend fun createCategory(token: String, name: String, description: String?, active: Boolean): UiState<ServiceCategoryDto>
+    suspend fun updateCategory(token: String, id: Long, name: String, description: String?, active: Boolean?): UiState<ServiceCategoryDto>
+    suspend fun deleteCategory(token: String, id: Long): UiState<Int>
     suspend fun getServices(token: String?, keyword: String? = null, categoryId: Long? = null, page: Int = 1, limit: Int = 20): UiState<List<RepairServiceDto>>
+    suspend fun createService(token: String, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean): UiState<RepairServiceDto>
+    suspend fun updateService(token: String, id: Long, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean): UiState<RepairServiceDto>
+    suspend fun deleteService(token: String, id: Long): UiState<Int>
     suspend fun getMyBookings(token: String, status: String? = null, page: Int = 1, limit: Int = 20): UiState<List<BookingSummaryDto>>
+    suspend fun getAdminBookings(token: String, keyword: String? = null, status: String? = null, customerId: Int? = null, technicianId: Int? = null, page: Int = 1, limit: Int = 20): UiState<List<BookingSummaryDto>>
+    suspend fun confirmBooking(token: String, id: Long, note: String): UiState<String>
+    suspend fun assignTechnician(token: String, id: Long, technicianId: Long, note: String): UiState<String>
+    suspend fun updateBookingStatus(token: String, id: Long, status: String, note: String): UiState<String>
     suspend fun getServiceReviews(serviceId: Long, page: Int = 1, limit: Int = 20): UiState<List<ReviewDto>>
+    suspend fun getUsers(token: String, keyword: String? = null, role: String? = null, active: Boolean? = null, page: Int = 1, limit: Int = 20): UiState<List<AdminUserDto>>
+    suspend fun updateUser(token: String, id: Long, name: String?, phone: String?, email: String?, role: String?, active: Boolean?): UiState<AdminUserDto>
+    suspend fun setUserActive(token: String, id: Long, active: Boolean): UiState<String>
 }
 
 class HomeRepositoryImpl(
-    private val serviceCategoryApi: ServiceCategoryApi,
+    private val adminApi: AdminApi,
+    private val serviceCategoryApi: vn.vibe.booking.data.remote.ServiceCategoryApi,
     private val repairServiceApi: RepairServiceApi,
     private val bookingApi: BookingApi,
     private val reviewApi: ReviewApi
 ) : HomeRepository {
 
-    override suspend fun getCategories(token: String, keyword: String?, page: Int, limit: Int): UiState<List<ServiceCategoryDto>> =
-        runApi {
-            val json = JSONObject(serviceCategoryApi.getAdminCategories(keyword, page, limit, token))
-            val pageDto = json.toItemsPage()
-            pageDto.items.map { it.toServiceCategoryDto() }
-        }
-
-    override suspend fun getServices(token: String?, keyword: String?, categoryId: Long?, page: Int, limit: Int): UiState<List<RepairServiceDto>> =
-        runApi {
-            val json = JSONObject(repairServiceApi.getServices(keyword, categoryId, page, limit))
-            val pageDto = json.toItemsPage()
-            pageDto.items.map { it.toRepairServiceDto() }
-        }
-
-    override suspend fun getMyBookings(token: String, status: String?, page: Int, limit: Int): UiState<List<BookingSummaryDto>> =
-        runApi {
-            val json = JSONObject(bookingApi.getMyBookings(status, page, limit, token))
-            val pageDto = json.toItemsPage()
-            pageDto.items.map { it.toBookingSummaryDto() }
-        }
-
-    override suspend fun getServiceReviews(serviceId: Long, page: Int, limit: Int): UiState<List<ReviewDto>> =
-        runApi {
-            val json = JSONObject(reviewApi.getServiceReviews(serviceId, page, limit))
-            val pageDto = json.toItemsPage()
-            pageDto.items.map { it.toReviewDto() }
-        }
+    override suspend fun getCategories(token: String, keyword: String?, page: Int, limit: Int): UiState<List<ServiceCategoryDto>> = runApi {
+        JSONObject(serviceCategoryApi.getAdminCategories(keyword, page, limit, token)).toItemsPage().items.map { it.toServiceCategoryDto() }
+    }
+    override suspend fun createCategory(token: String, name: String, description: String?, active: Boolean): UiState<ServiceCategoryDto> = runApi { TODO() }
+    override suspend fun updateCategory(token: String, id: Long, name: String, description: String?, active: Boolean?): UiState<ServiceCategoryDto> = runApi { TODO() }
+    override suspend fun deleteCategory(token: String, id: Long): UiState<Int> = runApi { TODO() }
+    override suspend fun getServices(token: String?, keyword: String?, categoryId: Long?, page: Int, limit: Int): UiState<List<RepairServiceDto>> = runApi {
+        JSONObject(repairServiceApi.getServices(keyword, categoryId, page, limit)).toItemsPage().items.map { it.toRepairServiceDto() }
+    }
+    override suspend fun createService(token: String, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean): UiState<RepairServiceDto> = runApi {
+        JSONObject(repairServiceApi.createService(categoryId, name, shortDescription, description, basePrice, estimatedMinutes, warrantyDays, active, token)).toRepairServiceDto()
+    }
+    override suspend fun updateService(token: String, id: Long, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean): UiState<RepairServiceDto> = runApi {
+        JSONObject(repairServiceApi.updateService(id, categoryId, name, shortDescription, description, basePrice, estimatedMinutes, warrantyDays, active, token)).toRepairServiceDto()
+    }
+    override suspend fun deleteService(token: String, id: Long): UiState<Int> = runApi { JSONObject(repairServiceApi.deleteService(id, token)).optInt("data", 1) }
+    override suspend fun getMyBookings(token: String, status: String?, page: Int, limit: Int): UiState<List<BookingSummaryDto>> = runApi { JSONObject(bookingApi.getMyBookings(status, page, limit, token)).toItemsPage().items.map { it.toBookingSummaryDto() } }
+    override suspend fun getAdminBookings(token: String, keyword: String?, status: String?, customerId: Int?, technicianId: Int?, page: Int, limit: Int): UiState<List<BookingSummaryDto>> = runApi { JSONObject(bookingApi.getAdminBookings(keyword, status, customerId, technicianId, page, limit, token)).toItemsPage().items.map { it.toBookingSummaryDto() } }
+    override suspend fun confirmBooking(token: String, id: Long, note: String): UiState<String> = runApi { bookingApi.confirmBooking(id, note, token) }
+    override suspend fun assignTechnician(token: String, id: Long, technicianId: Long, note: String): UiState<String> = runApi { bookingApi.assignTechnician(id, technicianId, note, token) }
+    override suspend fun updateBookingStatus(token: String, id: Long, status: String, note: String): UiState<String> = runApi { bookingApi.updateStatus(id, status, note, token) }
+    override suspend fun getServiceReviews(serviceId: Long, page: Int, limit: Int): UiState<List<ReviewDto>> = runApi { JSONObject(reviewApi.getServiceReviews(serviceId, page, limit)).toItemsPage().items.map { it.toReviewDto() } }
+    override suspend fun getUsers(token: String, keyword: String?, role: String?, active: Boolean?, page: Int, limit: Int): UiState<List<AdminUserDto>> = runApi { JSONObject(adminApi.getUsers(keyword, role, active, page, limit, token)).toItemsPage().items.map { it.toAdminUserDto() } }
+    override suspend fun updateUser(token: String, id: Long, name: String?, phone: String?, email: String?, role: String?, active: Boolean?): UiState<AdminUserDto> = runApi { JSONObject(adminApi.updateUser(id, name, phone, email, role, active, token)).toAdminUserDto() }
+    override suspend fun setUserActive(token: String, id: Long, active: Boolean): UiState<String> = runApi { adminApi.setUserActive(id, active, token) }
 }
 
-private inline fun <T> runApi(block: () -> T): UiState<T> = try {
-    val data = block()
-    if (data is List<*> && data.isEmpty()) UiState.Empty() else UiState.Success(data)
-} catch (e: Exception) {
-    UiState.Error(e.message ?: "Không thể tải dữ liệu")
-}
+private inline fun <T> runApi(block: () -> T): UiState<T> = try { UiState.Success(block()) } catch (e: Exception) { UiState.Error(e.message ?: "Không thể tải dữ liệu") }

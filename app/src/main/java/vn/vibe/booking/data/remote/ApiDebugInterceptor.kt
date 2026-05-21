@@ -10,10 +10,10 @@ class ApiDebugInterceptor(
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        logger("[API-DEBUG] ${CurlDebug.request(request)}")
+        logger("[API-DEBUG][CURL] ${CurlDebug.request(request)}")
 
         request.body?.asUtf8String()?.takeIf { it.isNotBlank() }?.let {
-            logger("[API-DEBUG-BODY] ${CurlDebug.prettyJson(it)}")
+            logger("[API-DEBUG][BODY] ${CurlDebug.prettyJson(it)}")
         }
 
         return chain.proceed(request)

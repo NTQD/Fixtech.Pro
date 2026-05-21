@@ -4,6 +4,7 @@ import android.content.Context
 import okhttp3.OkHttpClient
 import vn.vibe.booking.core.network.AuthInterceptor
 import vn.vibe.booking.data.local.TokenDataStore
+import vn.vibe.booking.data.remote.AdminApi
 import vn.vibe.booking.data.remote.ApiDebugInterceptor
 import vn.vibe.booking.data.remote.AuthApi
 import vn.vibe.booking.data.remote.BookingApi
@@ -35,6 +36,7 @@ class AppContainer(context: Context) {
 
     private val authApi = AuthApi(okHttpClient)
 
+    val adminApi = AdminApi(okHttpClient)
     val serviceCategoryApi = ServiceCategoryApi(okHttpClient)
     val repairServiceApi = RepairServiceApi(okHttpClient)
     val bookingApi = BookingApi(okHttpClient)
@@ -42,7 +44,7 @@ class AppContainer(context: Context) {
 
     val authRepository: AuthRepository = AuthRepositoryImpl(authApi)
     val userRepository: UserRepository = UserRepositoryImpl(authApi)
-    val homeRepository: HomeRepository = HomeRepositoryImpl(serviceCategoryApi, repairServiceApi, bookingApi, reviewApi)
+    val homeRepository: HomeRepository = HomeRepositoryImpl(adminApi, serviceCategoryApi, repairServiceApi, bookingApi, reviewApi)
 
     val loginUseCase = LoginUseCase(authRepository)
     val registerUseCase = RegisterUseCase(authRepository)

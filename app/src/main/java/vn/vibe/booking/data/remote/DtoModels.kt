@@ -78,6 +78,15 @@ data class ReviewDto(
     val comment: String?
 )
 
+data class AdminUserDto(
+    val id: Long,
+    val name: String,
+    val phone: String?,
+    val email: String?,
+    val role: String,
+    val active: Boolean
+)
+
 private fun JSONObject.optStringOrNull(name: String): String? = optString(name).takeIf { it.isNotBlank() }
 
 fun JSONObject.toServiceCategoryDto() = ServiceCategoryDto(
@@ -142,18 +151,27 @@ fun JSONObject.toReviewDto() = ReviewDto(
     comment = optStringOrNull("comment")
 )
 
+fun JSONObject.toAdminUserDto() = AdminUserDto(
+    id = optLong("id"),
+    name = optString("name"),
+    phone = optStringOrNull("phone"),
+    email = optStringOrNull("email"),
+    role = optString("role").ifBlank { optString("role") },
+    active = optBoolean("active", true)
+)
+
 fun JSONObject.itemsArray(name: String): List<JSONObject> {
     val array: JSONArray = optJSONObject(name)?.optJSONArray("items") ?: optJSONArray(name) ?: return emptyList()
     return List(array.length()) { index -> array.getJSONObject(index) }
 }
 
 fun JSONObject.toItemsPage(): ApiListResponseDto<JSONObject> {
-    val data = optJSONObject("data") ?: this
+    val data = optJSONObject("data") ?: optJSONObject("result") ?: this
     val items = data.optJSONArray("items")?.let { arr -> List(arr.length()) { i -> arr.getJSONObject(i) } }.orEmpty()
     return ApiListResponseDto(
         items = items,
-        page = data.optInt("page", 1),
-        limit = data.optInt("limit", 20),
-        total = data.optInt("total", items.size)
+        page = data.optInt("page", optInt("page", 1)),
+        limit = data.optInt("limit", optInt("limit", 20)),
+        total = data.optInt("total", optInt("total", items.size))
     )
 }

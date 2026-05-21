@@ -46,7 +46,7 @@ class AuthRepositoryImpl(
 
         UserInfo(
             id = result.optLong("id"),
-            roleName = result.optString("role").ifBlank { result.optString("roleName") },
+            role = result.optString("role").ifBlank { result.optString("role") },
             name = result.optString("name"),
             avatar = result.optString("avatar").takeIf { it.isNotBlank() },
             phone = result.optString("phone").takeIf { it.isNotBlank() },

@@ -10,22 +10,29 @@ object CurlDebug {
             append(request.url)
             append("'")
 
-            if (request.method != "GET") {
+            if (request.method.isNotBlank()) {
                 append(" \\\n")
-                request.headers.names().forEach { name ->
-                    val value = request.header(name).orEmpty()
-                    append("--header '")
-                    append(name)
-                    append(": ")
-                    append(escapeSingleQuotes(value))
-                    append("' \\\n")
-                }
-                request.body?.let { body ->
-                    val bodyText = requestBodyToString(request)
-                    append("--data '")
-                    append(escapeSingleQuotes(bodyText))
-                    append("'")
-                }
+                append("--request '")
+                append(request.method)
+                append("'")
+            }
+
+            request.headers.names().forEach { name ->
+                val value = request.header(name).orEmpty()
+                append(" \\\n")
+                append("--header '")
+                append(name)
+                append(": ")
+                append(escapeSingleQuotes(value))
+                append("'")
+            }
+
+            val bodyText = requestBodyToString(request)
+            if (bodyText.isNotBlank()) {
+                append(" \\\n")
+                append("--data-raw '")
+                append(escapeSingleQuotes(bodyText))
+                append("'")
             }
         }.trimEnd()
     }

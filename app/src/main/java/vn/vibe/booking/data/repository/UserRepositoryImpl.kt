@@ -19,7 +19,7 @@ class UserRepositoryImpl(
         val result = responseJson.getJSONObject("result")
         UserInfo(
             id = result.optLong("id"),
-            roleName = result.optString("roleName"),
+            role = result.optString("role"),
             name = result.optString("name"),
             avatar = result.optString("avatar").takeIf { it.isNotBlank() },
             phone = result.optString("phone").takeIf { it.isNotBlank() },
