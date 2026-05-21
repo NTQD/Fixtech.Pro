@@ -47,11 +47,11 @@ class HomeRepositoryImpl(
 ) : HomeRepository {
 
     override suspend fun getCategories(token: String, keyword: String?, page: Int, limit: Int): UiState<List<ServiceCategoryDto>> = runApi {
-        JSONObject(serviceCategoryApi.getAdminCategories(keyword, page, limit, token)).toItemsPage().items.map { it.toServiceCategoryDto() }
+        JSONObject(adminApi.getCategories(keyword, page, limit, token)).toItemsPage().items.map { it.toServiceCategoryDto() }
     }
-    override suspend fun createCategory(token: String, name: String, description: String?, active: Boolean): UiState<ServiceCategoryDto> = runApi { TODO() }
-    override suspend fun updateCategory(token: String, id: Long, name: String, description: String?, active: Boolean?): UiState<ServiceCategoryDto> = runApi { TODO() }
-    override suspend fun deleteCategory(token: String, id: Long): UiState<Int> = runApi { TODO() }
+    override suspend fun createCategory(token: String, name: String, description: String?, active: Boolean): UiState<ServiceCategoryDto> = runApi { JSONObject(adminApi.createCategory(name, description, active, token)).toServiceCategoryDto() }
+    override suspend fun updateCategory(token: String, id: Long, name: String, description: String?, active: Boolean?): UiState<ServiceCategoryDto> = runApi { JSONObject(adminApi.updateCategory(id, name, description, active, token)).toServiceCategoryDto() }
+    override suspend fun deleteCategory(token: String, id: Long): UiState<Int> = runApi { JSONObject(adminApi.deleteCategory(id, token)).optInt("data", 1) }
     override suspend fun getServices(token: String?, keyword: String?, categoryId: Long?, page: Int, limit: Int): UiState<List<RepairServiceDto>> = runApi {
         JSONObject(repairServiceApi.getServices(keyword, categoryId, page, limit)).toItemsPage().items.map { it.toRepairServiceDto() }
     }
