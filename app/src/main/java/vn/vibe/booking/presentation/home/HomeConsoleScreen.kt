@@ -86,44 +86,48 @@ fun AdminConsoleScreen(viewModel: HomeViewModel, token: String?, contentPadding:
 
     LaunchedEffect(token, selectedSection, pageSize) { reload(1) }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(contentPadding).padding(16.dp),
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(contentPadding),
+        contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        ConsoleHeader()
-        ConsoleSummaryGrid(users, services, categories, bookings)
-        ConsoleShortcuts(selectedSection) { selectedSection = it; search = ""; roleFilter = null; statusFilter = null }
-
-        AdminSectionToolbar(
-            search = search,
-            onSearchChange = { search = it; reload(1) },
-            pageSize = pageSize,
-            onPageSizeChange = { pageSize = it; reload(1) },
-            extraFilterLabel = when (selectedSection) {
-                ConsoleSection.Users -> roleFilter ?: "All roles"
-                ConsoleSection.Bookings -> statusFilter ?: "All status"
-                else -> "All"
-            },
-            onAdd = {
-                dialogMode = "create"
-                dialogTitle = when (selectedSection) {
-                    ConsoleSection.Users -> "Create user"
-                    ConsoleSection.Services -> "Create service"
-                    ConsoleSection.Categories -> "Create category"
-                    ConsoleSection.Bookings -> "Create booking action"
-                }
-                showDialog = true
-            },
-            onPrev = { val current = currentPage(selectedSection, users, services, categories, bookings); if (current > 1) reload(current - 1) },
-            onNext = { val current = currentPage(selectedSection, users, services, categories, bookings); reload(current + 1) }
-        )
-
-        when (selectedSection) {
-            ConsoleSection.Users -> UsersTable(users, search, roleFilter, onView = { selectedUser = it; dialogMode = "view"; dialogTitle = "View user"; showDialog = true }, onEdit = { selectedUser = it; dialogMode = "edit"; dialogTitle = "Edit user"; showDialog = true }, onDelete = { viewModel.setUserActive(token ?: return@UsersTable, it.id, false) { reload(currentPage(selectedSection, users, services, categories, bookings)) } }, onLockUnlock = { user, active -> viewModel.setUserActive(token ?: return@UsersTable, user.id, active) { reload(currentPage(selectedSection, users, services, categories, bookings)) } })
-            ConsoleSection.Services -> ServicesTable(services, search, onView = { selectedService = it; dialogMode = "view"; dialogTitle = "View service"; showDialog = true }, onEdit = { selectedService = it; dialogMode = "edit"; dialogTitle = "Edit service"; showDialog = true }, onDelete = { viewModel.deleteService(token ?: return@ServicesTable, it.id) { reload(currentPage(selectedSection, users, services, categories, bookings)) } })
-            ConsoleSection.Categories -> CategoriesTable(categories, search, onView = { selectedCategory = it; dialogMode = "view"; dialogTitle = "View category"; showDialog = true }, onEdit = { selectedCategory = it; dialogMode = "edit"; dialogTitle = "Edit category"; showDialog = true }, onDelete = { viewModel.deleteCategory(token ?: return@CategoriesTable, it.id) { reload(currentPage(selectedSection, users, services, categories, bookings)) } })
-            ConsoleSection.Bookings -> BookingsTable(bookings, search, statusFilter, onView = { selectedBooking = it; dialogMode = "view"; dialogTitle = "View booking"; showDialog = true }, onEdit = { selectedBooking = it; dialogMode = "edit"; dialogTitle = "Update booking"; showDialog = true }, onConfirm = { viewModel.confirmBooking(token ?: return@BookingsTable, it.id, "Admin confirm") { reload(currentPage(selectedSection, users, services, categories, bookings)) } })
+        item { ConsoleHeader() }
+        item { ConsoleSummaryGrid(users, services, categories, bookings) }
+        item { ConsoleShortcuts(selectedSection) { selectedSection = it; search = ""; roleFilter = null; statusFilter = null } }
+        item {
+            AdminSectionToolbar(
+                search = search,
+                onSearchChange = { search = it; reload(1) },
+                pageSize = pageSize,
+                onPageSizeChange = { pageSize = it; reload(1) },
+                extraFilterLabel = when (selectedSection) {
+                    ConsoleSection.Users -> roleFilter ?: "All roles"
+                    ConsoleSection.Bookings -> statusFilter ?: "All status"
+                    else -> "All"
+                },
+                onAdd = {
+                    dialogMode = "create"
+                    dialogTitle = when (selectedSection) {
+                        ConsoleSection.Users -> "Create user"
+                        ConsoleSection.Services -> "Create service"
+                        ConsoleSection.Categories -> "Create category"
+                        ConsoleSection.Bookings -> "Create booking action"
+                    }
+                    showDialog = true
+                },
+                onPrev = { val current = currentPage(selectedSection, users, services, categories, bookings); if (current > 1) reload(current - 1) },
+                onNext = { val current = currentPage(selectedSection, users, services, categories, bookings); reload(current + 1) }
+            )
         }
+        item {
+            when (selectedSection) {
+                ConsoleSection.Users -> UsersTable(users, search, roleFilter, onView = { selectedUser = it; dialogMode = "view"; dialogTitle = "View user"; showDialog = true }, onEdit = { selectedUser = it; dialogMode = "edit"; dialogTitle = "Edit user"; showDialog = true }, onDelete = { viewModel.setUserActive(token ?: return@UsersTable, it.id, false) { reload(currentPage(selectedSection, users, services, categories, bookings)) } }, onLockUnlock = { user, active -> viewModel.setUserActive(token ?: return@UsersTable, user.id, active) { reload(currentPage(selectedSection, users, services, categories, bookings)) } })
+                ConsoleSection.Services -> ServicesTable(services, search, onView = { selectedService = it; dialogMode = "view"; dialogTitle = "View service"; showDialog = true }, onEdit = { selectedService = it; dialogMode = "edit"; dialogTitle = "Edit service"; showDialog = true }, onDelete = { viewModel.deleteService(token ?: return@ServicesTable, it.id) { reload(currentPage(selectedSection, users, services, categories, bookings)) } })
+                ConsoleSection.Categories -> CategoriesTable(categories, search, onView = { selectedCategory = it; dialogMode = "view"; dialogTitle = "View category"; showDialog = true }, onEdit = { selectedCategory = it; dialogMode = "edit"; dialogTitle = "Edit category"; showDialog = true }, onDelete = { viewModel.deleteCategory(token ?: return@CategoriesTable, it.id) { reload(currentPage(selectedSection, users, services, categories, bookings)) } })
+                ConsoleSection.Bookings -> BookingsTable(bookings, search, statusFilter, onView = { selectedBooking = it; dialogMode = "view"; dialogTitle = "View booking"; showDialog = true }, onEdit = { selectedBooking = it; dialogMode = "edit"; dialogTitle = "Update booking"; showDialog = true }, onConfirm = { viewModel.confirmBooking(token ?: return@BookingsTable, it.id, "Admin confirm") { reload(currentPage(selectedSection, users, services, categories, bookings)) } })
+            }
+        }
+        item { Spacer(Modifier.height(24.dp)) }
     }
 
     if (showDialog) {
