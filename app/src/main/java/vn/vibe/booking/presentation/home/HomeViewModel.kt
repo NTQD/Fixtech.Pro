@@ -55,8 +55,11 @@ class HomeViewModel(
         if (token.isNullOrBlank()) return
         _userState.value = UiState.Loading
         viewModelScope.launch {
-            userRepository.getUserInfo(token)
-                .onSuccess { _userState.value = UiState.Success(it) }
+            runCatching { userRepository.getUserInfo(token) }
+                .onSuccess { result ->
+                    result.onSuccess { _userState.value = UiState.Success(it) }
+                        .onFailure { _userState.value = UiState.Error(it.message ?: "Không tải được thông tin người dùng") }
+                }
                 .onFailure { _userState.value = UiState.Error(it.message ?: "Không tải được thông tin người dùng") }
         }
     }
@@ -65,11 +68,15 @@ class HomeViewModel(
         if (token.isNullOrBlank()) return
         _servicesState.value = _servicesState.value.copy(loading = true, error = null)
         viewModelScope.launch {
-            when (val result = homeRepository.getServices(token, keyword, categoryId, page, limit)) {
-                is UiState.Success -> _servicesState.value = PageState(items = result.data, page = page, limit = limit, total = result.data.size, loading = false)
-                is UiState.Empty -> _servicesState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
-                is UiState.Error -> _servicesState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
-                else -> _servicesState.value = PageState(page = page, limit = limit, loading = false)
+            try {
+                when (val result = homeRepository.getServices(token, keyword, categoryId, page, limit)) {
+                    is UiState.Success -> _servicesState.value = PageState(items = result.data, page = page, limit = limit, total = result.data.size, loading = false)
+                    is UiState.Empty -> _servicesState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    is UiState.Error -> _servicesState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    else -> _servicesState.value = PageState(page = page, limit = limit, loading = false)
+                }
+            } catch (e: Exception) {
+                _servicesState.value = PageState(page = page, limit = limit, loading = false, error = e.message ?: "Không tải được services")
             }
         }
     }
@@ -78,29 +85,43 @@ class HomeViewModel(
         if (token.isNullOrBlank()) return
         _bookingsState.value = _bookingsState.value.copy(loading = true, error = null)
         viewModelScope.launch {
-            when (val result = homeRepository.getAdminBookings(token, keyword, status, customerId, technicianId, page, limit)) {
-                is UiState.Success -> _bookingsState.value = PageState(items = result.data, page = page, limit = limit, total = result.data.size, loading = false)
-                is UiState.Empty -> _bookingsState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
-                is UiState.Error -> _bookingsState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
-                else -> _bookingsState.value = PageState(page = page, limit = limit, loading = false)
+            try {
+                when (val result = homeRepository.getAdminBookings(token, keyword, status, customerId, technicianId, page, limit)) {
+                    is UiState.Success -> _bookingsState.value = PageState(items = result.data, page = page, limit = limit, total = result.data.size, loading = false)
+                    is UiState.Empty -> _bookingsState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    is UiState.Error -> _bookingsState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    else -> _bookingsState.value = PageState(page = page, limit = limit, loading = false)
+                }
+            } catch (e: Exception) {
+                _bookingsState.value = PageState(page = page, limit = limit, loading = false, error = e.message ?: "Không tải được bookings")
             }
         }
     }
 
     fun loadServiceReviews(serviceId: Long) {
         _reviewsState.value = UiState.Loading
-        viewModelScope.launch { _reviewsState.value = homeRepository.getServiceReviews(serviceId) }
+        viewModelScope.launch {
+            _reviewsState.value = try {
+                homeRepository.getServiceReviews(serviceId)
+            } catch (e: Exception) {
+                UiState.Error(e.message ?: "Không tải được đánh giá")
+            }
+        }
     }
 
     fun loadCategories(token: String?, keyword: String? = null, page: Int = 1, limit: Int = 20) {
         if (token.isNullOrBlank()) return
         _categoriesState.value = _categoriesState.value.copy(loading = true, error = null)
         viewModelScope.launch {
-            when (val result = homeRepository.getCategories(token, keyword, page, limit)) {
-                is UiState.Success -> _categoriesState.value = PageState(items = result.data, page = page, limit = limit, total = result.data.size, loading = false)
-                is UiState.Empty -> _categoriesState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
-                is UiState.Error -> _categoriesState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
-                else -> _categoriesState.value = PageState(page = page, limit = limit, loading = false)
+            try {
+                when (val result = homeRepository.getCategories(token, keyword, page, limit)) {
+                    is UiState.Success -> _categoriesState.value = PageState(items = result.data, page = page, limit = limit, total = result.data.size, loading = false)
+                    is UiState.Empty -> _categoriesState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    is UiState.Error -> _categoriesState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    else -> _categoriesState.value = PageState(page = page, limit = limit, loading = false)
+                }
+            } catch (e: Exception) {
+                _categoriesState.value = PageState(page = page, limit = limit, loading = false, error = e.message ?: "Không tải được categories")
             }
         }
     }
@@ -109,36 +130,110 @@ class HomeViewModel(
         if (token.isNullOrBlank()) return
         _usersState.value = _usersState.value.copy(loading = true, error = null)
         viewModelScope.launch {
-            when (val result = homeRepository.getUsers(token, keyword, role, active, page, limit)) {
-                is UiState.Success -> _usersState.value = PageState(items = result.data, page = page, limit = limit, total = result.data.size, loading = false)
-                is UiState.Empty -> _usersState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
-                is UiState.Error -> _usersState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
-                else -> _usersState.value = PageState(page = page, limit = limit, loading = false)
+            try {
+                when (val result = homeRepository.getUsers(token, keyword, role, active, page, limit)) {
+                    is UiState.Success -> _usersState.value = PageState(items = result.data, page = page, limit = limit, total = result.data.size, loading = false)
+                    is UiState.Empty -> _usersState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    is UiState.Error -> _usersState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    else -> _usersState.value = PageState(page = page, limit = limit, loading = false)
+                }
+            } catch (e: Exception) {
+                _usersState.value = PageState(page = page, limit = limit, loading = false, error = e.message ?: "Không tải được users")
             }
         }
     }
 
     fun updateUser(token: String, id: Long, name: String?, phone: String?, email: String?, role: String?, active: Boolean?, onDone: () -> Unit) = viewModelScope.launch {
-        homeRepository.updateUser(token, id, name, phone, email, role, active)
-        onDone()
+        try {
+            homeRepository.updateUser(token, id, name, phone, email, role, active)
+            onDone()
+        } catch (_: Exception) {
+        }
     }
 
     fun setUserActive(token: String, id: Long, active: Boolean, onDone: () -> Unit) = viewModelScope.launch {
-        homeRepository.setUserActive(token, id, active)
-        onDone()
+        try {
+            homeRepository.setUserActive(token, id, active)
+            onDone()
+        } catch (_: Exception) {
+        }
     }
 
-    fun createCategory(token: String, name: String, description: String?, active: Boolean, onDone: () -> Unit) = viewModelScope.launch { homeRepository.createCategory(token, name, description, active); onDone() }
-    fun updateCategory(token: String, id: Long, name: String, description: String?, active: Boolean?, onDone: () -> Unit) = viewModelScope.launch { homeRepository.updateCategory(token, id, name, description, active); onDone() }
-    fun deleteCategory(token: String, id: Long, onDone: () -> Unit) = viewModelScope.launch { homeRepository.deleteCategory(token, id); onDone() }
-    fun createService(token: String, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean, onDone: () -> Unit) = viewModelScope.launch { homeRepository.createService(token, categoryId, name, shortDescription, description, basePrice, estimatedMinutes, warrantyDays, active); onDone() }
-    fun updateService(token: String, id: Long, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean, onDone: () -> Unit) = viewModelScope.launch { homeRepository.updateService(token, id, categoryId, name, shortDescription, description, basePrice, estimatedMinutes, warrantyDays, active); onDone() }
-    fun deleteService(token: String, id: Long, onDone: () -> Unit) = viewModelScope.launch { homeRepository.deleteService(token, id); onDone() }
-    fun confirmBooking(token: String, id: Long, note: String, onDone: () -> Unit) = viewModelScope.launch { homeRepository.confirmBooking(token, id, note); onDone() }
-    fun assignTechnician(token: String, id: Long, technicianId: Long, note: String, onDone: () -> Unit) = viewModelScope.launch { homeRepository.assignTechnician(token, id, technicianId, note); onDone() }
-    fun updateBookingStatus(token: String, id: Long, status: String, note: String, onDone: () -> Unit) = viewModelScope.launch { homeRepository.updateBookingStatus(token, id, status, note); onDone() }
+    fun createCategory(token: String, name: String, description: String?, active: Boolean, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.createCategory(token, name, description, active)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
 
-    fun logout(onLoggedOut: () -> Unit) { viewModelScope.launch { tokenRepository.clearToken(); onLoggedOut() } }
+    fun updateCategory(token: String, id: Long, name: String, description: String?, active: Boolean?, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.updateCategory(token, id, name, description, active)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun deleteCategory(token: String, id: Long, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.deleteCategory(token, id)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun createService(token: String, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.createService(token, categoryId, name, shortDescription, description, basePrice, estimatedMinutes, warrantyDays, active)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun updateService(token: String, id: Long, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.updateService(token, id, categoryId, name, shortDescription, description, basePrice, estimatedMinutes, warrantyDays, active)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun deleteService(token: String, id: Long, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.deleteService(token, id)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun confirmBooking(token: String, id: Long, note: String, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.confirmBooking(token, id, note)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun assignTechnician(token: String, id: Long, technicianId: Long, note: String, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.assignTechnician(token, id, technicianId, note)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun updateBookingStatus(token: String, id: Long, status: String, note: String, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.updateBookingStatus(token, id, status, note)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun logout(onLoggedOut: () -> Unit) {
+        viewModelScope.launch { tokenRepository.clearToken(); onLoggedOut() }
+    }
 
     class Factory(
         private val userRepository: UserRepository,

@@ -1,5 +1,6 @@
 package vn.vibe.booking.presentation.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -106,7 +108,14 @@ fun AdminConsoleScreen(viewModel: HomeViewModel, token: String?, contentPadding:
         item { ConsoleHeader() }
         item { ConsoleSummaryGrid(users, services, categories, bookings) }
         stickyHeader {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF050816))
+                    .zIndex(1f)
+                    .padding(bottom = 8.dp)
+            ) {
                 ConsoleShortcuts(selectedSection = selectedSection, onSelect = {
                     selectedSection = it
                     search = ""
@@ -118,11 +127,6 @@ fun AdminConsoleScreen(viewModel: HomeViewModel, token: String?, contentPadding:
                     search = search,
                     onSearchChange = {
                         search = it
-                        reload(1)
-                    },
-                    pageSize = pageSize,
-                    onPageSizeChange = {
-                        pageSize = it
                         reload(1)
                     },
                     extraFilterLabel = when (selectedSection) {
@@ -139,12 +143,15 @@ fun AdminConsoleScreen(viewModel: HomeViewModel, token: String?, contentPadding:
                             ConsoleSection.Bookings -> "Confirm / update booking"
                         }
                         showDialog = true
-                    },
+                    }
+                )
+                PaginationBar(
+                    currentPage = currentPage,
+                    totalPages = totalPages,
+                    pageSize = pageSize,
+                    onPageSizeChange = { pageSize = it; reload(1) },
                     onPrev = { if (currentPage > 1) reload(currentPage - 1) },
-                    onNext = { if (currentPage < totalPages) reload(currentPage + 1) },
-                    pageText = "Page $currentPage / $totalPages",
-                    canPrev = currentPage > 1,
-                    canNext = currentPage < totalPages
+                    onNext = { if (currentPage < totalPages) reload(currentPage + 1) }
                 )
             }
         }
@@ -304,15 +311,8 @@ private fun ConsoleShortcuts(selectedSection: ConsoleSection, onSelect: (Console
 private fun AdminSectionToolbar(
     search: String,
     onSearchChange: (String) -> Unit,
-    pageSize: Int,
-    onPageSizeChange: (Int) -> Unit,
     extraFilterLabel: String,
-    onAdd: () -> Unit,
-    onPrev: () -> Unit,
-    onNext: () -> Unit,
-    pageText: String,
-    canPrev: Boolean,
-    canNext: Boolean
+    onAdd: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
@@ -325,17 +325,33 @@ private fun AdminSectionToolbar(
         )
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             AssistChip(onClick = {}, label = { Text(extraFilterLabel) }, leadingIcon = { Icon(Icons.Default.FilterAlt, null) })
-            Spacer(Modifier.width(8.dp))
-            AssistChip(onClick = { onPageSizeChange(if (pageSize == 20) 50 else 20) }, label = { Text("Size: $pageSize") })
             Spacer(Modifier.weight(1f))
-            Text(pageText, color = Color(0xFFCBD5E1))
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = onPrev, enabled = canPrev) { Text("Prev") }
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = onNext, enabled = canNext) { Text("Next") }
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = onAdd) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(8.dp)); Text("Add") }
+            Button(onClick = onAdd) {
+                Icon(Icons.Default.Add, null)
+                Spacer(Modifier.width(8.dp))
+                Text("Add")
+            }
         }
+    }
+}
+
+@Composable
+private fun PaginationBar(
+    currentPage: Int,
+    totalPages: Int,
+    pageSize: Int,
+    onPageSizeChange: (Int) -> Unit,
+    onPrev: () -> Unit,
+    onNext: () -> Unit
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        AssistChip(onClick = { onPageSizeChange(if (pageSize == 20) 50 else 20) }, label = { Text("Size: $pageSize") })
+        Spacer(Modifier.width(8.dp))
+        Text("Page $currentPage / $totalPages", color = Color(0xFFCBD5E1))
+        Spacer(Modifier.weight(1f))
+        Button(onClick = onPrev, enabled = currentPage > 1) { Text("Prev") }
+        Spacer(Modifier.width(8.dp))
+        Button(onClick = onNext, enabled = currentPage < totalPages) { Text("Next") }
     }
 }
 
