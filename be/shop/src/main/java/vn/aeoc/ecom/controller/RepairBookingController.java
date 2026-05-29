@@ -80,6 +80,13 @@ public class RepairBookingController {
         return Mapper.map("Phân công thành công", ApiResponse::okEntity);
     }
 
+    @PostMapping("/admin/bookings/{id}/status")
+    @IsAdmin
+    public ResponseEntity<ApiResponse<String>> adminChangeStatus(@PathVariable Integer id, @RequestBody ChangeBookingStatusRequest request) {
+        flowService.changeStatus(id, request);
+        return Mapper.map("Cập nhật trạng thái thành công", ApiResponse::okEntity);
+    }
+
     @PostMapping("/technician/bookings/{id}/status")
     @IsSeller
     public ResponseEntity<ApiResponse<String>> changeStatus(@PathVariable Integer id, @RequestBody ChangeBookingStatusRequest request) {

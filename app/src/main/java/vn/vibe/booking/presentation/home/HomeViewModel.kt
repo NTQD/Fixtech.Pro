@@ -143,9 +143,25 @@ class HomeViewModel(
         }
     }
 
+    fun createUser(token: String, name: String, phone: String?, email: String?, role: String?, active: Boolean?, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.createUser(token, name, phone, email, role, active)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
     fun updateUser(token: String, id: Long, name: String?, phone: String?, email: String?, role: String?, active: Boolean?, onDone: () -> Unit) = viewModelScope.launch {
         try {
             homeRepository.updateUser(token, id, name, phone, email, role, active)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun deleteUser(token: String, id: Long, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.deleteUser(token, id)
             onDone()
         } catch (_: Exception) {
         }

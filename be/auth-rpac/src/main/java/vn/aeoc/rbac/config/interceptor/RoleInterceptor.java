@@ -70,7 +70,7 @@ public class RoleInterceptor implements HandlerInterceptor {
         if (auth.isAdmin()) {
             return true;
         }
-        if (needSeller && auth.isSeller()) {
+        if (needSeller && (auth.isSeller() || auth.isAdmin())) {
             return true;
         }
         if (needUser && (auth.isUser() || auth.isSeller())) {

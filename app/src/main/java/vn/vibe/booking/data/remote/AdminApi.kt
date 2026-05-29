@@ -15,6 +15,16 @@ class AdminApi(client: OkHttpClient) : BaseApiService(client) {
         return get("/admin/users$query", auth(token))
     }
 
+    suspend fun createUser(name: String, phone: String?, email: String?, role: String?, active: Boolean?, token: String): String {
+        val body = JSONObject()
+            .put("name", name)
+            .put("phone", phone ?: "")
+            .put("email", email ?: "")
+            .put("role", role ?: "")
+            .put("active", active)
+        return post("/admin/users", body, auth(token))
+    }
+
     suspend fun updateUser(id: Long, name: String?, phone: String?, email: String?, role: String?, active: Boolean?, token: String): String {
         val body = JSONObject()
             .put("name", name ?: "")
@@ -24,6 +34,8 @@ class AdminApi(client: OkHttpClient) : BaseApiService(client) {
             .put("active", active)
         return put("/admin/users/$id", body, auth(token))
     }
+
+    suspend fun deleteUser(id: Long, token: String): String = delete("/admin/users/$id", auth(token))
 
     suspend fun setUserActive(id: Long, active: Boolean, token: String): String {
         val body = JSONObject().put("active", active)

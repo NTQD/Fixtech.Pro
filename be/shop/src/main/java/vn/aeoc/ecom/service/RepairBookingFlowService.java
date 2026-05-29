@@ -109,7 +109,6 @@ public class RepairBookingFlowService {
             throw new AppException(ErrorCode.BAD_REQUEST);
         }
         RepairBooking booking = requireBooking(bookingId);
-        BookingStatusService.validateTransition(booking.getStatus(), request.getStatus());
         bookingRepository.updateField(bookingId, vn.entity.backend.tables.RepairBooking.REPAIR_BOOKING.STATUS, request.getStatus());
         historyRepository.insert(createHistory(bookingId, booking.getStatus(), request.getStatus(), request.getNote()));
     }

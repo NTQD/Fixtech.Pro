@@ -48,4 +48,13 @@ public class UserManagementController {
         }
         return Mapper.map("Cập nhật trạng thái thành công", ApiResponse::okEntity);
     }
+
+    @DeleteMapping("/{id}")
+    @IsAdmin
+    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Integer id) {
+        userService.delete(id);
+        return Mapper.map("Xóa thành công", ApiResponse::okEntity);
+    }
 }
+
+
