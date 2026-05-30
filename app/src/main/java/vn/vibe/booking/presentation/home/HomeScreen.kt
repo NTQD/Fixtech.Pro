@@ -62,7 +62,7 @@ fun HomeScreen(
     LaunchedEffect(token) {
         viewModel.loadUserInfo(token)
         viewModel.loadServices(token)
-        viewModel.loadBookings(token)
+        if (isAdmin) viewModel.loadBookings(token) else viewModel.loadMyBookings(token)
         viewModel.loadCategories(token)
         if (isAdmin) viewModel.loadUsers(token)
     }
@@ -96,9 +96,15 @@ fun HomeScreen(
 
             Box(modifier = Modifier.fillMaxSize()) {
                 when (visibleTabs[selectedTab]) {
-                    HomeTab.Home -> HomeDashboard(userInfo = userInfo, isLoading = isLoading, error = error, accent = accent)
-                    HomeTab.Services -> ServiceCatalogScreen(search = search, onSearchChange = { search = it })
-                    HomeTab.Bookings -> BookingTimelineScreen()
+                    HomeTab.Home -> HomeDashboard(
+                        userInfo = userInfo,
+                        isLoading = isLoading,
+                        error = error,
+                        accent = accent,
+                        onQuickBookClick = { selectedTab = visibleTabs.indexOf(HomeTab.Services).takeIf { it >= 0 } ?: selectedTab }
+                    )
+                    HomeTab.Services -> ServiceBookingScreen(viewModel = viewModel, token = token, contentPadding = PaddingValues(0.dp))
+                    HomeTab.Bookings -> BookingTimelineScreen(viewModel = viewModel, token = token)
                     HomeTab.Console -> AdminConsoleScreen(viewModel = viewModel, token = token, contentPadding = PaddingValues(0.dp))
                     HomeTab.Profile -> ProfileScreen(userInfo = userInfo, accent = accent, onLogout = onLogout)
                 }

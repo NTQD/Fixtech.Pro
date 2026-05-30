@@ -4,6 +4,7 @@ import org.json.JSONObject
 import vn.vibe.booking.data.remote.AdminApi
 import vn.vibe.booking.data.remote.AdminUserDto
 import vn.vibe.booking.data.remote.BookingApi
+import vn.vibe.booking.data.remote.BookingItemRequest
 import vn.vibe.booking.data.remote.BookingSummaryDto
 import vn.vibe.booking.data.remote.RepairServiceApi
 import vn.vibe.booking.data.remote.RepairServiceDto
@@ -27,6 +28,21 @@ interface HomeRepository {
     suspend fun createService(token: String, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean): UiState<RepairServiceDto>
     suspend fun updateService(token: String, id: Long, categoryId: Long, name: String, shortDescription: String?, description: String?, basePrice: Long, estimatedMinutes: Int, warrantyDays: Int, active: Boolean): UiState<RepairServiceDto>
     suspend fun deleteService(token: String, id: Long): UiState<Int>
+    suspend fun createBooking(
+        token: String,
+        customerName: String,
+        customerPhone: String,
+        customerEmail: String?,
+        deviceType: String,
+        deviceBrand: String,
+        deviceModel: String,
+        issueDescription: String,
+        preferredDate: String,
+        preferredTimeSlot: String,
+        address: String,
+        note: String?,
+        items: List<BookingItemRequest>
+    ): UiState<String>
     suspend fun getMyBookings(token: String, status: String? = null, page: Int = 1, limit: Int = 20): UiState<List<BookingSummaryDto>>
     suspend fun getAdminBookings(token: String, keyword: String? = null, status: String? = null, customerId: Int? = null, technicianId: Int? = null, page: Int = 1, limit: Int = 20): UiState<List<BookingSummaryDto>>
     suspend fun confirmBooking(token: String, id: Long, note: String): UiState<String>
@@ -49,11 +65,11 @@ class HomeRepositoryImpl(
 ) : HomeRepository {
 
     override suspend fun getCategories(token: String, keyword: String?, page: Int, limit: Int): UiState<List<ServiceCategoryDto>> = runApi {
-        JSONObject(adminApi.getCategories(keyword, page, limit, token)).toItemsPage().items.map { it.toServiceCategoryDto() }
+        JSONObject(serviceCategoryApi.getAdminCategories(keyword, page, limit, token)).toItemsPage().items.map { it.toServiceCategoryDto() }
     }
-    override suspend fun createCategory(token: String, name: String, description: String?, active: Boolean): UiState<ServiceCategoryDto> = runApi { JSONObject(adminApi.createCategory(name, description, active, token)).toServiceCategoryDto() }
-    override suspend fun updateCategory(token: String, id: Long, name: String, description: String?, active: Boolean?): UiState<ServiceCategoryDto> = runApi { JSONObject(adminApi.updateCategory(id, name, description, active, token)).toServiceCategoryDto() }
-    override suspend fun deleteCategory(token: String, id: Long): UiState<Int> = runApi { JSONObject(adminApi.deleteCategory(id, token)).optInt("data", 1) }
+    override suspend fun createCategory(token: String, name: String, description: String?, active: Boolean): UiState<ServiceCategoryDto> = runApi { JSONObject(serviceCategoryApi.createCategory(name, description, active, token)).toServiceCategoryDto() }
+    override suspend fun updateCategory(token: String, id: Long, name: String, description: String?, active: Boolean?): UiState<ServiceCategoryDto> = runApi { JSONObject(serviceCategoryApi.updateCategory(id, name, description, active ?: true, token)).toServiceCategoryDto() }
+    override suspend fun deleteCategory(token: String, id: Long): UiState<Int> = runApi { JSONObject(serviceCategoryApi.deleteCategory(id, token)).optInt("data", 1) }
     override suspend fun getServices(token: String?, keyword: String?, categoryId: Long?, page: Int, limit: Int): UiState<List<RepairServiceDto>> = runApi {
         JSONObject(repairServiceApi.getServices(keyword, categoryId, page, limit)).toItemsPage().items.map { it.toRepairServiceDto() }
     }
@@ -64,6 +80,37 @@ class HomeRepositoryImpl(
         JSONObject(repairServiceApi.updateService(id, categoryId, name, shortDescription, description, basePrice, estimatedMinutes, warrantyDays, active, token)).toRepairServiceDto()
     }
     override suspend fun deleteService(token: String, id: Long): UiState<Int> = runApi { JSONObject(repairServiceApi.deleteService(id, token)).optInt("data", 1) }
+    override suspend fun createBooking(
+        token: String,
+        customerName: String,
+        customerPhone: String,
+        customerEmail: String?,
+        deviceType: String,
+        deviceBrand: String,
+        deviceModel: String,
+        issueDescription: String,
+        preferredDate: String,
+        preferredTimeSlot: String,
+        address: String,
+        note: String?,
+        items: List<BookingItemRequest>
+    ): UiState<String> = runApi {
+        bookingApi.createBooking(
+            customerName = customerName,
+            customerPhone = customerPhone,
+            customerEmail = customerEmail,
+            deviceType = deviceType,
+            deviceBrand = deviceBrand,
+            deviceModel = deviceModel,
+            issueDescription = issueDescription,
+            preferredDate = preferredDate,
+            preferredTimeSlot = preferredTimeSlot,
+            address = address,
+            note = note,
+            items = items,
+            token = token
+        )
+    }
     override suspend fun getMyBookings(token: String, status: String?, page: Int, limit: Int): UiState<List<BookingSummaryDto>> = runApi { JSONObject(bookingApi.getMyBookings(status, page, limit, token)).toItemsPage().items.map { it.toBookingSummaryDto() } }
     override suspend fun getAdminBookings(token: String, keyword: String?, status: String?, customerId: Int?, technicianId: Int?, page: Int, limit: Int): UiState<List<BookingSummaryDto>> = runApi { JSONObject(bookingApi.getAdminBookings(keyword, status, customerId, technicianId, page, limit, token)).toItemsPage().items.map { it.toBookingSummaryDto() } }
     override suspend fun confirmBooking(token: String, id: Long, note: String): UiState<String> = runApi { bookingApi.confirmBooking(id, note, token) }

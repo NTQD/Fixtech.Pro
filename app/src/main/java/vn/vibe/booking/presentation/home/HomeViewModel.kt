@@ -98,6 +98,23 @@ class HomeViewModel(
         }
     }
 
+    fun loadMyBookings(token: String?, status: String? = null, page: Int = 1, limit: Int = 20) {
+        if (token.isNullOrBlank()) return
+        _bookingsState.value = _bookingsState.value.copy(loading = true, error = null)
+        viewModelScope.launch {
+            try {
+                when (val result = homeRepository.getMyBookings(token, status, page, limit)) {
+                    is UiState.Success -> _bookingsState.value = PageState(items = result.data, page = page, limit = limit, total = result.data.size, loading = false)
+                    is UiState.Empty -> _bookingsState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    is UiState.Error -> _bookingsState.value = PageState(page = page, limit = limit, total = 0, loading = false, error = result.message)
+                    else -> _bookingsState.value = PageState(page = page, limit = limit, loading = false)
+                }
+            } catch (e: Exception) {
+                _bookingsState.value = PageState(page = page, limit = limit, loading = false, error = e.message ?: "Không tải được bookings")
+            }
+        }
+    }
+
     fun loadServiceReviews(serviceId: Long) {
         _reviewsState.value = UiState.Loading
         viewModelScope.launch {
@@ -218,6 +235,29 @@ class HomeViewModel(
     fun deleteService(token: String, id: Long, onDone: () -> Unit) = viewModelScope.launch {
         try {
             homeRepository.deleteService(token, id)
+            onDone()
+        } catch (_: Exception) {
+        }
+    }
+
+    fun createBooking(
+        token: String,
+        customerName: String,
+        customerPhone: String,
+        customerEmail: String?,
+        deviceType: String,
+        deviceBrand: String,
+        deviceModel: String,
+        issueDescription: String,
+        preferredDate: String,
+        preferredTimeSlot: String,
+        address: String,
+        note: String?,
+        items: List<vn.vibe.booking.data.remote.BookingItemRequest>,
+        onDone: () -> Unit
+    ) = viewModelScope.launch {
+        try {
+            homeRepository.createBooking(token, customerName, customerPhone, customerEmail, deviceType, deviceBrand, deviceModel, issueDescription, preferredDate, preferredTimeSlot, address, note, items)
             onDone()
         } catch (_: Exception) {
         }
