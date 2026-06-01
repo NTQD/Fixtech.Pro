@@ -2,15 +2,22 @@ FROM maven:3.9.6-amazoncorretto-21 AS build
 
 WORKDIR /app
 COPY pom.xml .
-COPY crm ./crm
+COPY shop ./shop
 COPY entity ./entity
+COPY auth-rpac ./auth-rpac
 COPY base ./base
-RUN mvn -B -q -DskipTests -pl crm -am package
+RUN mvn -B -q -DskipTests -pl shop -am package
 
 # create Image
 FROM amazoncorretto:21.0.4
 WORKDIR /app
-COPY --from=build /app/crm/target/*.jar app.jar
+COPY --from=build /app/shop/target/*.jar shop.jar
+COPY --from=build /app/entity/target/*.jar entity.jar
+COPY --from=build /app/auth-rpac/target/*.jar auth-rpac.jar
+COPY --from=build /app/base/target/*.jar base.jar
 ENV SPRING_PROFILES_ACTIVE=dev
+ENV SPRING_DATASOURCE_URL=jdbc:mysql://app-mobile-mysql:3306/ecom
+ENV SPRING_DATASOURCE_USERNAME=root
+ENV SPRING_DATASOURCE_PASSWORD=root
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "shop.jar", "-jar", "entity.jar", "-jar", "auth-rpac.jar", "-jar", "base.jar"]
