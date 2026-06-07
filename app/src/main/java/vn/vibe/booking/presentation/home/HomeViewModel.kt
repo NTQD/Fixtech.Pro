@@ -279,9 +279,9 @@ class HomeViewModel(
         }
     }
 
-    fun updateBookingStatus(token: String, id: Long, status: String, note: String, onDone: () -> Unit) = viewModelScope.launch {
+    fun updateBookingStatus(token: String, id: Long, status: String, note: String, scheduledAt: String?, onDone: () -> Unit) = viewModelScope.launch {
         try {
-            homeRepository.updateBookingStatus(token, id, status, note)
+            homeRepository.updateBookingStatus(token, id, status, note, scheduledAt)
             onDone()
         } catch (_: Exception) {
         }

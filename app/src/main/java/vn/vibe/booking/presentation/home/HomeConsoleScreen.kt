@@ -55,6 +55,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import kotlin.math.ceil
 import vn.vibe.booking.data.remote.AdminUserDto
 import vn.vibe.booking.data.remote.BookingSummaryDto
@@ -273,11 +277,11 @@ fun AdminConsoleScreen(viewModel: HomeViewModel, token: String?, contentPadding:
                 mode = dialogMode,
                 value = selectedBooking,
                 onDismiss = { showDialog = false },
-                onSave = { status, note ->
+                onSave = { status, note, scheduledAt ->
                     val tokenValue = token ?: return@BookingDialog
                     val booking = selectedBooking
                     if (booking != null) {
-                        viewModel.updateBookingStatus(tokenValue, booking.id, status, note) {
+                        viewModel.updateBookingStatus(tokenValue, booking.id, status, note, scheduledAt) {
                             reload(currentPage)
                             showDialog = false
                         }
@@ -627,48 +631,112 @@ private fun CategoryDialog(mode: String, value: ServiceCategoryDto?, onDismiss: 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BookingDialog(mode: String, value: BookingSummaryDto?, onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
+private fun BookingDialog(mode: String, value: BookingSummaryDto?, onDismiss: () -> Unit, onSave: (String, String, String?) -> Unit) {
     val status = remember(value) { mutableStateOf(value?.status.orEmpty().ifBlank { BookingStatusOptions.first() }) }
     val note = remember(value) { mutableStateOf("") }
-    val expanded = remember { mutableStateOf(false) }
+    val scheduledDate = remember(value) { mutableStateOf(value?.scheduledAt.orEmpty().takeIf { it.isNotBlank() }?.toLocalDatePart() ?: currentDateInput()) }
+    val scheduledTime = remember(value) { mutableStateOf(value?.scheduledAt.orEmpty().takeIf { it.isNotBlank() }?.toLocalTimePart() ?: currentTimeInput()) }
+    val statusExpanded = remember { mutableStateOf(false) }
+    val dateError = remember { mutableStateOf<String?>(null) }
+    val timeError = remember { mutableStateOf<String?>(null) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (mode == "create") "Create booking action" else "Update booking") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 ExposedDropdownMenuBox(
-                    expanded = expanded.value,
-                    onExpandedChange = { expanded.value = !expanded.value }
+                    expanded = statusExpanded.value,
+                    onExpandedChange = { statusExpanded.value = !statusExpanded.value }
                 ) {
                     OutlinedTextField(
                         value = status.value,
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Status") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = statusExpanded.value) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor()
                     )
                     ExposedDropdownMenu(
-                        expanded = expanded.value,
-                        onDismissRequest = { expanded.value = false }
+                        expanded = statusExpanded.value,
+                        onDismissRequest = { statusExpanded.value = false }
                     ) {
                         BookingStatusOptions.forEach { option ->
                             DropdownMenuItem(
                                 text = { Text(option) },
                                 onClick = {
                                     status.value = option
-                                    expanded.value = false
+                                    statusExpanded.value = false
                                 }
                             )
                         }
                     }
                 }
                 OutlinedTextField(note.value, { note.value = it }, label = { Text("Note") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(
+                    value = scheduledDate.value,
+                    onValueChange = {
+                        scheduledDate.value = it
+                        dateError.value = validateDateInput(it)
+                    },
+                    label = { Text("Scheduled date") },
+                    placeholder = { Text("2026-06-07") },
+                    supportingText = { Text("Format: yyyy-MM-dd") },
+                    isError = dateError.value != null,
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                if (!dateError.value.isNullOrBlank()) {
+                    Text(dateError.value.orEmpty(), color = Color(0xFFFCA5A5))
+                }
+                OutlinedTextField(
+                    value = scheduledTime.value,
+                    onValueChange = {
+                        scheduledTime.value = it
+                        timeError.value = validateTimeInput(it)
+                    },
+                    label = { Text("Scheduled time") },
+                    placeholder = { Text("14:30") },
+                    supportingText = { Text("Format: HH:mm") },
+                    isError = timeError.value != null,
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                if (!timeError.value.isNullOrBlank()) {
+                    Text(timeError.value.orEmpty(), color = Color(0xFFFCA5A5))
+                }
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(status.value, note.value) }) { Text("Save") } },
+        confirmButton = {
+            TextButton(onClick = {
+                val scheduledAt = buildScheduledTimestamp(scheduledDate.value, scheduledTime.value)
+                onSave(status.value, note.value, scheduledAt)
+            }) { Text("Save") }
+        },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
+}
+
+private fun currentDateInput(): String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+private fun currentTimeInput(): String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+private fun validateDateInput(value: String): String? = runCatching { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).isLenient = false; SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(value) }.fold(onSuccess = { null }, onFailure = { "Ngày không hợp lệ" })
+
+private fun validateTimeInput(value: String): String? {
+    val regex = Regex("^([01]\\d|2[0-3]):[0-5]\\d$")
+    return if (regex.matches(value)) null else "Giờ không hợp lệ"
+}
+
+private fun buildScheduledTimestamp(date: String, time: String): String? {
+    if (validateDateInput(date) != null || validateTimeInput(time) != null) return null
+    return "$date $time:00"
+}
+
+private fun String.toLocalDatePart(): String = substringBefore('T').substringBefore(' ').takeIf { it.matches(Regex("^\\d{4}-\\d{2}-\\d{2}$")) }.orEmpty()
+
+private fun String.toLocalTimePart(): String {
+    val raw = substringAfter('T', missingDelimiterValue = this).substringAfter(' ', missingDelimiterValue = this)
+    return raw.takeIf { it.length >= 5 }?.substring(0, 5).takeIf { !it.isNullOrBlank() }.orEmpty()
 }

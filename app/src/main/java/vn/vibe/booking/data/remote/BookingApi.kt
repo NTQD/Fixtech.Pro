@@ -74,8 +74,11 @@ class BookingApi(client: OkHttpClient) : BaseApiService(client) {
         return post("/admin/bookings/$id/assign-technician", body, auth(token))
     }
 
-    suspend fun updateStatus(id: Long, status: String, note: String, token: String): String {
-        val body = JSONObject().put("status", status).put("note", note)
+    suspend fun updateStatus(id: Long, status: String, note: String, scheduledAt: String? = null, token: String): String {
+        val body = JSONObject()
+            .put("status", status)
+            .put("note", note)
+        if (!scheduledAt.isNullOrBlank()) body.put("scheduledAt", scheduledAt)
         return post("/technician/bookings/$id/status", body, auth(token))
     }
 

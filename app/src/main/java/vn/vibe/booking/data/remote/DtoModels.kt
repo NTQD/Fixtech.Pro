@@ -41,8 +41,10 @@ data class BookingSummaryDto(
     val status: String,
     val preferredDate: String?,
     val preferredTimeSlot: String?,
+    val scheduledAt: String?,
     val totalEstimatedPrice: Long
 )
+
 
 data class BookingDetailDto(
     val id: Long,
@@ -114,6 +116,7 @@ fun JSONObject.toBookingSummaryDto() = BookingSummaryDto(
     status = optString("status"),
     preferredDate = optStringOrNull("preferredDate"),
     preferredTimeSlot = optStringOrNull("preferredTimeSlot"),
+    scheduledAt = optStringOrNull("scheduledAt"),
     totalEstimatedPrice = optLong("totalEstimatedPrice")
 )
 
