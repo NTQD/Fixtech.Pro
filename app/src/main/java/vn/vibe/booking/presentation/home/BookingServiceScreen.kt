@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults

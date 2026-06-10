@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.AlertDialog
@@ -47,6 +48,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -212,7 +214,8 @@ fun AdminConsoleScreen(viewModel: HomeViewModel, token: String?, contentPadding:
                     statusFilter = statusFilter,
                     onView = { selectedBooking = it; dialogMode = "view"; dialogTitle = "View booking"; showDialog = true },
                     onEdit = { selectedBooking = it; dialogMode = "edit"; dialogTitle = "Update booking"; showDialog = true },
-                    onConfirm = { viewModel.confirmBooking(token ?: return@BookingsTable, it.id, "Admin confirm") { reload(currentPage) } }
+                    onConfirm = { viewModel.confirmBooking(token ?: return@BookingsTable, it.id, "Admin confirm") { reload(currentPage) } },
+                    onReview = { selectedBooking = it; dialogMode = "review"; dialogTitle = "Đánh giá booking"; showDialog = true }
                 )
             }
         }
@@ -478,11 +481,18 @@ private fun BookingsTable(
     statusFilter: String?,
     onView: (BookingSummaryDto) -> Unit,
     onEdit: (BookingSummaryDto) -> Unit,
-    onConfirm: (BookingSummaryDto) -> Unit
+    onConfirm: (BookingSummaryDto) -> Unit,
+    onReview: (BookingSummaryDto) -> Unit
 ) {
     val filtered = state.items.filter { (search.isBlank() || it.bookingCode.contains(search, true)) && (statusFilter.isNullOrBlank() || it.status.equals(statusFilter, true)) }
     SectionTable("Bookings", listOf("Code", "Status", "Price", "Actions"), filtered, state.loading, state.error, "Chưa có bookings") { booking ->
-        TableRow(listOf(booking.bookingCode, booking.status, booking.totalEstimatedPrice.toString()), onView = { onView(booking) }, onEdit = { onEdit(booking) }, onDelete = { onConfirm(booking) })
+        BookingTableRow(
+            booking = booking,
+            onView = { onView(booking) },
+            onEdit = { onEdit(booking) },
+            onConfirm = { onConfirm(booking) },
+            onReview = { onReview(booking) }
+        )
     }
 }
 
@@ -511,6 +521,28 @@ private fun TableRow(cells: List<String>, onView: () -> Unit, onEdit: () -> Unit
         IconButton(onClick = onView) { Icon(Icons.Default.Visibility, null, tint = Color(0xFF38BDF8)) }
         IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = Color(0xFF8B5CF6)) }
         IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, null, tint = Color(0xFFF87171)) }
+    }
+}
+
+@Composable
+private fun BookingTableRow(
+    booking: BookingSummaryDto,
+    onView: () -> Unit,
+    onEdit: () -> Unit,
+    onConfirm: () -> Unit,
+    onReview: () -> Unit
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Text(booking.bookingCode, color = Color.White, modifier = Modifier.weight(1f))
+        Text(booking.status, color = Color.White, modifier = Modifier.weight(1f))
+        Text(booking.totalEstimatedPrice.toString(), color = Color.White, modifier = Modifier.weight(1f))
+        IconButton(onClick = onView) { Icon(Icons.Default.Visibility, null, tint = Color(0xFF38BDF8)) }
+        IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = Color(0xFF8B5CF6)) }
+        if (booking.status.equals("COMPLETED", true)) {
+            IconButton(onClick = onReview) { Icon(Icons.Default.Star, null, tint = Color(0xFFFBBF24)) }
+        } else {
+            IconButton(onClick = onConfirm) { Icon(Icons.Default.CheckCircle, null, tint = Color(0xFF34D399)) }
+        }
     }
 }
 
