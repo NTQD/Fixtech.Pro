@@ -48,6 +48,7 @@ interface HomeRepository {
     suspend fun confirmBooking(token: String, id: Long, note: String): UiState<String>
     suspend fun assignTechnician(token: String, id: Long, technicianId: Long, note: String): UiState<String>
     suspend fun updateBookingStatus(token: String, id: Long, status: String, note: String, scheduledAt: String? = null): UiState<String>
+    suspend fun createBookingReview(token: String, bookingId: Long, rating: Int, comment: String): UiState<ReviewDto>
     suspend fun getServiceReviews(serviceId: Long, page: Int = 1, limit: Int = 20): UiState<List<ReviewDto>>
     suspend fun getUsers(token: String, keyword: String? = null, role: String? = null, active: Boolean? = null, page: Int = 1, limit: Int = 20): UiState<List<AdminUserDto>>
     suspend fun createUser(token: String, name: String, phone: String?, email: String?, role: String?, active: Boolean?): UiState<AdminUserDto>
@@ -116,6 +117,7 @@ class HomeRepositoryImpl(
     override suspend fun confirmBooking(token: String, id: Long, note: String): UiState<String> = runApi { bookingApi.confirmBooking(id, note, token) }
     override suspend fun assignTechnician(token: String, id: Long, technicianId: Long, note: String): UiState<String> = runApi { bookingApi.assignTechnician(id, technicianId, note, token) }
     override suspend fun updateBookingStatus(token: String, id: Long, status: String, note: String, scheduledAt: String?): UiState<String> = runApi { bookingApi.updateStatus(id, status, note, scheduledAt, token) }
+    override suspend fun createBookingReview(token: String, bookingId: Long, rating: Int, comment: String): UiState<ReviewDto> = runApi { JSONObject(reviewApi.createReview(bookingId, rating, comment, token)).toReviewDto() }
     override suspend fun getServiceReviews(serviceId: Long, page: Int, limit: Int): UiState<List<ReviewDto>> = runApi { JSONObject(reviewApi.getServiceReviews(serviceId, page, limit)).toItemsPage().items.map { it.toReviewDto() } }
     override suspend fun getUsers(token: String, keyword: String?, role: String?, active: Boolean?, page: Int, limit: Int): UiState<List<AdminUserDto>> = runApi { JSONObject(adminApi.getUsers(keyword, role, active, page, limit, token)).toItemsPage().items.map { it.toAdminUserDto() } }
     override suspend fun createUser(token: String, name: String, phone: String?, email: String?, role: String?, active: Boolean?): UiState<AdminUserDto> = runApi { JSONObject(adminApi.createUser(name, phone, email, role, active, token)).toAdminUserDto() }

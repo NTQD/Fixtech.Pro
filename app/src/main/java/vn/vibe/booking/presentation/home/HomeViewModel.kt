@@ -287,6 +287,18 @@ class HomeViewModel(
         }
     }
 
+    fun createBookingReview(token: String, bookingId: Long, rating: Int, comment: String, onDone: () -> Unit, onError: (String) -> Unit) = viewModelScope.launch {
+        try {
+            when (val result = homeRepository.createBookingReview(token, bookingId, rating, comment)) {
+                is UiState.Success -> onDone()
+                is UiState.Error -> onError(result.message)
+                else -> onDone()
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Không gửi được đánh giá")
+        }
+    }
+
     fun logout(onLoggedOut: () -> Unit) {
         viewModelScope.launch { tokenRepository.clearToken(); onLoggedOut() }
     }
