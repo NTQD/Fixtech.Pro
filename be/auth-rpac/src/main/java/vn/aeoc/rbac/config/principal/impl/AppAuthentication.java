@@ -15,10 +15,10 @@ public class AppAuthentication implements Authentication {
     }
 
     public boolean isUser() {
-        return "user".equalsIgnoreCase(role);
+        return "user".equalsIgnoreCase(role) || "customer".equalsIgnoreCase(role);
     }
 
     public boolean isSeller() {
-        return "seller".equalsIgnoreCase(role);
+        return "seller".equalsIgnoreCase(role) || "technician".equalsIgnoreCase(role);
     }
 }

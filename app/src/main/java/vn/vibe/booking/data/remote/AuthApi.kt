@@ -40,15 +40,17 @@ class AuthApi @Inject constructor(
         getJson("$baseUrl/authenticate/me", token)
     }
 
-    suspend fun updateProfile(id: Long, name: String, email: String, phone: String, role: String, token: String): String = withContext(Dispatchers.IO) {
+    suspend fun updateProfile(id: Long, name: String, email: String, phone: String, role: String, token: String, password: String? = null): String = withContext(Dispatchers.IO) {
         val payload = JSONObject()
             .put("name", name)
             .put("email", email)
             .put("phone", phone)
             .put("role", role)
             .put("active", true) // Assuming the user is active if they are logged in
-            .toString()
-        putJson("$baseUrl/admin/users/$id", payload, token)
+        if (!password.isNullOrBlank()) {
+            payload.put("password", password)
+        }
+        putJson("$baseUrl/authenticate/me", payload.toString(), token)
     }
 
     private fun postJson(url: String, body: String): String {

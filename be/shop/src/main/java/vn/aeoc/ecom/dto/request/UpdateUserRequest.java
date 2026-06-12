@@ -9,4 +9,7 @@ public class UpdateUserRequest {
     private String email;
     private String role;
     private Boolean active;
+    private String password;
+    private String plainPassword;
 }
+

@@ -19,7 +19,7 @@ import vn.aeoc.rbac.config.principal.impl.AppPrincipal;
 @RestController
 @AllArgsConstructor
 public class AuthController {
-    private final AppUserService<User> userService;
+    private final vn.aeoc.ecom.service.UserService userService;
     private final AuthService authService;
 
     @PostMapping("/authenticate/register")
@@ -57,5 +57,26 @@ public class AuthController {
     {
         String test = "ok";
         return Mapper.map(test, ApiResponse::okEntity);
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/authenticate/me")
+    @IsUser
+    public ResponseEntity<ApiResponse<User>> updateMe(
+            @RequestBody vn.aeoc.ecom.dto.request.UpdateUserRequest request,
+            AppPrincipal<User> principal) {
+
+        Integer userId = Integer.valueOf(principal.getName());
+        User user = new User();
+        user.setName(request.getName());
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
+        
+        userService.update(userId, user);
+
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            userService.updatePassword(userId, request.getPassword());
+        }
+
+        return Mapper.map(userService.findById(userId), ApiResponse::okEntity);
     }
 }

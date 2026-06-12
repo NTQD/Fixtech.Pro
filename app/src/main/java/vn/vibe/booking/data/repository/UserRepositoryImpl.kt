@@ -29,8 +29,8 @@ class UserRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun updateUserInfo(id: Long, name: String, email: String, phone: String, role: String, token: String): Result<Boolean> = runCatching {
-        val responseJson = parseResponse(api.updateProfile(id, name, email, phone, role, token))
+    override suspend fun updateUserInfo(id: Long, name: String, email: String, phone: String, role: String, token: String, password: String?): Result<Boolean> = runCatching {
+        val responseJson = parseResponse(api.updateProfile(id, name, email, phone, role, token, password))
         ensureSuccess(responseJson)
         true
     }

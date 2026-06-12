@@ -207,7 +207,7 @@ fun HomeScreen(
                     ProfileScreen(
                         userInfo = userInfo,
                         onLogout = onLogout,
-                        onUpdateProfile = { name, email ->
+                        onUpdateProfile = { name, email, password ->
                             if (userInfo != null) {
                                 viewModel.updateProfile(
                                     id = userInfo.id,
@@ -216,6 +216,7 @@ fun HomeScreen(
                                     phone = userInfo.phone ?: "",
                                     role = userInfo.role ?: "",
                                     token = token,
+                                    password = password,
                                     onSuccess = {
                                         android.widget.Toast.makeText(context, "Cập nhật thành công", android.widget.Toast.LENGTH_SHORT).show()
                                     },

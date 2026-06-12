@@ -27,7 +27,7 @@ import vn.vibe.booking.domain.model.UserInfo
 fun ProfileScreen(
     userInfo: UserInfo?,
     onLogout: () -> Unit,
-    onUpdateProfile: (name: String, email: String) -> Unit = { _, _ -> }
+    onUpdateProfile: (name: String, email: String, password: String?) -> Unit = { _, _, _ -> }
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -49,7 +49,7 @@ fun ProfileScreen(
 @Composable
 fun ProfileHeroCard(
     userInfo: UserInfo?,
-    onUpdateProfile: (name: String, email: String) -> Unit = { _, _ -> }
+    onUpdateProfile: (name: String, email: String, password: String?) -> Unit = { _, _, _ -> }
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
 
@@ -104,6 +104,7 @@ fun ProfileHeroCard(
         var name by remember { mutableStateOf(userInfo?.name ?: "") }
         var phone by remember { mutableStateOf(userInfo?.phone ?: "") }
         var email by remember { mutableStateOf(userInfo?.email ?: "") }
+        var password by remember { mutableStateOf("") }
 
         AlertDialog(
             onDismissRequest = { showEditDialog = false },
@@ -132,6 +133,14 @@ fun ProfileHeroCard(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Mật khẩu mới (Bỏ trống nếu không đổi)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation()
+                    )
                     Text(
                         "Lưu ý: Chức năng cập nhật sẽ yêu cầu kết nối API.",
                         style = MaterialTheme.typography.bodySmall,
@@ -141,7 +150,7 @@ fun ProfileHeroCard(
             },
             confirmButton = {
                 Button(onClick = {
-                    onUpdateProfile(name, email)
+                    onUpdateProfile(name, email, password.takeIf { it.isNotBlank() })
                     showEditDialog = false
                 }) { Text("Lưu") }
             },

@@ -71,13 +71,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateProfile(id: Long, name: String, email: String, phone: String, role: String, token: String?, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun updateProfile(id: Long, name: String, email: String, phone: String, role: String, token: String?, password: String? = null, onSuccess: () -> Unit, onError: (String) -> Unit) {
         if (token.isNullOrBlank()) {
             onError("Chưa đăng nhập")
             return
         }
         viewModelScope.launch {
-            runCatching { userRepository.updateUserInfo(id, name, email, phone, role, token) }
+            runCatching { userRepository.updateUserInfo(id, name, email, phone, role, token, password) }
                 .onSuccess { result ->
                     result.onSuccess {
                         onSuccess()

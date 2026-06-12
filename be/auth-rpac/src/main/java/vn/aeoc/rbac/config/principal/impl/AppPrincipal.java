@@ -26,6 +26,8 @@ public class AppPrincipal<T> implements Principal {
     }
 
     public boolean isUser() {
-        return authentication != null && "user".equalsIgnoreCase(authentication.getRole());
+        if (authentication == null) return false;
+        String r = authentication.getRole();
+        return "user".equalsIgnoreCase(r) || "customer".equalsIgnoreCase(r);
     }
 }
