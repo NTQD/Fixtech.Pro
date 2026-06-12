@@ -8,7 +8,9 @@ import vn.vibe.booking.domain.model.UserInfo
 import vn.vibe.booking.domain.repository.UserRepository
 import java.io.IOException
 
-class UserRepositoryImpl(
+import javax.inject.Inject
+
+class UserRepositoryImpl @Inject constructor(
     private val api: AuthApi
 ) : UserRepository {
 
@@ -25,6 +27,12 @@ class UserRepositoryImpl(
             phone = result.optString("phone").takeIf { it.isNotBlank() },
             email = result.optString("email").takeIf { it.isNotBlank() }
         )
+    }
+
+    override suspend fun updateUserInfo(id: Long, name: String, email: String, phone: String, role: String, token: String): Result<Boolean> = runCatching {
+        val responseJson = parseResponse(api.updateProfile(id, name, email, phone, role, token))
+        ensureSuccess(responseJson)
+        true
     }
 
     private fun parseResponse(raw: String): JSONObject {

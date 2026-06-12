@@ -9,10 +9,12 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 
-class AuthApi(
-    private val client: OkHttpClient,
-    private val baseUrl: String = BackendConfig.BASE_URL
+import javax.inject.Inject
+
+class AuthApi @Inject constructor(
+    private val client: OkHttpClient
 ) {
+    private val baseUrl: String = BackendConfig.BASE_URL
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
     suspend fun login(phone: String, password: String): String = withContext(Dispatchers.IO) {
@@ -38,6 +40,17 @@ class AuthApi(
         getJson("$baseUrl/authenticate/me", token)
     }
 
+    suspend fun updateProfile(id: Long, name: String, email: String, phone: String, role: String, token: String): String = withContext(Dispatchers.IO) {
+        val payload = JSONObject()
+            .put("name", name)
+            .put("email", email)
+            .put("phone", phone)
+            .put("role", role)
+            .put("active", true) // Assuming the user is active if they are logged in
+            .toString()
+        putJson("$baseUrl/admin/users/$id", payload, token)
+    }
+
     private fun postJson(url: String, body: String): String {
         val request = Request.Builder()
             .url(url)
@@ -53,6 +66,18 @@ class AuthApi(
         val request = Request.Builder()
             .url(url)
             .get()
+            .addHeader("Accept", "application/json")
+            .addHeader("Authorization", "Bearer $token")
+            .build()
+
+        return execute(request)
+    }
+
+    private fun putJson(url: String, body: String, token: String): String {
+        val request = Request.Builder()
+            .url(url)
+            .put(body.toRequestBody(jsonMediaType))
+            .addHeader("Content-Type", "application/json")
             .addHeader("Accept", "application/json")
             .addHeader("Authorization", "Bearer $token")
             .build()

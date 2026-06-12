@@ -1,0 +1,95 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0">
+  <diagram id="wireflow_1" name="Fixtech.Pro Wireflow">
+    <mxGraphModel dx="1403" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1000" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="splash" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#7C3AED;strokeWidth=2;fontColor=#0F172A;fontSize=12;fontStyle=1;" value="Splash Screen&#xa;(Kiểm tra Token)" vertex="1">
+          <mxGeometry height="60" width="160" x="500" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="login" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#7C3AED;strokeWidth=2;fontColor=#0F172A;fontSize=12;fontStyle=1;" value="Login Screen&#xa;(Đăng nhập)" vertex="1">
+          <mxGeometry height="60" width="150" x="350" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="register" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#7C3AED;strokeWidth=2;fontColor=#0F172A;fontSize=12;fontStyle=1;" value="Register Screen&#xa;(Đăng ký)" vertex="1">
+          <mxGeometry height="60" width="150" x="110" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="home" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#0284C7;strokeWidth=2;fontColor=#0F172A;fontSize=12;fontStyle=1;" value="Main Host Screen&#xa;(NavHost Container)" vertex="1">
+          <mxGeometry height="60" width="160" x="640" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="tab_home" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#0284C7;strokeWidth=2;fontColor=#0F172A;fontSize=11;" value="Tab Home&#xa;(Dashboard tổng quan)" vertex="1">
+          <mxGeometry height="50" width="140" x="280" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="tab_services" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#0284C7;strokeWidth=2;fontColor=#0F172A;fontSize=11;" value="Tab Services&#xa;(Danh mục dịch vụ)" vertex="1">
+          <mxGeometry height="50" width="140" x="460" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="tab_bookings" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#0284C7;strokeWidth=2;fontColor=#0F172A;fontSize=11;" value="Tab Bookings&#xa;(Danh sách lịch hẹn)" vertex="1">
+          <mxGeometry height="50" width="140" x="650" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="tab_profile" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#0284C7;strokeWidth=2;fontColor=#0F172A;fontSize=11;" value="Tab Profile&#xa;(Hồ sơ &amp; Đăng xuất)" vertex="1">
+          <mxGeometry height="50" width="140" x="800" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="tab_console" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#DB2777;strokeWidth=2;fontColor=#0F172A;fontSize=11;" value="Tab Console&#xa;(Admin / Tech Panel)" vertex="1">
+          <mxGeometry height="50" width="140" x="980" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="booking_form" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#0284C7;strokeWidth=2;fontColor=#0F172A;fontSize=11;" value="Booking Form Screen&#xa;(Tạo đơn đặt lịch)" vertex="1">
+          <mxGeometry height="50" width="140" x="460" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="booking_detail" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#0284C7;strokeWidth=2;fontColor=#0F172A;fontSize=11;" value="Booking Detail Screen&#xa;(Chi tiết lịch hẹn)" vertex="1">
+          <mxGeometry height="50" width="140" x="650" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="booking_review" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#0284C7;strokeWidth=2;fontColor=#0F172A;fontSize=11;" value="Review Screen&#xa;(Đánh giá dịch vụ)" vertex="1">
+          <mxGeometry height="50" width="140" x="650" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="splash" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=1.5;fontColor=#475569;fontSize=10;" target="login" value="Không có Token">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="splash" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#475569;fontSize=10;" target="home" value="Đã có Token">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="login" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=1.5;fontColor=#475569;fontSize=10;exitY=0.25;exitX=0;entryY=0.25;entryX=1;" target="register" value="Chưa có tài khoản">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="register" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=1.5;fontColor=#475569;fontSize=10;exitY=0.75;exitX=1;entryY=0.75;entryX=0;" target="login" value="Đăng ký thành công">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="login" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#475569;fontSize=10;" target="home" value="Đăng nhập thành công">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;" target="tab_home">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="620" y="240.07692307692298" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;" target="tab_services">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="620" y="240.07692307692298" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="home" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;" target="tab_bookings">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="home" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;" target="tab_profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="home" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#DB2777;strokeWidth=1.5;fontColor=#475569;fontSize=10;" target="tab_console" value="Quyền Admin/Tech">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="tab_services" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#475569;fontSize=10;" target="booking_form" value="Chọn dịch vụ -&gt; Đặt lịch">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="booking_form" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#475569;fontSize=10;" target="tab_bookings" value="Đơn tạo thành công">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="tab_bookings" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#475569;fontSize=10;" target="booking_detail" value="Xem chi tiết đơn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="booking_detail" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#475569;fontSize=10;" target="booking_review" value="Đơn hàng COMPLETED -&gt; Đánh giá">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="tab_profile" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#E11D48;strokeWidth=1.5;fontColor=#475569;fontSize=10;exitY=0.5;exitX=0.5;entryY=0.5;entryX=0.5;" target="login" value="Đăng xuất (Xóa Token)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,50 @@
+@startuml
+skinparam defaultFontSize 22
+skinparam nodesep 10
+skinparam ranksep 20
+skinparam componentStyle uml2
+skinparam packageStyle rect
+
+package "Presentation Layer (MVVM)" {
+    component [Jetpack Compose UI\n(LoginScreen)] as View
+    component [ViewModel\n(AuthViewModel)] as VM
+}
+
+package "Domain Layer (Clean Architecture)" {
+    component [Use Cases\n(LoginUseCase)] as UC
+    interface "Repository Interface\n(AuthRepository)" as RepoInt
+}
+
+package "Data Layer" {
+    component [Repository Impl\n(AuthRepositoryImpl)] as RepoImpl
+    component [Remote Data Source\n(AuthApi - OkHttp)] as Remote
+    component [Local Data Source\n(TokenDataStore)] as Local
+}
+
+database "Backend API" as BE
+
+' UI Events flow (downwards)
+View --> VM : 1. Dispatch UI Events\n(e.g., loginClicked)
+
+VM --> UC : 2. Call Execute\n(credentials)
+
+UC --> RepoInt : 3. Request Data
+
+RepoInt <|.. RepoImpl : Realizes
+
+RepoImpl --> Remote : 4. Fetch / Send
+RepoImpl --> Local : 5. Read / Write
+
+Remote --> BE : 6. HTTP Request / Response
+
+' Data / State updates flow (upwards)
+BE ..> Remote : JSON Data
+Remote ..> RepoImpl : DTO / Domain Model
+Local ..> RepoImpl : Token
+
+RepoImpl ..> UC : Domain Entities
+UC ..> VM : Result / State
+
+VM --> View : 7. Expose State via StateFlow\n(Triggers Re-composition)
+
+@enduml

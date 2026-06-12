@@ -1,0 +1,48 @@
+@startuml
+skinparam defaultFontSize 22
+skinparam ParticipantPadding 8
+skinparam BoxPadding 8
+skinparam maxMessageSize 150
+autonumber
+
+actor User
+participant "LoginScreen\n(Compose UI)" as UI
+participant "AuthViewModel" as VM
+participant "LoginUseCase" as UC
+participant "AuthRepositoryImpl" as Repo
+participant "AuthApi\n(OkHttp)" as API
+database "Backend API\n(Spring Boot)" as BE
+database "TokenDataStore" as DS
+
+User -> UI : Nhập số điện thoại & nhấn Đăng nhập
+activate UI
+UI -> VM : login(phone, password)
+activate VM
+VM -> VM : Cập nhật StateFlow\n(Trạng thái Loading)
+VM -> UC : execute(phone, password)
+activate UC
+UC -> Repo : login(credentials)
+activate Repo
+Repo -> API : login(requestBody)
+activate API
+API -> BE : HTTP POST /authenticate/login (JSON)
+activate BE
+BE --> API : Trả về Response JSON (chứa JWT)
+deactivate BE
+API --> Repo : Parse dữ liệu JSON sang DTO
+deactivate API
+Repo -> DS : saveToken(jwt)
+activate DS
+DS --> Repo : Xác nhận đã lưu
+deactivate DS
+Repo --> UC : Trả về trạng thái Thành công
+deactivate Repo
+UC --> VM : Trả về kết quả thành công
+deactivate UC
+VM -> VM : Cập nhật StateFlow\n(Trạng thái Success)
+VM --> UI : StateFlow thay đổi
+deactivate VM
+UI --> User : Chuyển sang màn hình chính
+deactivate UI
+
+@enduml

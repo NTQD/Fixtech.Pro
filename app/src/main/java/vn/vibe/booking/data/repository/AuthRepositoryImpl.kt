@@ -9,7 +9,9 @@ import vn.vibe.booking.domain.model.UserInfo
 import vn.vibe.booking.domain.repository.AuthRepository
 import java.io.IOException
 
-class AuthRepositoryImpl(
+import javax.inject.Inject
+
+class AuthRepositoryImpl @Inject constructor(
     private val api: AuthApi
 ) : AuthRepository {
 

@@ -15,7 +15,12 @@ import kotlinx.coroutines.flow.map
 import vn.vibe.booking.domain.repository.TokenRepository
 import java.io.IOException
 
-class TokenDataStore(context: Context) : TokenRepository {
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+
+class TokenDataStore @Inject constructor(
+    @ApplicationContext context: Context
+) : TokenRepository {
 
     private val dataStore: DataStore<Preferences> = PreferenceDataStoreFactory.create(
         produceFile = { context.preferencesDataStoreFile("auth.preferences_pb") }

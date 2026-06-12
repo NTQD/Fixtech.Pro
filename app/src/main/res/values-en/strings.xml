@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fixtech.Pro</string>
+    
+    <!-- Auth Flow -->
+    <string name="login_title">Login</string>
+    <string name="register_title">Register</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="password">Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="login_btn">Login</string>
+    <string name="register_btn">Register</string>
+    <string name="no_account">Don\'t have an account? Register</string>
+    <string name="has_account">Already have an account? Login</string>
+    <string name="forgot_password">Forgot password?</string>
+
+    <!-- Generic -->
+    <string name="error_required_field">This field is required</string>
+    <string name="error_invalid_phone">Invalid phone number</string>
+    <string name="loading">Loading...</string>
+    <string name="success">Success</string>
+    <string name="error">An error occurred</string>
+    <string name="retry">Retry</string>
+</resources>

@@ -1,42 +1,29 @@
 package vn.vibe.booking.presentation.auth
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import vn.vibe.booking.R
 
 @Composable
 fun LoginScreen(
@@ -46,8 +33,9 @@ fun LoginScreen(
     contentPadding: PaddingValues
 ) {
     val state by viewModel.loginState.collectAsStateWithLifecycle()
-    var phone by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
-    var password by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
+    var phone by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
     var localError by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(state.message) {
@@ -57,92 +45,141 @@ fun LoginScreen(
         }
     }
 
-    val background = Brush.linearGradient(
-        colors = listOf(Color(0xFF050816), Color(0xFF0F172A), Color(0xFF1E1B4B))
-    )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(background)
+            .background(MaterialTheme.colorScheme.background)
             .padding(contentPadding)
-            .padding(20.dp),
+            .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF0B1220)),
-            shape = RoundedCornerShape(32.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                Text("Chào mừng trở lại", style = MaterialTheme.typography.headlineMedium, color = Color.White)
-                Text("Đăng nhập để quản lý lịch sửa, theo dõi booking và xem thông tin tài khoản.", color = Color(0xFF94A3B8))
+            // App Logo or Title
+            Text(
+                text = stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Spacer(modifier = Modifier.height(24.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(id = R.string.login_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start
+            )
 
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = {
-                        phone = it
-                        localError = null
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Số điện thoại") },
-                    leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
-                    singleLine = true
-                )
+            OutlinedTextField(
+                value = phone,
+                onValueChange = {
+                    phone = it
+                    localError = null
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(id = R.string.phone_number)) },
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = {
-                        password = it
-                        localError = null
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Mật khẩu") },
-                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true
-                )
-
-                ErrorText(localError ?: state.error)
-
-                Button(
-                    onClick = {
-                        if (phone.text.isBlank() || password.text.isBlank()) {
-                            localError = "Vui lòng nhập đầy đủ số điện thoại và mật khẩu"
-                        } else {
-                            localError = null
-                            viewModel.login(phone.text.trim(), password.text.trim(), onSuccess = {})
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isLoading,
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    if (state.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.height(18.dp),
-                            strokeWidth = 2.dp,
-                            color = Color.White
-                        )
-                    } else {
-                        Text("Đăng nhập")
+            OutlinedTextField(
+                value = password,
+                onValueChange = {
+                    password = it
+                    localError = null
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(id = R.string.password)) },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = image, contentDescription = null)
                     }
-                }
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
 
-                Button(
-                    onClick = onNavigateToRegister,
+            // Forgot password
+            var showForgotMessage by remember { mutableStateOf(false) }
+            Text(
+                text = stringResource(id = R.string.forgot_password),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showForgotMessage = true },
+                textAlign = TextAlign.End
+            )
+            if (showForgotMessage) {
+                Text(
+                    text = "Vui lòng liên hệ Admin để đặt lại mật khẩu.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF111827)),
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    Text("Chưa có tài khoản? Đăng ký ngay", color = Color.White)
+                    textAlign = TextAlign.End
+                )
+            }
+
+            ErrorText(localError ?: state.error)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    if (phone.isBlank() || password.isBlank()) {
+                        localError = "Vui lòng nhập đầy đủ thông tin"
+                    } else {
+                        localError = null
+                        viewModel.login(phone.trim(), password.trim(), onSuccess = {})
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                enabled = !state.isLoading,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                if (state.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text(
+                        text = stringResource(id = R.string.login_btn),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Chưa có tài khoản? ",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Đăng ký",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable(onClick = onNavigateToRegister)
+                )
             }
         }
     }
@@ -151,6 +188,12 @@ fun LoginScreen(
 @Composable
 private fun ErrorText(message: String?) {
     if (!message.isNullOrBlank()) {
-        Text(message, color = Color(0xFFFCA5A5), style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = message,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Start
+        )
     }
 }

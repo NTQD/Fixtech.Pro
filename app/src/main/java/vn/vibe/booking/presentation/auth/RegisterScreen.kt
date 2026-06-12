@@ -13,14 +13,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,24 +41,29 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun RegisterScreen(
     viewModel: AuthViewModel,
-    onBackToLogin: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    onRegisterSuccess: () -> Unit,
     contentPadding: PaddingValues
 ) {
     val state by viewModel.registerState.collectAsStateWithLifecycle()
     var name by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
     var phone by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
     var password by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
+    var confirmPassword by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var confirmPasswordVisible by rememberSaveable { mutableStateOf(false) }
     var localError by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(state.message) {
         if (!state.message.isNullOrBlank()) {
-            onBackToLogin()
+            onRegisterSuccess()
             viewModel.clearRegisterTransientState()
         }
     }
@@ -104,8 +114,8 @@ fun RegisterScreen(
                         localError = null
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Số điện thoại") },
-                    leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
+                    label = { Text("Email hoặc Số điện thoại") },
+                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                     singleLine = true
                 )
 
@@ -118,7 +128,32 @@ fun RegisterScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Mật khẩu") },
                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(imageVector = image, contentDescription = null)
+                        }
+                    },
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = {
+                        confirmPassword = it
+                        localError = null
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Nhập lại mật khẩu") },
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                            Icon(imageVector = image, contentDescription = null)
+                        }
+                    },
                     singleLine = true
                 )
 
@@ -126,8 +161,10 @@ fun RegisterScreen(
 
                 Button(
                     onClick = {
-                        if (name.text.isBlank() || phone.text.isBlank() || password.text.isBlank()) {
-                            localError = "Vui lòng nhập đầy đủ họ tên, số điện thoại và mật khẩu"
+                        if (name.text.isBlank() || phone.text.isBlank() || password.text.isBlank() || confirmPassword.text.isBlank()) {
+                            localError = "Vui lòng nhập đầy đủ thông tin"
+                        } else if (password.text != confirmPassword.text) {
+                            localError = "Mật khẩu nhập lại không khớp"
                         } else {
                             localError = null
                             viewModel.register(name.text.trim(), phone.text.trim(), password.text.trim(), onSuccess = {})
@@ -149,7 +186,7 @@ fun RegisterScreen(
                 }
 
                 Button(
-                    onClick = onBackToLogin,
+                    onClick = onNavigateToLogin,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF111827)),
                     shape = RoundedCornerShape(18.dp)

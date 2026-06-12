@@ -1,0 +1,1135 @@
+================================================================================
+        KHUNG BÁO CÁO ĐỒ ÁN MÔN HỌC / KHÓA LUẬN TỐT NGHIỆP
+     ỨNG DỤNG ĐẶT LỊCH SỬA CHỮA VÀ NÂNG CẤP PHẦN CỨNG LAPTOP
+================================================================================
+[Ghi chú dành cho người viết báo cáo]
+Đây là khung tổng thể. Với mỗi mục đều có:
+  - TÊN MỤC: tiêu đề chính thức cần giữ nguyên
+  - [HƯỚNG DẪN]: giải thích nội dung cần viết
+  - [ẢNH]: tên file ảnh/sơ đồ cần chèn vào vị trí đó
+  - ĐỘ DÀI GỢI Ý: số trang tham khảo cho từng phần
+Hãy thay thế toàn bộ phần [HƯỚNG DẪN] bằng nội dung thực tế của nhóm.
+================================================================================
+
+
+════════════════════════════════════════════════════════════════════════════════
+TRANG BÌA
+════════════════════════════════════════════════════════════════════════════════
+
+  [HƯỚNG DẪN]
+  Trình bày đầy đủ theo quy định của trường/khoa, bao gồm:
+  - Logo trường đại học
+  - Tên trường, tên khoa, tên bộ môn
+  - Tên đồ án: "ỨNG DỤNG ĐẶT LỊCH SỬA CHỮA VÀ NÂNG CẤP PHẦN CỨNG LAPTOP"
+    (hoặc tên chính thức đã đặt, ví dụ: "Fixtech.Pro – Ứng dụng Android
+    quản lý đặt lịch dịch vụ sửa chữa laptop")
+  - Tên môn học / học phần
+  - Họ tên sinh viên thực hiện + MSSV
+  - Họ tên giảng viên hướng dẫn
+  - Thành phố, tháng/năm nộp báo cáo
+
+  [ẢNH] bia_bao_cao.png – Logo trường và trang bìa theo mẫu quy định
+
+
+════════════════════════════════════════════════════════════════════════════════
+LỜI CAM ĐOAN
+════════════════════════════════════════════════════════════════════════════════
+
+  [HƯỚNG DẪN]
+  Xác nhận toàn bộ nội dung báo cáo và sản phẩm phần mềm là do nhóm tự thực
+  hiện, không sao chép. Liệt kê rõ những tài liệu, thư viện, framework đã
+  tham khảo hoặc tái sử dụng có trích dẫn. Ký tên và ghi ngày cam đoan.
+
+
+════════════════════════════════════════════════════════════════════════════════
+LỜI CẢM ƠN
+════════════════════════════════════════════════════════════════════════════════
+
+  [HƯỚNG DẪN]
+  Cảm ơn giảng viên hướng dẫn, các thành viên trong nhóm, gia đình, bạn bè
+  hoặc cơ sở thực tế đã hỗ trợ trong quá trình thực hiện đồ án.
+  Viết chân thành, khoảng ½ – 1 trang.
+
+
+════════════════════════════════════════════════════════════════════════════════
+MỤC LỤC
+════════════════════════════════════════════════════════════════════════════════
+
+  [HƯỚNG DẪN]
+  Sinh tự động từ công cụ soạn thảo (Word/LaTeX). Đảm bảo đánh số trang
+  chính xác. Bao gồm cả danh mục bảng biểu, danh mục hình ảnh/sơ đồ.
+
+
+════════════════════════════════════════════════════════════════════════════════
+DANH MỤC TỪ VIẾT TẮT VÀ THUẬT NGỮ
+════════════════════════════════════════════════════════════════════════════════
+
+  [HƯỚNG DẪN]
+  Liệt kê dạng bảng 2 cột: Từ viết tắt | Giải nghĩa đầy đủ.
+  Ví dụ tham khảo cho dự án này:
+    API     – Application Programming Interface
+    JWT     – JSON Web Token
+    MVVM    – Model – View – ViewModel
+    REST    – Representational State Transfer
+    CRUD    – Create, Read, Update, Delete
+    DI      – Dependency Injection
+    UI/UX   – User Interface / User Experience
+    SDK     – Software Development Kit
+    IDE     – Integrated Development Environment
+    RBAC    – Role-Based Access Control
+    ORM     – Object Relational Mapping
+    ERD     – Entity Relationship Diagram
+
+
+════════════════════════════════════════════════════════════════════════════════
+TÓM TẮT ĐỒ ÁN (Abstract)
+════════════════════════════════════════════════════════════════════════════════
+  ĐỘ DÀI GỢI Ý: ½ trang tiếng Việt + ½ trang tiếng Anh
+
+  [HƯỚNG DẪN]
+  Viết ngắn gọn (khoảng 200–250 từ mỗi ngôn ngữ), bao gồm:
+  1. Bối cảnh và vấn đề đặt ra
+  2. Mục tiêu của ứng dụng
+  3. Phương pháp/công nghệ sử dụng chính
+  4. Kết quả chính đạt được
+  5. Hướng phát triển tiếp theo
+  Viết cả bản tiếng Việt và bản tiếng Anh (Abstract).
+
+
+════════════════════════════════════════════════════════════════════════════════
+CHƯƠNG 1. TỔNG QUAN ĐỀ TÀI
+════════════════════════════════════════════════════════════════════════════════
+  ĐỘ DÀI GỢI Ý: 6 – 10 trang
+
+────────────────────────────────────────────────────────────────────────────────
+1.1. Đặt vấn đề
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Mô tả thực trạng thị trường dịch vụ sửa chữa và nâng cấp laptop tại Việt Nam:
+  - Nhu cầu sử dụng laptop ngày càng tăng cao (học tập, làm việc, giải trí)
+  - Tốc độ lỗi thời phần cứng, nhu cầu nâng cấp RAM/SSD/màn hình ngày càng phổ biến
+  - Các trung tâm sửa chữa hiện tại còn quản lý thủ công: tiếp nhận qua điện thoại,
+    ghi chép tay, không có hệ thống theo dõi trạng thái cho khách hàng
+  - Khách hàng thiếu thông tin về giá cả, thời gian, kỹ thuật viên phụ trách
+  - Cần một giải pháp số hóa quy trình đặt lịch – theo dõi – đánh giá dịch vụ
+  Dẫn số liệu thực tế nếu có (khảo sát, thống kê thị trường IT Việt Nam).
+
+────────────────────────────────────────────────────────────────────────────────
+1.2. Mục tiêu đề tài
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Liệt kê rõ ràng các mục tiêu cụ thể, phân biệt mục tiêu kỹ thuật và nghiệp vụ:
+  - Xây dựng ứng dụng Android cho phép khách hàng đặt lịch sửa chữa/nâng cấp laptop
+  - Xây dựng hệ thống backend quản lý booking, dịch vụ, người dùng
+  - Cung cấp giao diện admin quản lý toàn bộ quy trình từ tiếp nhận đến hoàn thành
+  - Cho phép kỹ thuật viên cập nhật trạng thái và ghi chú tiến trình
+  - Tích hợp hệ thống đánh giá sau dịch vụ
+
+────────────────────────────────────────────────────────────────────────────────
+1.3. Phạm vi và giới hạn đề tài
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Nêu rõ:
+  TRONG PHẠM VI:
+    - Nền tảng Android (điện thoại/máy tính bảng)
+    - Các actor: Khách hàng, Admin, Kỹ thuật viên
+    - Chức năng: đăng ký/đăng nhập, đặt lịch, xem danh mục dịch vụ, theo dõi
+      trạng thái booking, quản lý admin (CRUD user/dịch vụ/danh mục/booking),
+      đánh giá dịch vụ
+    - Backend REST API + cơ sở dữ liệu
+  NGOÀI PHẠM VI:
+    - Ứng dụng iOS
+    - Tích hợp thanh toán trực tuyến (MoMo, VNPay)
+    - Chức năng chat/video call với kỹ thuật viên
+    - Tính năng GPS định vị cửa hàng
+    - Hệ thống thông báo push (chưa triển khai)
+
+────────────────────────────────────────────────────────────────────────────────
+1.4. Đối tượng sử dụng
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Xác định các nhóm người dùng của hệ thống:
+  1. Khách hàng (Customer): cá nhân có nhu cầu sửa chữa/nâng cấp laptop
+  2. Quản trị viên (Admin): nhân viên trung tâm quản lý toàn bộ hệ thống
+  3. Kỹ thuật viên (Technician): người được phân công xử lý đơn dịch vụ
+  Mô tả đặc điểm, nhu cầu và mức độ sử dụng công nghệ của từng nhóm.
+
+────────────────────────────────────────────────────────────────────────────────
+1.5. Ý nghĩa thực tiễn và đóng góp của đề tài
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  - Ý nghĩa với trung tâm dịch vụ: giảm sai sót, tăng hiệu quả vận hành
+  - Ý nghĩa với khách hàng: minh bạch thông tin, chủ động theo dõi
+  - Đóng góp về mặt kỹ thuật: ứng dụng Clean Architecture trên Android,
+    xây dựng REST API với phân quyền theo vai trò (RBAC)
+  - Tiềm năng mở rộng thành sản phẩm thương mại
+
+────────────────────────────────────────────────────────────────────────────────
+1.6. Bố cục báo cáo
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Mô tả ngắn gọn nội dung của từng chương còn lại trong báo cáo. Ví dụ:
+  "Báo cáo được tổ chức thành 6 chương chính. Chương 2 trình bày cơ sở lý
+  thuyết và công nghệ sử dụng. Chương 3 trình bày phân tích và thiết kế hệ
+  thống..."
+
+
+════════════════════════════════════════════════════════════════════════════════
+CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ SỬ DỤNG
+════════════════════════════════════════════════════════════════════════════════
+  ĐỘ DÀI GỢI Ý: 10 – 15 trang
+
+────────────────────────────────────────────────────────────────────────────────
+2.1. Cơ sở lý thuyết
+────────────────────────────────────────────────────────────────────────────────
+
+  2.1.1. Tổng quan về ứng dụng di động Android
+  [HƯỚNG DẪN]
+  - Giới thiệu hệ điều hành Android: lịch sử, thị phần, đặc điểm nổi bật
+  - Vòng đời ứng dụng Android (Activity/Fragment Lifecycle)
+  - Khái niệm Activity, Fragment, View – nền tảng trước khi chuyển sang Compose
+  - Lý do Android là nền tảng phù hợp cho đề tài này (thị phần tại Việt Nam)
+
+  [ẢNH] hinh2_1_android_architecture.png – Sơ đồ kiến trúc tổng quan Android OS
+
+  2.1.2. Kiến trúc Clean Architecture
+  [HƯỚNG DẪN]
+  - Định nghĩa và nguồn gốc (Robert C. Martin)
+  - Nguyên tắc phân lớp: Presentation – Domain – Data
+  - Quy tắc phụ thuộc một chiều (Dependency Rule): lớp trong không phụ thuộc lớp ngoài
+  - Lợi ích: dễ kiểm thử, dễ bảo trì, dễ thay thế công nghệ
+  - Áp dụng vào dự án Fixtech.Pro: minh họa từng lớp
+
+  [ẢNH] hinh2_2_clean_architecture_layers.png – Sơ đồ phân lớp Clean Architecture
+
+  2.1.3. Mô hình kiến trúc MVVM
+  [HƯỚNG DẪN]
+  - So sánh MVC – MVP – MVVM, lý do chọn MVVM
+  - Thành phần: Model (dữ liệu và nghiệp vụ), View (giao diện), ViewModel (cầu nối)
+  - Cơ chế data binding một chiều và hai chiều
+  - Vai trò của StateFlow/LiveData trong việc cập nhật giao diện phản ứng
+  - Minh họa MVVM trong dự án: AuthViewModel, HomeViewModel
+
+  [ẢNH] hinh2_3_mvvm_pattern.png – Sơ đồ mô hình MVVM và luồng dữ liệu
+
+  2.1.4. Kiến trúc Client – Server và RESTful API
+  [HƯỚNG DẪN]
+  - Mô hình Client – Server: vai trò từng thành phần
+  - Khái niệm REST (Representational State Transfer): 6 ràng buộc cơ bản
+  - Các phương thức HTTP: GET, POST, PUT, DELETE và ý nghĩa trong CRUD
+  - Định dạng trao đổi dữ liệu JSON: cấu trúc, ưu điểm
+  - HTTP Status Codes thường dùng: 200, 201, 400, 401, 403, 404, 500
+  - Khái niệm Endpoint, Request/Response, Header, Body
+
+  [ẢNH] hinh2_4_rest_api_flow.png – Sơ đồ luồng giao tiếp Client – Server qua REST API
+
+  2.1.5. Xác thực và phân quyền với JWT
+  [HƯỚNG DẪN]
+  - Vấn đề quản lý phiên đăng nhập (Session vs Token)
+  - Cấu trúc JWT: Header – Payload – Signature
+  - Luồng xác thực: đăng nhập → nhận token → gửi token trong mỗi request
+  - Phân quyền theo vai trò RBAC (Role-Based Access Control):
+    CUSTOMER, ADMIN, TECHNICIAN
+  - Ưu điểm của JWT: stateless, dễ mở rộng, không cần lưu session phía server
+
+  [ẢNH] hinh2_5_jwt_structure.png – Minh họa cấu trúc và luồng xác thực JWT
+
+  2.1.6. Lập trình bất đồng bộ với Kotlin Coroutines và Flow
+  [HƯỚNG DẪN]
+  - Vấn đề blocking I/O và callback hell trong lập trình Android truyền thống
+  - Coroutines: khái niệm, suspend function, CoroutineScope, Dispatcher
+  - Flow và StateFlow: luồng dữ liệu phản ứng (reactive), khác gì LiveData
+  - Áp dụng trong dự án: gọi API network trên Dispatchers.IO, cập nhật UI trên Main
+
+  [ẢNH] hinh2_6_coroutines_flow.png – Sơ đồ luồng bất đồng bộ Coroutines/StateFlow
+
+────────────────────────────────────────────────────────────────────────────────
+2.2. Công nghệ và công cụ sử dụng
+────────────────────────────────────────────────────────────────────────────────
+
+  2.2.1. Ngôn ngữ lập trình Kotlin
+  [HƯỚNG DẪN]
+  - Giới thiệu Kotlin: ngôn ngữ chính thức của Android từ 2017
+  - Ưu điểm so với Java: null safety, data class, extension function,
+    coroutines tích hợp sẵn, cú pháp ngắn gọn
+  - Phiên bản sử dụng trong dự án: Kotlin 2.0.21
+  - Các tính năng Kotlin được dùng trong dự án: sealed class (UiState),
+    data class (domain models), higher-order functions, companion object
+
+  2.2.2. Jetpack Compose và Material Design 3
+  [HƯỚNG DẪN]
+  - Giới thiệu Jetpack Compose: framework UI khai báo (declarative) của Android
+  - So sánh với XML-based UI truyền thống: ưu và nhược điểm
+  - Material Design 3: hệ thống thiết kế của Google, Theme, ColorScheme, Typography
+  - Các Composable component sử dụng trong dự án:
+    Scaffold, LazyColumn, Card, OutlinedTextField, Button, FilterChip,
+    AlertDialog, DropdownMenu, NavigationBar, TopAppBar
+  - Phiên bản BOM: 2025.02.00
+
+  [ẢNH] hinh2_7_jetpack_compose_vs_xml.png – So sánh Compose và XML View system
+
+  2.2.3. Android Jetpack – Architecture Components
+  [HƯỚNG DẪN]
+  - ViewModel: lưu trữ trạng thái UI, tồn tại qua configuration change
+  - Navigation Compose: điều hướng màn hình bằng NavHost, NavController, route
+  - Jetpack DataStore (Preferences): lưu trữ dữ liệu key-value bền vững,
+    thay thế SharedPreferences, đọc/ghi bất đồng bộ qua Flow
+  - Nêu lý do chọn DataStore thay vì SharedPreferences để lưu JWT token
+
+  2.2.4. OkHttp – HTTP Client
+  [HƯỚNG DẪN]
+  - Giới thiệu OkHttp 4.12: thư viện HTTP client mạnh mẽ cho Android/JVM
+  - Lý do chọn OkHttp thay vì Retrofit: kiểm soát JSON parsing thủ công,
+    linh hoạt hơn, phù hợp quy mô đồ án
+  - Interceptors: AuthInterceptor (tự động gắn JWT vào header mọi request),
+    ApiDebugInterceptor (sinh curl command để debug)
+  - Xử lý request/response: đọc body bằng org.json, kiểm tra mã code nghiệp vụ
+
+  2.2.5. Backend – Spring Boot (Java)
+  [HƯỚNG DẪN]
+  - Giới thiệu Spring Boot: framework Java phổ biến để xây dựng REST API
+  - Các module Spring sử dụng: Spring Web, Spring Security, Spring Data JPA
+  - Tích hợp JWT với Spring Security: filter chain, authentication provider
+  - Mô tả cấu trúc package backend: auth-rbac, entity, shop, base
+
+  2.2.6. Cơ sở dữ liệu quan hệ
+  [HƯỚNG DẪN]
+  - Hệ quản trị CSDL sử dụng (mô tả theo init-db.sql trong dự án)
+  - ORM: Spring Data JPA / Hibernate – ánh xạ object-relational
+  - Tại sao dùng CSDL quan hệ: dữ liệu có cấu trúc rõ ràng, quan hệ nhiều chiều
+    giữa booking, user, service, review
+
+  2.2.7. Docker và Docker Compose
+  [HƯỚNG DẪN]
+  - Khái niệm container hóa: Docker image, Docker container
+  - Docker Compose: orchestrate nhiều container (backend + database) cùng lúc
+  - Lợi ích cho môi trường phát triển: nhất quán giữa máy các thành viên,
+    triển khai nhanh bằng một lệnh docker-compose up
+  - Mô tả các service trong docker-compose.yml của dự án
+
+  [ẢNH] hinh2_8_docker_compose_architecture.png – Sơ đồ các container Docker trong dự án
+
+  2.2.8. Công cụ phát triển và hỗ trợ
+  [HƯỚNG DẪN]
+  Trình bày dạng bảng: Công cụ | Phiên bản | Mục đích sử dụng
+  - Android Studio: IDE chính để phát triển ứng dụng Android
+  - IntelliJ IDEA: IDE phát triển backend Java/Spring Boot
+  - Gradle (Kotlin DSL): build system cho Android, quản lý dependency
+    qua libs.versions.toml (Version Catalog)
+  - Git + GitHub: quản lý phiên bản, lưu trữ source code (repo Fixtech.Pro)
+  - Postman: kiểm thử và tài liệu hóa REST API
+  - Figma (nếu có): thiết kế mockup giao diện
+
+  [ẢNH] hinh2_9_dev_tools_overview.png – Tổng hợp các công cụ phát triển sử dụng
+
+
+════════════════════════════════════════════════════════════════════════════════
+CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+════════════════════════════════════════════════════════════════════════════════
+  ĐỘ DÀI GỢI Ý: 15 – 20 trang
+
+────────────────────────────────────────────────────────────────────────────────
+3.1. Khảo sát và phân tích yêu cầu
+────────────────────────────────────────────────────────────────────────────────
+
+  3.1.1. Khảo sát hiện trạng
+  [HƯỚNG DẪN]
+  a) Quy trình nghiệp vụ hiện tại tại các trung tâm sửa chữa laptop:
+    - Mô tả luồng tiếp nhận – sửa chữa – trả máy theo cách thủ công
+    - Các vấn đề: mất thông tin, không theo dõi được tiến độ,
+      khó quản lý nhân công, thiếu lịch sử dịch vụ
+  b) Phân tích các ứng dụng/hệ thống tương tự:
+    - Liệt kê 2–3 ứng dụng cùng lĩnh vực (đặt lịch xe, spa, nha khoa...)
+    - Bảng so sánh tính năng: Tính năng | App A | App B | Fixtech.Pro
+    - Nhận xét ưu/nhược điểm và cơ hội cải tiến
+  c) Kết quả khảo sát người dùng (nếu có):
+    - Phương pháp, số lượng người tham gia, tổng hợp kết quả nổi bật
+
+  [ẢNH] hinh3_1_quy_trinh_thu_cong.png – Sơ đồ quy trình tiếp nhận sửa chữa thủ công hiện tại
+  [ẢNH] hinh3_2_bang_so_sanh_ung_dung.png – Bảng so sánh các ứng dụng tương tự
+
+  3.1.2. Phân tích yêu cầu chức năng
+  Liệt kê theo từng actor, dùng định dạng bảng (Mã | Tên yêu cầu | Mô tả):
+
+  KHÁCH HÀNG:
+    FR-01 | Đăng ký tài khoản    | Đăng ký bằng số điện thoại và mật khẩu
+    FR-02 | Đăng nhập/Đăng xuất  | Xác thực và kết thúc phiên làm việc
+    FR-03 | Xem danh mục dịch vụ | Duyệt danh sách danh mục sửa chữa/nâng cấp
+    FR-04 | Xem chi tiết dịch vụ | Thông tin giá, thời gian ước tính, bảo hành
+    FR-05 | Tạo yêu cầu đặt lịch | Chọn dịch vụ, nhập thông tin thiết bị
+    FR-06 | Nhập thông tin thiết bị | Hãng, model, mô tả sự cố, ngày giờ mong muốn
+    FR-07 | Theo dõi trạng thái  | Xem tiến trình booking theo thời gian thực
+    FR-08 | Xem lịch sử booking  | Danh sách tất cả booking của cá nhân
+    FR-09 | Hủy booking          | Hủy khi booking còn ở trạng thái PENDING
+    FR-10 | Đánh giá dịch vụ     | Chấm điểm và để lại nhận xét sau hoàn thành
+    FR-11 | Xem hồ sơ cá nhân    | Thông tin tài khoản, lịch sử hoạt động
+
+  ADMIN:
+    FR-12 | Xem tổng quan dashboard  | Số liệu tổng hợp booking, dịch vụ, người dùng
+    FR-13 | Quản lý tất cả booking   | Xem, lọc, tìm kiếm theo trạng thái/từ khóa
+    FR-14 | Xác nhận/từ chối booking | Chuyển trạng thái PENDING → CONFIRMED/CANCELLED
+    FR-15 | Phân công kỹ thuật viên  | Gán kỹ thuật viên cho booking đã xác nhận
+    FR-16 | Quản lý danh mục dịch vụ | CRUD danh mục sửa chữa/nâng cấp
+    FR-17 | Quản lý dịch vụ          | CRUD dịch vụ: giá, thời gian, bảo hành
+    FR-18 | Quản lý người dùng       | CRUD tài khoản khách hàng và kỹ thuật viên
+    FR-19 | Khóa/mở khóa tài khoản   | Vô hiệu hóa hoặc kích hoạt tài khoản
+
+  KỸ THUẬT VIÊN:
+    FR-20 | Xem booking được phân công  | Danh sách công việc cần xử lý
+    FR-21 | Cập nhật trạng thái booking | ASSIGNED → IN_PROGRESS → COMPLETED
+    FR-22 | Thêm ghi chú tiến trình     | Ghi nhận kết quả kiểm tra, linh kiện thay thế
+
+  3.1.3. Phân tích yêu cầu phi chức năng
+  [HƯỚNG DẪN]
+  Liệt kê dạng bảng (Mã | Loại | Yêu cầu | Tiêu chí đánh giá):
+    NFR-01 | Hiệu năng    | Thời gian phản hồi API < 2 giây           | Đo bằng log thực tế
+    NFR-02 | Bảo mật      | Xác thực JWT, phân quyền RBAC             | Test truy cập không hợp lệ
+    NFR-03 | Khả dụng     | Hoạt động ổn định Android API level 23+   | Test đa thiết bị
+    NFR-04 | Mở rộng      | Thêm tính năng không phá vỡ kiến trúc    | Code review
+    NFR-05 | Trải nghiệm  | Điều hướng tối đa 3 lần nhấn             | Kiểm thử người dùng
+    NFR-06 | Bền vững     | Token lưu trữ qua DataStore, tồn tại khi tắt app | Test khởi động lại
+
+────────────────────────────────────────────────────────────────────────────────
+3.2. Đặc tả Use Case
+────────────────────────────────────────────────────────────────────────────────
+
+  3.2.1. Sơ đồ Use Case tổng quát
+  [HƯỚNG DẪN]
+  Vẽ Use Case Diagram bao gồm 3 actor: Customer, Admin, Technician.
+  Liên kết actor với tất cả use case tương ứng.
+  Thể hiện mối quan hệ include/extend nếu có.
+
+  [ẢNH] hinh3_3_usecase_diagram_tong_quat.png – Sơ đồ Use Case tổng quát toàn hệ thống
+
+  3.2.2. Đặc tả chi tiết các Use Case quan trọng
+  [HƯỚNG DẪN]
+  Lập bảng đặc tả cho ít nhất 5 use case quan trọng nhất:
+
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │ Mã use case    : UC-01                                               │
+  │ Tên            : Đặt lịch dịch vụ sửa chữa                          │
+  │ Actor chính    : Khách hàng                                          │
+  │ Mô tả          : Khách hàng chọn dịch vụ và gửi yêu cầu đặt lịch   │
+  │ Tiền điều kiện : Đã đăng nhập thành công                            │
+  │ Hậu điều kiện  : Booking được tạo với trạng thái PENDING            │
+  │ Luồng chính    :                                                     │
+  │   1. Khách hàng chọn tab "Dịch vụ"                                  │
+  │   2. Lọc dịch vụ theo danh mục, chọn dịch vụ cần thiết             │
+  │   3. Điều chỉnh số lượng, xem tóm tắt giá ước tính                 │
+  │   4. Nhấn "Gửi yêu cầu đặt lịch"                                   │
+  │   5. Hệ thống gọi POST /bookings và trả về mã booking               │
+  │   6. Hiển thị thông báo tạo booking thành công                     │
+  │ Luồng thay thế :                                                     │
+  │   3a. Không có dịch vụ phù hợp → hiển thị trạng thái rỗng          │
+  │   5a. Lỗi mạng → hiển thị thông báo lỗi, giữ nguyên lựa chọn       │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  Làm tương tự cho:
+    UC-02: Đăng nhập hệ thống (Customer/Admin/Technician)
+    UC-03: Xác nhận và phân công booking (Admin)
+    UC-04: Cập nhật trạng thái xử lý (Kỹ thuật viên)
+    UC-05: Đánh giá dịch vụ sau hoàn thành (Customer)
+
+────────────────────────────────────────────────────────────────────────────────
+3.3. Thiết kế kiến trúc hệ thống
+────────────────────────────────────────────────────────────────────────────────
+
+  3.3.1. Kiến trúc tổng thể
+  [HƯỚNG DẪN]
+  Mô tả mô hình Client – Server 3 lớp:
+  - Android App (Presentation) ↔ REST API (Business Logic) ↔ Database (Data)
+  - Giao tiếp HTTP/HTTPS, định dạng JSON
+  - Môi trường triển khai: Docker Compose (backend + database cùng một mạng)
+  - Địa chỉ kết nối: 10.0.2.2:8080 (emulator) hoặc IP LAN (thiết bị thật)
+
+  [ẢNH] hinh3_4_kien_truc_tong_the.png – Sơ đồ kiến trúc tổng thể hệ thống (3 lớp)
+
+  3.3.2. Kiến trúc ứng dụng Android – Clean Architecture
+  [HƯỚNG DẪN]
+  Mô tả chi tiết 3 lớp trong ứng dụng Android:
+  - Presentation Layer: Composable UI (Screen files), ViewModel (StateFlow),
+    điều hướng (NavHost)
+  - Domain Layer: Use Cases (LoginUseCase, RegisterUseCase...),
+    Repository interfaces, Domain Models (UserInfo, UiState, PageState)
+  - Data Layer: Repository implementations, API services (OkHttp),
+    Local storage (TokenDataStore)
+  Giải thích Dependency Rule: Data → Domain ← Presentation
+
+  [ẢNH] hinh3_5_clean_architecture_android.png – Sơ đồ phân lớp Clean Architecture ứng dụng Fixtech.Pro
+
+  3.3.3. Luồng dữ liệu theo mô hình MVVM
+  [HƯỚNG DẪN]
+  Minh họa luồng dữ liệu cụ thể trong dự án:
+    UI (LoginScreen) → AuthViewModel.login() → LoginUseCase.execute()
+    → AuthRepositoryImpl.login() → AuthApi.login() [OkHttp]
+    → Backend API → Response JSON
+    → TokenDataStore.saveToken() → StateFlow cập nhật → UI re-compose
+  Vẽ sơ đồ tuần tự (sequence diagram) hoặc luồng dữ liệu
+
+  [ẢNH] hinh3_6_mvvm_data_flow.png – Sơ đồ luồng dữ liệu MVVM trong ứng dụng
+
+────────────────────────────────────────────────────────────────────────────────
+3.4. Thiết kế cơ sở dữ liệu
+────────────────────────────────────────────────────────────────────────────────
+
+  3.4.1. Sơ đồ ERD
+  [HƯỚNG DẪN]
+  Vẽ sơ đồ ERD đầy đủ với các thực thể và quan hệ:
+    USERS (id, name, phone, email, password_hash, role, active, created_at)
+      Role: CUSTOMER | ADMIN | TECHNICIAN
+    SERVICE_CATEGORIES (id, name, description, active)
+    REPAIR_SERVICES (id, category_id, name, short_description, description,
+      base_price, estimated_minutes, warranty_days, active)
+    BOOKINGS (id, booking_code, customer_id, technician_id, device_type,
+      device_brand, device_model, issue_description, status, preferred_date,
+      preferred_time_slot, scheduled_at, address, note, total_estimated_price,
+      created_at, updated_at)
+      Status: PENDING | CONFIRMED | ASSIGNED | IN_PROGRESS | COMPLETED | CANCELLED
+    BOOKING_ITEMS (id, booking_id, service_id, quantity, estimated_price)
+    BOOKING_STATUS_HISTORY (id, booking_id, from_status, to_status, note,
+      created_by, created_at)
+    REVIEWS (id, booking_id, customer_id, rating, comment, created_at)
+
+  Quan hệ:
+    USERS 1──N BOOKINGS (customer)
+    USERS 1──N BOOKINGS (technician)
+    BOOKINGS 1──N BOOKING_ITEMS
+    BOOKINGS 1──N BOOKING_STATUS_HISTORY
+    BOOKINGS 1──1 REVIEWS
+    REPAIR_SERVICES N──1 SERVICE_CATEGORIES
+    BOOKING_ITEMS N──1 REPAIR_SERVICES
+
+  [ẢNH] hinh3_7_erd_diagram.png – Sơ đồ ERD toàn bộ cơ sở dữ liệu
+
+  3.4.2. Mô tả chi tiết các bảng chính
+  [HƯỚNG DẪN]
+  Với mỗi bảng quan trọng (USERS, BOOKINGS, REPAIR_SERVICES, REVIEWS),
+  trình bày dạng bảng: Tên cột | Kiểu dữ liệu | Ràng buộc | Mô tả ý nghĩa
+
+  3.4.3. Thiết kế vòng đời trạng thái Booking
+  [HƯỚNG DẪN]
+  Mô tả state machine của trạng thái booking:
+    PENDING → CONFIRMED → ASSIGNED → IN_PROGRESS → COMPLETED
+    PENDING → CANCELLED (khách hàng hủy)
+    CONFIRMED → CANCELLED (admin hủy)
+  Ai có quyền chuyển trạng thái nào
+
+  [ẢNH] hinh3_8_booking_state_machine.png – Sơ đồ chuyển trạng thái Booking (State Machine)
+
+────────────────────────────────────────────────────────────────────────────────
+3.5. Thiết kế API
+────────────────────────────────────────────────────────────────────────────────
+
+  3.5.1. Quy ước thiết kế API
+  [HƯỚNG DẪN]
+  - Base URL: http://<host>:8080
+  - Định dạng: JSON (Content-Type: application/json)
+  - Xác thực: Bearer JWT Token trong header Authorization
+  - Cấu trúc response chuẩn: { "code": 200, "message": "...", "data": {...} }
+  - Phân trang: ?page=1&limit=10&keyword=...
+
+  3.5.2. Bảng danh sách API endpoints
+  [HƯỚNG DẪN]
+  Trình bày dạng bảng đầy đủ:
+  Method | Endpoint                              | Quyền        | Mô tả
+  -------|---------------------------------------|--------------|----------------------------
+  POST   | /authenticate/register                | PUBLIC       | Đăng ký tài khoản
+  POST   | /authenticate/login                   | PUBLIC       | Đăng nhập, nhận JWT
+  GET    | /authenticate/me                      | Đã đăng nhập | Thông tin người dùng hiện tại
+  GET    | /services                             | PUBLIC       | Danh sách dịch vụ (phân trang)
+  GET    | /services/{id}                        | PUBLIC       | Chi tiết một dịch vụ
+  GET    | /services/{id}/reviews                | PUBLIC       | Đánh giá của dịch vụ
+  POST   | /bookings                             | CUSTOMER     | Tạo booking mới
+  GET    | /bookings/me                          | CUSTOMER     | Booking của tôi
+  GET    | /bookings/{id}                        | Đã đăng nhập | Chi tiết một booking
+  POST   | /bookings/{id}/cancel                 | CUSTOMER     | Hủy booking
+  POST   | /bookings/{id}/review                 | CUSTOMER     | Gửi đánh giá
+  GET    | /admin/bookings                       | ADMIN        | Tất cả bookings (lọc/phân trang)
+  POST   | /admin/bookings/{id}/confirm          | ADMIN        | Xác nhận booking
+  POST   | /admin/bookings/{id}/assign-technician| ADMIN        | Phân công kỹ thuật viên
+  GET    | /admin/service-categories             | ADMIN        | Danh sách danh mục
+  POST   | /admin/service-categories             | ADMIN        | Tạo danh mục mới
+  PUT    | /admin/service-categories/{id}        | ADMIN        | Cập nhật danh mục
+  DELETE | /admin/service-categories/{id}        | ADMIN        | Xóa danh mục
+  POST   | /admin/services                       | ADMIN        | Tạo dịch vụ mới
+  PUT    | /admin/services/{id}                  | ADMIN        | Cập nhật dịch vụ
+  DELETE | /admin/services/{id}                  | ADMIN        | Xóa dịch vụ
+  GET    | /admin/users                          | ADMIN        | Danh sách người dùng
+  POST   | /admin/users                          | ADMIN        | Tạo người dùng
+  PUT    | /admin/users/{id}                     | ADMIN        | Cập nhật người dùng
+  DELETE | /admin/users/{id}                     | ADMIN        | Xóa người dùng
+  POST   | /admin/users/{id}/active              | ADMIN        | Khóa/mở khóa tài khoản
+  POST   | /technician/bookings/{id}/status      | TECHNICIAN   | Cập nhật trạng thái booking
+  POST   | /technician/bookings/{id}/notes       | TECHNICIAN   | Thêm ghi chú tiến trình
+
+  3.5.3. Đặc tả chi tiết một số API tiêu biểu
+  [HƯỚNG DẪN]
+  Với mỗi API được chọn, trình bày Request và Response kèm ví dụ JSON thực tế:
+  - POST /authenticate/login
+  - POST /bookings
+  - POST /admin/bookings/{id}/confirm
+
+────────────────────────────────────────────────────────────────────────────────
+3.6. Thiết kế giao diện người dùng
+────────────────────────────────────────────────────────────────────────────────
+
+  3.6.1. Nguyên tắc thiết kế giao diện
+  [HƯỚNG DẪN]
+  - Màu sắc chủ đạo: nền tối (Dark theme) – #050816, #0B1220, #111827
+  - Màu nhấn (Accent): tím (#8B5CF6), cyan (#06B6D4)
+  - Typography: Material Design 3, đồng nhất kích thước chữ theo hệ thống
+  - Nguyên tắc: tối giản, hành động quan trọng đặt ở đầu/giữa màn hình
+  - Hiển thị trạng thái booking bằng StatusPill màu sắc trực quan
+
+  3.6.2. Sơ đồ điều hướng ứng dụng
+  [HƯỚNG DẪN]
+  Vẽ sơ đồ luồng màn hình (Navigation Flow):
+    Khởi động → Kiểm tra token:
+      [Có token] → HomeScreen
+        ├── Tab Home: Dashboard tổng quan
+        ├── Tab Services: Danh sách dịch vụ + đặt lịch
+        ├── Tab Bookings: Lịch hẹn cá nhân
+        ├── Tab Console: Admin quản trị (chỉ hiện với Admin)
+        └── Tab Profile: Hồ sơ và đăng xuất
+      [Không có token] → LoginScreen ↔ RegisterScreen
+
+  [ẢNH] hinh3_9_navigation_flow.png – Sơ đồ điều hướng toàn bộ ứng dụng
+
+  3.6.3. Thiết kế màn hình (Wireframe/Mockup)
+  [HƯỚNG DẪN]
+  Chèn ảnh wireframe hoặc mockup đã thiết kế cho từng màn hình chính,
+  kèm chú thích các thành phần UI:
+
+  [ẢNH] hinh3_10_mockup_login.png        – Màn hình Đăng nhập
+  [ẢNH] hinh3_11_mockup_register.png     – Màn hình Đăng ký
+  [ẢNH] hinh3_12_mockup_dashboard.png    – Màn hình Home Dashboard
+  [ẢNH] hinh3_13_mockup_services.png     – Màn hình Danh sách dịch vụ
+  [ẢNH] hinh3_14_mockup_booking_form.png – Màn hình Tạo yêu cầu đặt lịch
+  [ẢNH] hinh3_15_mockup_booking_list.png – Màn hình Danh sách booking cá nhân
+  [ẢNH] hinh3_16_mockup_admin_console.png– Màn hình Admin Console (bảng quản trị)
+  [ẢNH] hinh3_17_mockup_profile.png      – Màn hình Hồ sơ cá nhân
+
+
+════════════════════════════════════════════════════════════════════════════════
+CHƯƠNG 4. XÂY DỰNG VÀ TRIỂN KHAI HỆ THỐNG
+════════════════════════════════════════════════════════════════════════════════
+  ĐỘ DÀI GỢI Ý: 12 – 18 trang
+
+────────────────────────────────────────────────────────────────────────────────
+4.1. Môi trường và cấu trúc dự án
+────────────────────────────────────────────────────────────────────────────────
+
+  4.1.1. Yêu cầu môi trường phát triển
+  [HƯỚNG DẪN]
+  Liệt kê dạng bảng: Thành phần | Phiên bản | Ghi chú
+  - Android Studio Hedgehog (2023.1.1) trở lên
+  - JDK 21 (để chạy backend Spring Boot)
+  - Docker Desktop (để chạy container backend + database)
+  - Android Emulator hoặc thiết bị thật Android API 23+
+  - Git (để clone repository)
+
+  4.1.2. Cấu trúc thư mục dự án
+  [HƯỚNG DẪN]
+  Trình bày cấu trúc cây thư mục với chú thích từng phần:
+
+  Fixtech.Pro/
+  ├── app/                                 ← Module ứng dụng Android
+  │   └── src/main/java/vn/vibe/booking/
+  │       ├── core/
+  │       │   ├── di/                      ← AppContainer (Manual Dependency Injection)
+  │       │   └── network/                 ← AuthInterceptor, ApiDebugInterceptor
+  │       ├── data/
+  │       │   ├── local/                   ← TokenDataStore
+  │       │   ├── remote/                  ← API services, DTO models
+  │       │   └── repository/              ← Repository implementations
+  │       ├── domain/
+  │       │   ├── model/                   ← Domain entities, UiState, PageState
+  │       │   ├── repository/              ← Repository interfaces
+  │       │   └── usecase/                 ← Business logic use cases
+  │       ├── presentation/
+  │       │   ├── app/                     ← BookingApp, NavHost, AppContainer khởi tạo
+  │       │   ├── auth/                    ← LoginScreen, RegisterScreen, AuthViewModel
+  │       │   ├── home/                    ← HomeScreen, HomeSections, HomeViewModel
+  │       │   └── theme/                   ← BookingTheme, màu sắc, typography
+  │       └── MainActivity.kt              ← Entry point Android
+  └── be/                                  ← Module backend Spring Boot
+      ├── auth-rbac/                       ← Xác thực và phân quyền JWT
+      ├── entity/                          ← JPA entities
+      ├── shop/                            ← Business logic (service, booking, review)
+      ├── base/                            ← Base classes, utilities
+      ├── init-db.sql                      ← Script khởi tạo cơ sở dữ liệu
+      ├── pom.xml                          ← Maven dependencies
+      ├── Dockerfile                       ← Build image backend
+      └── docker-compose.yml               ← Orchestrate backend + database
+
+────────────────────────────────────────────────────────────────────────────────
+4.2. Triển khai backend
+────────────────────────────────────────────────────────────────────────────────
+
+  4.2.1. Khởi tạo cơ sở dữ liệu
+  [HƯỚNG DẪN]
+  - Mô tả script init-db.sql: các câu lệnh CREATE TABLE, ràng buộc khóa ngoại,
+    index, dữ liệu mẫu ban đầu (nếu có)
+  - Nêu rõ hệ quản trị CSDL sử dụng và cách Docker volume lưu dữ liệu bền vững
+  Chèn đoạn SQL minh họa tạo bảng BOOKINGS (một ví dụ tiêu biểu)
+
+  4.2.2. Cấu hình và chạy backend bằng Docker
+  [HƯỚNG DẪN]
+  - Mô tả nội dung Dockerfile: build JAR từ Maven, base image, expose port
+  - Mô tả nội dung docker-compose.yml: service backend, service database,
+    biến môi trường (DB URL, JWT secret), network, volume
+  - Lệnh triển khai:
+      cd Fixtech.Pro/be
+      docker-compose up -d
+      # Backend chạy tại http://localhost:8080
+  - Kiểm tra trạng thái: docker-compose ps, docker logs <container>
+
+  [ẢNH] hinh4_1_docker_compose_running.png – Ảnh chụp terminal các container đang chạy
+
+  4.2.3. Cơ chế xác thực JWT phía backend
+  [HƯỚNG DẪN]
+  - Luồng xử lý request có token:
+      Request → JwtAuthFilter → Validate token → Set SecurityContext → Controller
+  - Luồng xử lý đăng nhập:
+      POST /authenticate/login → AuthService → UserDetailsService → tạo JWT → trả về
+  - Cấu hình Spring Security: filterChain, permitAll vs authenticated, role-based access
+
+────────────────────────────────────────────────────────────────────────────────
+4.3. Triển khai ứng dụng Android
+────────────────────────────────────────────────────────────────────────────────
+
+  4.3.1. Quản lý dependency (Gradle Version Catalog)
+  [HƯỚNG DẪN]
+  - Giải thích libs.versions.toml: tập trung quản lý tất cả thư viện và phiên bản
+  - Cách khai báo dependency trong build.gradle.kts từ Version Catalog
+  - Các nhóm dependency chính: compose-bom, okhttp, coil, datastore, navigation
+  Chèn đoạn code minh họa từ libs.versions.toml
+
+  4.3.2. Dependency Injection thủ công – AppContainer
+  [HƯỚNG DẪN]
+  - Giải thích AppContainer: class singleton khởi tạo toàn bộ dependency graph
+  - Thứ tự khởi tạo: DataStore → TokenDataStore → API classes → Repositories
+    → Use Cases → ViewModels
+  - Lý do không dùng Hilt/Dagger: phù hợp quy mô, giảm boilerplate, dễ hiểu
+  - So sánh ngắn với Hilt: khi nào nên nâng cấp lên Hilt
+  Chèn đoạn code minh họa AppContainer
+
+  [ẢNH] hinh4_2_app_container_dependency_graph.png – Sơ đồ dependency graph của AppContainer
+
+  4.3.3. Triển khai lớp giao tiếp API
+  [HƯỚNG DẪN]
+  - ApiClient: phương thức GET/POST/PUT/DELETE dùng chung, parse JSON response,
+    kiểm tra mã code nghiệp vụ, ném ApiException khi lỗi
+  - AuthInterceptor: implement OkHttp Interceptor, đọc token từ DataStore,
+    gắn vào header "Authorization: Bearer <token>"
+  - ApiDebugInterceptor: sinh câu lệnh curl tương đương để debug dễ dàng
+  - Xử lý lỗi mạng: IOException vs ApiException, hiển thị thông báo phù hợp
+  Chèn đoạn code minh họa AuthInterceptor
+
+  4.3.4. Triển khai lưu trữ token – TokenDataStore
+  [HƯỚNG DẪN]
+  - Sử dụng Jetpack DataStore Preferences để lưu JWT token bền vững
+  - saveToken(token: String): ghi token vào DataStore
+  - observeToken(): trả về Flow<String?> để theo dõi thay đổi
+  - clearToken(): xóa token khi đăng xuất
+  - Tại sao DataStore an toàn hơn SharedPreferences: coroutine-safe, không block UI
+  Chèn đoạn code minh họa TokenDataStore
+
+  4.3.5. Triển khai quản lý trạng thái UI – UiState và PageState
+  [HƯỚNG DẪN]
+  - UiState<T>: sealed interface Idle | Loading | Success<T> | Empty | Error(msg)
+    → Dùng trong: chi tiết dịch vụ, thao tác tạo/xóa/cập nhật
+  - PageState<T>: data class lưu items, page, limit, total, isLoading, error
+    → Dùng trong: danh sách phân trang (users, services, bookings, categories)
+  - Cách HomeViewModel dùng MutableStateFlow<PageState<T>> để reactive update UI
+  Chèn đoạn code minh họa UiState sealed interface
+
+  4.3.6. Triển khai luồng xác thực
+  [HƯỚNG DẪN]
+  - ObserveAuthStateUseCase: collect Flow<String?> từ TokenDataStore,
+    phát ra AppState.AUTHENTICATED hoặc AppState.UNAUTHENTICATED
+  - BookingApp (NavHost): lắng nghe AppState, điều hướng tự động đến Login hoặc Home
+  - AuthViewModel.login(): gọi LoginUseCase, lưu token, update uiState
+  - AuthViewModel.logout(): gọi clearToken, uiState chuyển về Idle
+  Vẽ sơ đồ tuần tự luồng đăng nhập end-to-end
+
+  [ẢNH] hinh4_3_auth_flow_sequence.png – Sơ đồ tuần tự luồng xác thực đăng nhập
+
+  4.3.7. Triển khai chức năng đặt lịch (Booking Flow)
+  [HƯỚNG DẪN]
+  - ServiceBookingScreen: hiển thị danh sách dịch vụ, lọc theo FilterChip danh mục,
+    tăng/giảm số lượng từng dịch vụ, tính tổng tiền ước tính
+  - BookingItemRequest: model chứa serviceId và quantity
+  - HomeViewModel.createBooking(): nhận danh sách BookingItemRequest,
+    gọi bookingRepository.createBooking(), cập nhật uiState
+  - BookingApi.createBooking(): build JSON body, POST /bookings, parse response
+  Vẽ sơ đồ tuần tự luồng đặt lịch end-to-end
+
+  [ẢNH] hinh4_4_booking_flow_sequence.png – Sơ đồ tuần tự luồng tạo booking
+
+  4.3.8. Triển khai Admin Console
+  [HƯỚNG DẪN]
+  - AdminConsoleScreen: sticky header 4 section (Users / Services / Categories / Bookings)
+  - Phân trang: PaginationBar component, nút Previous/Next, hiển thị trang hiện tại / tổng
+  - CRUD Dialogs: UserDialog, ServiceDialog, CategoryDialog, BookingDialog
+    → AlertDialog Compose với form nhập liệu, validate trước khi submit
+  - Xác nhận xóa: AlertDialog 2 nút "Hủy" và "Xác nhận xóa"
+  - Phân quyền UI: tab Console và nút CRUD chỉ render khi UserInfo.role == ADMIN
+
+  [ẢNH] hinh4_5_admin_crud_flow.png – Sơ đồ luồng thao tác CRUD trong Admin Console
+
+────────────────────────────────────────────────────────────────────────────────
+4.4. Hướng dẫn cài đặt và chạy dự án
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Trình bày từng bước rõ ràng, kèm lệnh cụ thể:
+
+  Bước 1 – Clone repository:
+    git clone https://github.com/NTQD/Fixtech.Pro.git
+    cd Fixtech.Pro
+
+  Bước 2 – Khởi động Backend:
+    cd be
+    docker-compose up -d
+    # Chờ khoảng 30 giây để service khởi động hoàn toàn
+    docker-compose ps   # Kiểm tra trạng thái
+
+  Bước 3 – Cấu hình Android:
+    - Mở thư mục gốc Fixtech.Pro bằng Android Studio
+    - Kiểm tra file BackendConfig.kt:
+        const val BASE_URL = "http://10.0.2.2:8080"   ← Dùng cho Emulator
+        (Nếu chạy trên thiết bị thật: đổi thành IP máy tính trong cùng mạng LAN)
+
+  Bước 4 – Chạy ứng dụng:
+    - Khởi động Android Emulator hoặc kết nối thiết bị thật
+    - Nhấn Run 'app' trong Android Studio (Shift+F10)
+
+  Bước 5 – Tài khoản demo (nếu có dữ liệu mẫu trong init-db.sql):
+    - Admin:       phone: [điền vào], password: [điền vào]
+    - Customer:    phone: [điền vào], password: [điền vào]
+    - Technician:  phone: [điền vào], password: [điền vào]
+
+  [ẢNH] hinh4_6_android_studio_run.png – Ảnh chụp Android Studio đang build và chạy ứng dụng
+
+
+════════════════════════════════════════════════════════════════════════════════
+CHƯƠNG 5. KIỂM THỬ HỆ THỐNG
+════════════════════════════════════════════════════════════════════════════════
+  ĐỘ DÀI GỢI Ý: 6 – 10 trang
+
+────────────────────────────────────────────────────────────────────────────────
+5.1. Chiến lược kiểm thử
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Mô tả các cấp độ kiểm thử được thực hiện trong dự án:
+  - Kiểm thử thủ công (Manual Testing): thực hiện trực tiếp trên Emulator và
+    thiết bị thật, kiểm tra từng chức năng theo kịch bản
+  - Kiểm thử API (API Testing): dùng Postman/curl kiểm thử backend độc lập,
+    không phụ thuộc ứng dụng Android
+  - Kiểm thử tích hợp (Integration Testing): kiểm tra luồng dữ liệu từ UI
+    qua ViewModel → Repository → API → Database
+  - Kiểm thử tương thích (Compatibility Testing): chạy trên nhiều phiên bản
+    Android và kích thước màn hình khác nhau
+  Lý giải tại sao không có Unit Test tự động (nếu chưa viết) và kế hoạch bổ sung.
+
+────────────────────────────────────────────────────────────────────────────────
+5.2. Kiểm thử chức năng
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Trình bày toàn bộ kịch bản kiểm thử dạng bảng:
+  Mã TC | Chức năng            | Điều kiện đầu vào           | Kết quả mong đợi              | KQ thực tế | Đạt/Không
+  ------|----------------------|-----------------------------|-------------------------------|------------|----------
+  TC-01 | Đăng ký tài khoản    | SĐT + tên + mật khẩu hợp lệ| Tạo tài khoản, chuyển Login   |            |
+  TC-02 | Đăng ký – SĐT trùng  | SĐT đã tồn tại              | Hiện thông báo lỗi trùng SĐT  |            |
+  TC-03 | Đăng nhập thành công | SĐT + mật khẩu đúng         | Chuyển HomeScreen, có token   |            |
+  TC-04 | Đăng nhập sai mật khẩu| SĐT đúng, mật khẩu sai    | Hiện thông báo sai thông tin  |            |
+  TC-05 | Xem danh sách dịch vụ| Đã đăng nhập                | Danh sách dịch vụ hiển thị    |            |
+  TC-06 | Lọc dịch vụ theo DM  | Chọn FilterChip danh mục    | Chỉ hiện dịch vụ thuộc DM đó |            |
+  TC-07 | Tạo booking          | Chọn 2 dịch vụ, nhấn gửi   | Booking tạo trạng thái PENDING|            |
+  TC-08 | Xem booking của tôi  | Đã có booking               | Danh sách booking hiển thị    |            |
+  TC-09 | Hủy booking          | Booking PENDING             | Trạng thái chuyển CANCELLED   |            |
+  TC-10 | Admin xác nhận       | Booking PENDING, admin login| Trạng thái chuyển CONFIRMED   |            |
+  TC-11 | Admin phân công      | Booking CONFIRMED           | Gán kỹ thuật viên thành công  |            |
+  TC-12 | Tạo dịch vụ mới      | Nhập đầy đủ thông tin       | Dịch vụ xuất hiện trong DS    |            |
+  TC-13 | Sửa dịch vụ          | Thay đổi giá                | Giá cập nhật đúng             |            |
+  TC-14 | Xóa danh mục         | Nhấn xóa, xác nhận          | Danh mục bị xóa khỏi DS      |            |
+  TC-15 | Khóa tài khoản       | Admin khóa 1 user           | User không đăng nhập được     |            |
+  TC-16 | Đánh giá dịch vụ     | Booking COMPLETED, rating 5 | Review lưu, hiện trong DS     |            |
+  TC-17 | Đăng xuất            | Nhấn nút đăng xuất          | Token xóa, chuyển về Login    |            |
+  TC-18 | Phân trang admin     | DS > 10 items               | Nút Next/Prev hoạt động đúng  |            |
+  ... (bổ sung thêm kịch bản thực tế)
+
+────────────────────────────────────────────────────────────────────────────────
+5.3. Kiểm thử phi chức năng
+────────────────────────────────────────────────────────────────────────────────
+
+  5.3.1. Kiểm thử bảo mật
+  [HƯỚNG DẪN]
+  Trình bày bảng kiểm thử bảo mật:
+  - Gọi API /admin/bookings không có token → mong đợi 401 Unauthorized
+  - Gọi API /admin/bookings với token của CUSTOMER → mong đợi 403 Forbidden
+  - Gọi API /bookings/me với token giả mạo → mong đợi 401 Unauthorized
+  - Đăng nhập tài khoản bị khóa (active=false) → mong đợi thông báo lỗi
+  Ghi lại kết quả thực tế của từng trường hợp
+
+  5.3.2. Kiểm thử hiệu năng
+  [HƯỚNG DẪN]
+  Đo thời gian phản hồi của các API quan trọng (đọc từ ApiDebugInterceptor log):
+  API Endpoint             | Số lần đo | Thời gian TB | Thời gian Max | Đạt NFR-01?
+  -------------------------|-----------|--------------|---------------|------------
+  POST /authenticate/login | 5         |              |               |
+  GET /services            | 5         |              |               |
+  POST /bookings           | 5         |              |               |
+  GET /admin/bookings      | 5         |              |               |
+  Nhận xét về hiệu năng tổng thể
+
+  5.3.3. Kiểm thử tương thích thiết bị
+  [HƯỚNG DẪN]
+  Liệt kê các thiết bị/emulator đã kiểm thử:
+  Thiết bị / Emulator    | Phiên bản Android | Kích thước màn hình | Kết quả
+  -----------------------|-------------------|---------------------|--------
+  Pixel 6 Pro (emulator) | Android 13 (API 33)| 6.71 inch           |
+  Samsung Galaxy A52     | Android 11 (API 30)| 6.5 inch            |
+  Pixel 4 (emulator)     | Android 10 (API 29)| 5.7 inch            |
+  ... (điền thiết bị thực tế đã dùng)
+
+────────────────────────────────────────────────────────────────────────────────
+5.4. Kết quả kiểm thử tổng hợp
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  - Thống kê: Tổng số test case | Số đạt | Số không đạt | Tỷ lệ đạt
+  - Liệt kê các lỗi phát hiện được: mã lỗi, mô tả, mức độ nghiêm trọng,
+    cách khắc phục và trạng thái hiện tại (đã sửa / chưa sửa)
+  - Nhận xét chung về chất lượng hệ thống sau kiểm thử
+
+  [ẢNH] hinh5_1_test_results_summary.png – Biểu đồ tổng hợp kết quả kiểm thử
+
+
+════════════════════════════════════════════════════════════════════════════════
+CHƯƠNG 6. KẾT QUẢ VÀ ĐÁNH GIÁ
+════════════════════════════════════════════════════════════════════════════════
+  ĐỘ DÀI GỢI Ý: 6 – 8 trang
+
+────────────────────────────────────────────────────────────────────────────────
+6.1. Demo giao diện ứng dụng thực tế
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Chèn ảnh chụp màn hình thực tế của ứng dụng đã hoàn thành, có mô tả bên dưới
+  mỗi ảnh (caption). Sắp xếp theo luồng sử dụng tự nhiên:
+
+  [ẢNH] hinh6_1_screen_login.png         – Màn hình Đăng nhập thực tế
+  [ẢNH] hinh6_2_screen_register.png      – Màn hình Đăng ký thực tế
+  [ẢNH] hinh6_3_screen_dashboard.png     – Màn hình Home Dashboard (thống kê tổng quan)
+  [ẢNH] hinh6_4_screen_services.png      – Màn hình Dịch vụ với bộ lọc danh mục
+  [ẢNH] hinh6_5_screen_booking_form.png  – Màn hình Tạo yêu cầu đặt lịch
+  [ẢNH] hinh6_6_screen_booking_list.png  – Danh sách booking với StatusPill màu sắc
+  [ẢNH] hinh6_7_screen_admin_users.png   – Admin Console: quản lý người dùng
+  [ẢNH] hinh6_8_screen_admin_services.png– Admin Console: quản lý dịch vụ
+  [ẢNH] hinh6_9_screen_admin_bookings.png– Admin Console: quản lý booking
+  [ẢNH] hinh6_10_screen_profile.png      – Màn hình Hồ sơ cá nhân
+
+────────────────────────────────────────────────────────────────────────────────
+6.2. Đánh giá mức độ hoàn thành yêu cầu
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Dùng bảng đối chiếu yêu cầu ban đầu với kết quả thực hiện:
+  Mã yêu cầu | Tên chức năng               | Mức độ hoàn thành | Ghi chú
+  -----------|-----------------------------|-------------------|----------------------------------
+  FR-01      | Đăng ký tài khoản           | 100%              |
+  FR-02      | Đăng nhập / Đăng xuất       | 100%              |
+  FR-03–04   | Xem danh mục & dịch vụ      | 100%              |
+  FR-05–06   | Tạo booking + nhập thiết bị | 100%              | Thông tin cứng (tên/SĐT chưa nhập lại)
+  FR-07–08   | Theo dõi & xem lịch sử      | 100%              |
+  FR-09      | Hủy booking                 | 100%              |
+  FR-10      | Đánh giá dịch vụ            | 80%               | Giao diện xem review chưa đầy đủ
+  FR-11      | Hồ sơ cá nhân               | 100%              |
+  FR-12–15   | Admin: dashboard, booking   | 100%              |
+  FR-16–17   | Admin: danh mục và dịch vụ  | 100%              |
+  FR-18–19   | Admin: người dùng           | 100%              |
+  FR-20–22   | Kỹ thuật viên               | 70%               | Chưa có giao diện riêng cho Technician
+  (điền tỷ lệ thực tế của nhóm)
+
+────────────────────────────────────────────────────────────────────────────────
+6.3. Điểm mạnh của hệ thống
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Đánh giá khách quan những điểm mạnh nổi bật:
+  - Kiến trúc Clean Architecture rõ ràng, tuân thủ Dependency Rule nghiêm ngặt
+  - Giao diện hiện đại, dark theme nhất quán, sử dụng Material Design 3
+  - Admin Console tích hợp CRUD đầy đủ cho 4 entity chính trong một màn hình
+  - Phân quyền chặt chẽ theo role cả ở UI lẫn backend API
+  - StateFlow + UiState giúp xử lý loading/error/success gọn gàng, không leak
+  - Xử lý phân trang phía server (page/limit) giảm tải cho ứng dụng
+  - Docker Compose giúp triển khai backend nhất quán, nhanh chóng trên mọi máy
+
+────────────────────────────────────────────────────────────────────────────────
+6.4. Hạn chế và hướng khắc phục
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Nhóm tự nhận xét thẳng thắn các điểm còn hạn chế:
+  Hạn chế                                      | Nguyên nhân              | Hướng khắc phục
+  ---------------------------------------------|--------------------------|------------------------------------------
+  BASE_URL cứng (10.0.2.2:8080)                | Chưa cấu hình môi trường | Dùng BuildConfig.DEBUG phân biệt env
+  Form booking thiếu nhập SĐT/địa chỉ thực    | Thiếu thời gian          | Bổ sung trường thông tin booking
+  Chưa có push notification trạng thái booking | Ngoài phạm vi đề tài     | Tích hợp Firebase Cloud Messaging
+  Chưa có giao diện riêng cho Kỹ thuật viên   | Chưa hoàn thành          | Tạo tab/màn hình Technician riêng
+  Token không tự refresh khi hết hạn           | Chưa implement           | Thêm Refresh Token endpoint
+  Chưa có local cache (Room)                   | Ngoài phạm vi đề tài     | Tích hợp Room cho offline mode
+  Chưa có Unit Test tự động                    | Hạn chế thời gian        | Viết test cho Use Cases, Repository
+  Giao diện tiếng Anh/Việt lẫn lộn            | Chưa thống nhất          | Sử dụng String Resources (strings.xml)
+
+
+════════════════════════════════════════════════════════════════════════════════
+KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+════════════════════════════════════════════════════════════════════════════════
+  ĐỘ DÀI GỢI Ý: 3 – 5 trang
+
+────────────────────────────────────────────────────────────────────────────────
+Kết luận
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Tóm tắt lại toàn bộ quá trình thực hiện đồ án:
+  - Đề tài đã đạt được những gì so với mục tiêu ban đầu ở Chương 1
+  - Các kiến thức và kỹ năng kỹ thuật đã áp dụng thành công:
+    Clean Architecture, MVVM, Jetpack Compose, Kotlin Coroutines/Flow,
+    REST API, JWT/RBAC, Docker
+  - Giá trị thực tiễn của sản phẩm đối với bài toán đặt ra
+  - Những bài học rút ra sau quá trình thực hiện
+
+────────────────────────────────────────────────────────────────────────────────
+Hướng phát triển trong tương lai
+────────────────────────────────────────────────────────────────────────────────
+  [HƯỚNG DẪN]
+  Ưu tiên ngắn hạn (3 – 6 tháng):
+  - [ ] Tích hợp Firebase Cloud Messaging (FCM) cho push notification
+  - [ ] Hoàn thiện form nhập thông tin booking (tên, SĐT, địa chỉ thực tế)
+  - [ ] Xây dựng giao diện riêng và đầy đủ cho Kỹ thuật viên
+  - [ ] Triển khai cơ chế Refresh Token tự động
+  - [ ] Viết Unit Test cho tất cả Use Cases và Repository implementations
+  - [ ] Thêm Room database để hỗ trợ offline mode
+
+  Hướng phát triển dài hạn:
+  - [ ] Tích hợp thanh toán trực tuyến: VNPay, MoMo
+  - [ ] Tích hợp Google Maps để định vị và chỉ đường đến trung tâm dịch vụ
+  - [ ] Tính năng chat trực tuyến giữa khách hàng và kỹ thuật viên
+  - [ ] Module báo cáo thống kê nâng cao cho Admin: doanh thu, hiệu suất nhân viên
+  - [ ] Phát triển phiên bản iOS sử dụng chung backend
+  - [ ] Triển khai lên cloud: AWS EC2 / Google Cloud Run / Azure App Service
+  - [ ] Hệ thống gợi ý dịch vụ dựa trên lịch sử sử dụng (Machine Learning)
+
+
+════════════════════════════════════════════════════════════════════════════════
+TÀI LIỆU THAM KHẢO
+════════════════════════════════════════════════════════════════════════════════
+
+  [HƯỚNG DẪN]
+  Liệt kê theo chuẩn APA hoặc IEEE, đánh số thứ tự. Ví dụ:
+
+  [1]  Android Developers. (2024). Jetpack Compose Documentation.
+       https://developer.android.com/compose
+
+  [2]  Android Developers. (2024). Guide to app architecture – Clean Architecture.
+       https://developer.android.com/topic/architecture
+
+  [3]  Android Developers. (2024). Navigation in Compose.
+       https://developer.android.com/jetpack/compose/navigation
+
+  [4]  Android Developers. (2024). DataStore – Preferences DataStore.
+       https://developer.android.com/topic/libraries/architecture/datastore
+
+  [5]  Square Inc. (2024). OkHttp Documentation.
+       https://square.github.io/okhttp/
+
+  [6]  JetBrains. (2024). Kotlin Coroutines – Overview.
+       https://kotlinlang.org/docs/coroutines-overview.html
+
+  [7]  JetBrains. (2024). Kotlin Flow – Asynchronous Flow.
+       https://kotlinlang.org/docs/flow.html
+
+  [8]  Spring.io. (2024). Spring Boot Reference Documentation.
+       https://docs.spring.io/spring-boot/docs/current/reference/html/
+
+  [9]  Spring.io. (2024). Spring Security Reference.
+       https://docs.spring.io/spring-security/reference/
+
+  [10] IETF. (2015). JSON Web Token (JWT). RFC 7519.
+       https://datatracker.ietf.org/doc/html/rfc7519
+
+  [11] Docker Inc. (2024). Docker Compose Documentation.
+       https://docs.docker.com/compose/
+
+  [12] Martin, R. C. (2017). Clean Architecture: A Craftsman's Guide to
+       Software Structure and Design. Prentice Hall.
+
+  [13] Google Material Design. (2024). Material Design 3.
+       https://m3.material.io/
+
+  [Bổ sung thêm tài liệu thực tế nhóm đã tham khảo]
+
+
+════════════════════════════════════════════════════════════════════════════════
+PHỤ LỤC
+════════════════════════════════════════════════════════════════════════════════
+
+  [HƯỚNG DẪN]
+  Bao gồm các nội dung chi tiết hỗ trợ, không đưa vào nội dung chính:
+
+  PHỤ LỤC A – Hướng dẫn cài đặt và chạy dự án (đầy đủ từng bước)
+    - Yêu cầu hệ thống chi tiết
+    - Clone repository và cấu trúc thư mục
+    - Cấu hình và khởi động backend Docker
+    - Build và chạy ứng dụng Android
+    - Xử lý các lỗi thường gặp
+
+  PHỤ LỤC B – Danh sách API đầy đủ với ví dụ Request/Response
+    - Toàn bộ các endpoint với mẫu JSON request và response thực tế
+
+  PHỤ LỤC C – Kịch bản kiểm thử đầy đủ
+    - Bảng test case chi tiết bổ sung ngoài Chương 5
+
+  PHỤ LỤC D – Kết quả khảo sát người dùng (nếu có)
+    - Bảng câu hỏi Google Form
+    - Biểu đồ tổng hợp kết quả khảo sát
+
+  PHỤ LỤC E – Phân công công việc nhóm
+    Tên thành viên | MSSV | Vai trò chính | Nhiệm vụ cụ thể | % đóng góp
+
+
+================================================================================
+GHI CHÚ CHUNG CHO NHÓM THỰC HIỆN
+================================================================================
+
+ĐỊNH DẠNG BÁO CÁO:
+  - Font chữ: Times New Roman 13pt (nội dung), 14pt in đậm (tiêu đề chương)
+  - Cỡ giấy: A4, lề trên/dưới 2.5cm, lề trái 3.5cm, lề phải 2cm
+  - Giãn dòng: 1.5 lines
+  - Đánh số trang: số La Mã (i, ii...) cho phần đầu; từ trang 1 bắt đầu Chương 1
+
+QUY TẮC CHÈN ẢNH:
+  - Mỗi vị trí [ẢNH] trong khung này là một hình ảnh cần chèn vào báo cáo
+  - Tên file ảnh gợi ý (ví dụ: hinh3_7_erd_diagram.png) – nhóm có thể đặt lại
+  - Mọi hình ảnh phải có chú thích bên dưới: "Hình X.Y – Tên hình"
+  - Mọi bảng biểu phải có tên bảng bên trên: "Bảng X.Y – Tên bảng"
+  - Tổng số vị trí ảnh trong khung: 37 hình ảnh
+
+TỔNG ĐỘ DÀI GỢI Ý:
+  Chương 1:  6 – 10  trang
+  Chương 2: 10 – 15  trang
+  Chương 3: 15 – 20  trang
+  Chương 4: 12 – 18  trang
+  Chương 5:  6 – 10  trang
+  Chương 6:  6 –  8  trang
+  Kết luận:  3 –  5  trang
+  Phụ lục:  10 – 15  trang
+  ──────────────────────────
+  TỔNG:     68 – 101 trang (không kể bìa, lời cam đoan, lời cảm ơn, mục lục)
+
+LƯU Ý QUAN TRỌNG:
+  - Code snippet chỉ đưa vào khi thực sự cần minh họa, không paste toàn bộ file
+  - Trích dẫn tài liệu đúng cách mỗi khi tham khảo nguồn bên ngoài
+  - Các số liệu, tỷ lệ hoàn thành, thời gian đo phải là số thực tế của nhóm
+  - Sau khi viết xong, rà soát lại toàn bộ để đảm bảo nhất quán thuật ngữ
+
+================================================================================
+                           HẾT KHUNG BÁO CÁO (v2)
+================================================================================

@@ -1,17 +1,18 @@
 package vn.vibe.booking.presentation.auth
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import vn.vibe.booking.core.data.TokenManager
 import vn.vibe.booking.data.remote.ApiException
-import vn.vibe.booking.domain.repository.TokenRepository
 import vn.vibe.booking.domain.usecase.LoginUseCase
 import vn.vibe.booking.domain.usecase.RegisterUseCase
+import javax.inject.Inject
 
 data class AuthUiState(
     val isLoading: Boolean = false,
@@ -19,10 +20,11 @@ data class AuthUiState(
     val error: String? = null
 )
 
-class AuthViewModel(
+@HiltViewModel
+class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val registerUseCase: RegisterUseCase,
-    private val tokenRepository: TokenRepository
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _loginState = MutableStateFlow(AuthUiState())
@@ -36,8 +38,8 @@ class AuthViewModel(
         viewModelScope.launch {
             loginUseCase(phone, password)
                 .onSuccess { result ->
-                    tokenRepository.saveToken(result.token)
-                    _loginState.update { AuthUiState(isLoading = false, message = "Xin chào user #${result.userId}") }
+                    tokenManager.saveToken(result.token)
+                    _loginState.update { AuthUiState(isLoading = false, message = "success") }
                     onSuccess()
                 }
                 .onFailure { throwable ->
@@ -74,16 +76,5 @@ class AuthViewModel(
 
     fun clearRegisterTransientState() {
         _registerState.update { it.copy(message = null, error = null) }
-    }
-
-    class Factory(
-        private val loginUseCase: LoginUseCase,
-        private val registerUseCase: RegisterUseCase,
-        private val tokenRepository: TokenRepository
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return AuthViewModel(loginUseCase, registerUseCase, tokenRepository) as T
-        }
     }
 }

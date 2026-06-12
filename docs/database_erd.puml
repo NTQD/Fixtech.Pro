@@ -1,0 +1,123 @@
+@startuml
+skinparam linetype ortho
+
+entity "user" {
+    * id : INT (PK)
+    --
+    name : VARCHAR(200)
+    phone : VARCHAR(15) (UNIQUE)
+    password : VARCHAR(255)
+    plain_password : VARCHAR(255)
+    email : VARCHAR(255)
+    role : VARCHAR(30)
+    created_at : TIMESTAMP
+    active : BIT(1)
+}
+
+entity "repair_service_category" {
+    * id : INT (PK)
+    --
+    name : VARCHAR(200) (UNIQUE)
+    description : VARCHAR(500)
+    active : BIT(1)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "repair_service" {
+    * id : INT (PK)
+    --
+    * category_id : INT (FK)
+    name : VARCHAR(255)
+    short_description : VARCHAR(500)
+    description : TEXT
+    base_price : BIGINT
+    estimated_minutes : INT
+    warranty_days : INT
+    active : BIT(1)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "repair_booking" {
+    * id : INT (PK)
+    --
+    booking_code : VARCHAR(50) (UNIQUE)
+    customer_id : INT (FK)
+    customer_name : VARCHAR(200)
+    customer_phone : VARCHAR(15)
+    customer_email : VARCHAR(255)
+    device_type : VARCHAR(200)
+    device_brand : VARCHAR(100)
+    device_model : VARCHAR(100)
+    issue_description : TEXT
+    preferred_date : DATE
+    preferred_time_slot : VARCHAR(50)
+    address : VARCHAR(500)
+    note : VARCHAR(1000)
+    status : VARCHAR(40)
+    technician_id : INT (FK)
+    total_estimated_price : BIGINT
+    total_estimated_minutes : INT
+    scheduled_at : DATETIME
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "repair_booking_item" {
+    * id : INT (PK)
+    --
+    * booking_id : INT (FK)
+    * service_id : INT (FK)
+    service_name : VARCHAR(255)
+    quantity : INT
+    estimated_price : BIGINT
+    final_price : BIGINT
+}
+
+entity "repair_booking_status_history" {
+    * id : INT (PK)
+    --
+    * booking_id : INT (FK)
+    from_status : VARCHAR(40)
+    to_status : VARCHAR(40)
+    note : VARCHAR(1000)
+    changed_by : INT (FK)
+    created_at : TIMESTAMP
+}
+
+entity "repair_booking_note" {
+    * id : INT (PK)
+    --
+    * booking_id : INT (FK)
+    note : VARCHAR(1000)
+    created_by : INT (FK)
+    created_at : TIMESTAMP
+}
+
+entity "repair_review" {
+    * id : INT (PK)
+    --
+    * booking_id : INT (FK)
+    * service_id : INT (FK)
+    customer_id : INT (FK)
+    rating : INT
+    comment : VARCHAR(1000)
+    created_at : TIMESTAMP
+}
+
+' Relationships
+repair_service_category ||--o{ repair_service : "has"
+user ||--o{ repair_booking : "books (as customer)"
+user ||--o{ repair_booking : "assigned (as tech)"
+repair_booking ||--|{ repair_booking_item : "contains"
+repair_service ||--o{ repair_booking_item : "referenced in"
+repair_booking ||--o{ repair_booking_status_history : "tracks"
+user ||--o{ repair_booking_status_history : "changed by"
+repair_booking ||--o{ repair_booking_note : "has note"
+user ||--o{ repair_booking_note : "created by"
+repair_booking ||--o{ repair_review : "has review"
+repair_service ||--o{ repair_review : "reviews service"
+user ||--o{ repair_review : "written by"
+
+@enduml

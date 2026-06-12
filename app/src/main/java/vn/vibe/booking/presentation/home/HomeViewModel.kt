@@ -1,5 +1,8 @@
 package vn.vibe.booking.presentation.home
 
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -27,7 +30,8 @@ data class PageState<T>(
     val error: String? = null
 )
 
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val tokenRepository: TokenRepository,
     private val homeRepository: HomeRepository
@@ -45,6 +49,9 @@ class HomeViewModel(
     private val _reviewsState = MutableStateFlow<UiState<List<ReviewDto>>>(UiState.Idle)
     val reviewsState: StateFlow<UiState<List<ReviewDto>>> = _reviewsState.asStateFlow()
 
+    private val _bookingDetailState = MutableStateFlow<UiState<vn.vibe.booking.data.remote.BookingDetailDto>>(UiState.Idle)
+    val bookingDetailState: StateFlow<UiState<vn.vibe.booking.data.remote.BookingDetailDto>> = _bookingDetailState.asStateFlow()
+
     private val _categoriesState = MutableStateFlow(PageState<ServiceCategoryDto>())
     val categoriesState: StateFlow<PageState<ServiceCategoryDto>> = _categoriesState.asStateFlow()
 
@@ -61,6 +68,27 @@ class HomeViewModel(
                         .onFailure { _userState.value = UiState.Error(it.message ?: "Không tải được thông tin người dùng") }
                 }
                 .onFailure { _userState.value = UiState.Error(it.message ?: "Không tải được thông tin người dùng") }
+        }
+    }
+
+    fun updateProfile(id: Long, name: String, email: String, phone: String, role: String, token: String?, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        if (token.isNullOrBlank()) {
+            onError("Chưa đăng nhập")
+            return
+        }
+        viewModelScope.launch {
+            runCatching { userRepository.updateUserInfo(id, name, email, phone, role, token) }
+                .onSuccess { result ->
+                    result.onSuccess {
+                        onSuccess()
+                        loadUserInfo(token) // Refresh after update
+                    }.onFailure {
+                        onError(it.message ?: "Cập nhật thất bại")
+                    }
+                }
+                .onFailure {
+                    onError(it.message ?: "Lỗi hệ thống")
+                }
         }
     }
 
@@ -111,6 +139,18 @@ class HomeViewModel(
                 }
             } catch (e: Exception) {
                 _bookingsState.value = PageState(page = page, limit = limit, loading = false, error = e.message ?: "Không tải được bookings")
+            }
+        }
+    }
+
+    fun loadBookingDetail(token: String?, id: Long) {
+        if (token.isNullOrBlank()) return
+        _bookingDetailState.value = UiState.Loading
+        viewModelScope.launch {
+            _bookingDetailState.value = try {
+                homeRepository.getBookingDetail(token, id)
+            } catch (e: Exception) {
+                UiState.Error(e.message ?: "Không tải được chi tiết booking")
             }
         }
     }
@@ -296,6 +336,18 @@ class HomeViewModel(
             }
         } catch (e: Exception) {
             onError(e.message ?: "Không gửi được đánh giá")
+        }
+    }
+
+    fun addBookingNote(token: String, bookingId: Long, note: String, onDone: () -> Unit, onError: (String) -> Unit) = viewModelScope.launch {
+        try {
+            when (val result = homeRepository.addBookingNote(token, bookingId, note)) {
+                is UiState.Success -> onDone()
+                is UiState.Error -> onError(result.message)
+                else -> onDone()
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Không gửi được ghi chú")
         }
     }
 
