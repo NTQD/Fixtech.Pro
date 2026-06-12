@@ -43,8 +43,8 @@ public class RepairBookingController {
 
     @GetMapping("/bookings/{id}")
     @IsUser
-    public ResponseEntity<ApiResponse<RepairBooking>> detail(@PathVariable Integer id) {
-        return Mapper.map(bookingService.getById(id), ApiResponse::okEntity);
+    public ResponseEntity<ApiResponse<vn.aeoc.ecom.dto.response.BookingDetailResponse>> detail(@PathVariable Integer id) {
+        return Mapper.map(flowService.getDetail(id), ApiResponse::okEntity);
     }
 
     @GetMapping("/admin/bookings")

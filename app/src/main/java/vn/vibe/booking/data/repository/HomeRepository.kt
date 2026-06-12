@@ -156,7 +156,7 @@ class HomeRepositoryImpl @Inject constructor(
         )
     }
     override suspend fun getMyBookings(token: String, status: String?, page: Int, limit: Int): UiState<List<BookingSummaryDto>> = runApi { JSONObject(bookingApi.getMyBookings(status, page, limit, token)).toItemsPage().items.map { it.toBookingSummaryDto() } }
-    override suspend fun getBookingDetail(token: String, id: Long): UiState<vn.vibe.booking.data.remote.BookingDetailDto> = runApi { JSONObject(bookingApi.getBookingDetail(id, token)).let { it.optJSONObject("data") ?: it }.toBookingDetailDto() }
+    override suspend fun getBookingDetail(token: String, id: Long): UiState<vn.vibe.booking.data.remote.BookingDetailDto> = runApi { JSONObject(bookingApi.getBookingDetail(id, token)).let { it.optJSONObject("result") ?: it.optJSONObject("data") ?: it }.toBookingDetailDto() }
     override suspend fun getAdminBookings(token: String, keyword: String?, status: String?, customerId: Int?, technicianId: Int?, page: Int, limit: Int): UiState<List<BookingSummaryDto>> = runApi { JSONObject(bookingApi.getAdminBookings(keyword, status, customerId, technicianId, page, limit, token)).toItemsPage().items.map { it.toBookingSummaryDto() } }
     override suspend fun confirmBooking(token: String, id: Long, note: String): UiState<String> = runApi { bookingApi.confirmBooking(id, note, token) }
     override suspend fun assignTechnician(token: String, id: Long, technicianId: Long, note: String): UiState<String> = runApi { bookingApi.assignTechnician(id, technicianId, note, token) }

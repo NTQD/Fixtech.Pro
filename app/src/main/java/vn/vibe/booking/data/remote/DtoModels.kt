@@ -134,18 +134,21 @@ fun JSONObject.toBookingHistoryDto() = BookingHistoryDto(
     createdAt = optStringOrNull("createdAt")
 )
 
-fun JSONObject.toBookingDetailDto() = BookingDetailDto(
-    id = optLong("id"),
-    bookingCode = optString("bookingCode"),
-    customerName = optString("customerName"),
-    customerPhone = optString("customerPhone"),
-    deviceType = optString("deviceType"),
-    issueDescription = optString("issueDescription"),
-    status = optString("status"),
-    totalEstimatedPrice = optLong("totalEstimatedPrice"),
-    items = optJSONArray("items")?.let { arr -> List(arr.length()) { i -> arr.getJSONObject(i).toBookingItemDto() } }.orEmpty(),
-    statusHistory = optJSONArray("statusHistory")?.let { arr -> List(arr.length()) { i -> arr.getJSONObject(i).toBookingHistoryDto() } }.orEmpty()
-)
+fun JSONObject.toBookingDetailDto(): BookingDetailDto {
+    val bookingObj = this.optJSONObject("booking") ?: this
+    return BookingDetailDto(
+        id = bookingObj.optLong("id"),
+        bookingCode = bookingObj.optString("bookingCode"),
+        customerName = bookingObj.optString("customerName"),
+        customerPhone = bookingObj.optString("customerPhone"),
+        deviceType = bookingObj.optString("deviceType"),
+        issueDescription = bookingObj.optString("issueDescription"),
+        status = bookingObj.optString("status"),
+        totalEstimatedPrice = bookingObj.optLong("totalEstimatedPrice"),
+        items = this.optJSONArray("items")?.let { arr -> List(arr.length()) { i -> arr.getJSONObject(i).toBookingItemDto() } }.orEmpty(),
+        statusHistory = this.optJSONArray("statusHistory")?.let { arr -> List(arr.length()) { i -> arr.getJSONObject(i).toBookingHistoryDto() } }.orEmpty()
+    )
+}
 
 fun JSONObject.toReviewDto() = ReviewDto(
     id = optLong("id"),
