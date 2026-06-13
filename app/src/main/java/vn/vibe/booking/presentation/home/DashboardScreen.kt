@@ -16,15 +16,26 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import vn.vibe.booking.domain.model.UserInfo
+import vn.vibe.booking.data.remote.RepairServiceDto
+import vn.vibe.booking.data.remote.BookingSummaryDto
+import java.text.NumberFormat
+import java.util.Locale
+import java.text.SimpleDateFormat
 
 @Composable
 fun DashboardScreen(
     userInfo: UserInfo?,
     isLoading: Boolean,
     error: String?,
+    services: List<RepairServiceDto>,
+    bookings: List<BookingSummaryDto>,
     onQuickBookClick: () -> Unit,
     onViewServicesClick: () -> Unit
 ) {
+    val totalServices = services.size
+    val inProgressBookings = bookings.count { it.status == "PENDING" || it.status == "CONFIRMED" || it.status == "IN_PROGRESS" }
+    val completedBookings = bookings.count { it.status == "COMPLETED" }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -37,12 +48,12 @@ fun DashboardScreen(
                 onQuickBookClick = onQuickBookClick
             )
         }
-        item { DashboardQuickStats() }
+        item { DashboardQuickStats(totalServices, inProgressBookings, completedBookings) }
         item { DashboardActionGrid(onQuickBookClick, onViewServicesClick) }
         item { DashboardSectionHeader("Trạng thái gần đây") }
-        item { DashboardStatusTimeline() }
+        item { DashboardStatusTimeline(bookings.take(3)) }
         item { DashboardSectionHeader("Gợi ý dịch vụ") }
-        item { DashboardRecommendedServices() }
+        item { DashboardRecommendedServices(services.take(3)) }
         
         if (!error.isNullOrBlank()) {
             item {
@@ -127,15 +138,15 @@ fun DashboardHero(userInfo: UserInfo?, isLoading: Boolean, onQuickBookClick: () 
 }
 
 @Composable
-fun DashboardQuickStats() {
+fun DashboardQuickStats(totalServices: Int, inProgressBookings: Int, completedBookings: Int) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         @Suppress("DEPRECATION")
-        DashboardStatCard(Modifier.weight(1f), "12", "Dịch vụ", Icons.Default.List)
-        DashboardStatCard(Modifier.weight(1f), "03", "Đang xử lý", Icons.Default.PendingActions)
-        DashboardStatCard(Modifier.weight(1f), "4.9", "Đánh giá", Icons.Default.Star)
+        DashboardStatCard(Modifier.weight(1f), totalServices.toString(), "Dịch vụ", Icons.Default.List)
+        DashboardStatCard(Modifier.weight(1f), String.format(Locale.US, "%02d", inProgressBookings), "Đang xử lý", Icons.Default.PendingActions)
+        DashboardStatCard(Modifier.weight(1f), completedBookings.toString(), "Hoàn thành", Icons.Default.CheckCircle)
     }
 }
 
@@ -200,10 +211,33 @@ fun DashboardActionCard(title: String, subtitle: String, icon: ImageVector, onCl
 }
 
 @Composable
-fun DashboardStatusTimeline() {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        DashboardTimelineItem("Đã gửi yêu cầu thay pin", "09:00 - 20/05", true)
-        DashboardTimelineItem("Nhân viên đang tới", "09:20 - 20/05", false)
+fun DashboardStatusTimeline(recentBookings: List<BookingSummaryDto>) {
+    if (recentBookings.isEmpty()) {
+        Text("Chưa có đơn hàng nào.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            recentBookings.forEach { booking ->
+                val timeStr = try {
+                    val date = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).parse(booking.createdAt ?: "")
+                    if (date != null) dateFormat.format(date) else ""
+                } catch (e: Exception) { "" }
+                val done = booking.status == "COMPLETED"
+                
+                val titleStr = "Đơn ${booking.bookingCode} - ${
+                    when(booking.status) {
+                        "PENDING" -> "Chờ xác nhận"
+                        "CONFIRMED" -> "Đã xác nhận"
+                        "IN_PROGRESS" -> "Đang xử lý"
+                        "COMPLETED" -> "Hoàn thành"
+                        "CANCELLED" -> "Đã hủy"
+                        else -> booking.status
+                    }
+                }"
+                
+                DashboardTimelineItem(titleStr, "Tạo ngày: $timeStr", done)
+            }
+        }
     }
 }
 
@@ -225,10 +259,20 @@ fun DashboardTimelineItem(title: String, time: String, done: Boolean) {
 }
 
 @Composable
-fun DashboardRecommendedServices() {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        DashboardServiceCard("Vệ sinh laptop", "Tối ưu nhiệt độ", "350.000đ")
-        DashboardServiceCard("Thay SSD 512GB", "Nâng cấp tốc độ máy", "1.100.000đ")
+fun DashboardRecommendedServices(services: List<RepairServiceDto>) {
+    if (services.isEmpty()) {
+        Text("Chưa có dịch vụ nào.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            services.forEach { service ->
+                val priceFormatter = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
+                DashboardServiceCard(
+                    title = service.name,
+                    description = service.shortDescription ?: "Không có mô tả",
+                    price = priceFormatter.format(service.basePrice)
+                )
+            }
+        }
     }
 }
 

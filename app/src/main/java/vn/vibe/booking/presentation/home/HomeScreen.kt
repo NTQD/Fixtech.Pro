@@ -178,10 +178,14 @@ fun HomeScreen(
                             onViewAssigned = { showTechBookings = true }
                         )
                     } else {
+                        val servicesState by viewModel.servicesState.collectAsStateWithLifecycle()
+                        val bookingsState by viewModel.bookingsState.collectAsStateWithLifecycle()
                         DashboardScreen(
                             userInfo = userInfo,
                             isLoading = isLoading,
                             error = error,
+                            services = servicesState.items,
+                            bookings = bookingsState.items,
                             onQuickBookClick = { showBookingForm = true },
                             onViewServicesClick = { selectedTab = tabs.indexOf(BottomTab.Services) }
                         )
