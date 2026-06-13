@@ -50,4 +50,12 @@ public class RepairBookingRepository extends AbsMysqlRepository<RepairBookingRec
     public Long countByCriteria(String keyword, String status, Integer customerId, Integer technicianId) {
         return getCountWithCriteria(getWhereCondition(keyword, status, customerId, technicianId));
     }
+
+    public Long countOverlappingBookings(java.time.LocalDate date, String timeSlot) {
+        return getCountWithCriteria(
+                REPAIR_BOOKING.PREFERRED_DATE.eq(date)
+                        .and(REPAIR_BOOKING.PREFERRED_TIME_SLOT.eq(timeSlot))
+                        .and(REPAIR_BOOKING.STATUS.notIn("CANCELLED", "COMPLETED"))
+        );
+    }
 }

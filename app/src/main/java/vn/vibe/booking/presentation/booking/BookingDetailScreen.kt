@@ -26,6 +26,12 @@ import vn.vibe.booking.data.remote.BookingItemDto
 import vn.vibe.booking.domain.model.UiState
 import vn.vibe.booking.presentation.home.HomeViewModel
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingDetailScreen(
@@ -35,12 +41,52 @@ fun BookingDetailScreen(
     onBack: () -> Unit
 ) {
     val bookingState by viewModel.bookingDetailState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    var showCancelDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(bookingId, token) {
         viewModel.loadBookingDetail(token, bookingId)
     }
 
+    if (showCancelDialog) {
+        AlertDialog(
+            onDismissRequest = { showCancelDialog = false },
+            title = { Text("Hủy Đơn Hàng") },
+            text = { Text("Bạn có chắc chắn muốn hủy đơn hàng này không?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showCancelDialog = false
+                    viewModel.cancelBooking(
+                        token = token,
+                        bookingId = bookingId,
+                        reason = "Khách hàng hủy trên app",
+                        onDone = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Hủy đơn hàng thành công")
+                            }
+                        },
+                        onError = { error ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Lỗi: $error")
+                            }
+                        }
+                    )
+                }) {
+                    Text("Đồng ý", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCancelDialog = false }) {
+                    Text("Không")
+                }
+            }
+        )
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Chi tiết Đặt lịch") },
@@ -70,7 +116,10 @@ fun BookingDetailScreen(
                     )
                 }
                 is UiState.Success -> {
-                    BookingDetailContent(booking = state.data)
+                    BookingDetailContent(
+                        booking = state.data,
+                        onCancelClick = { showCancelDialog = true }
+                    )
                 }
                 else -> {}
             }
@@ -79,10 +128,11 @@ fun BookingDetailScreen(
 }
 
 @Composable
-fun BookingDetailContent(booking: BookingDetailDto) {
+fun BookingDetailContent(booking: BookingDetailDto, onCancelClick: () -> Unit) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxSize()
     ) {
         item {
             ElevatedCard(
@@ -157,6 +207,19 @@ fun BookingDetailContent(booking: BookingDetailDto) {
             }
             items(booking.statusHistory) { history ->
                 HistoryItemRow(history)
+            }
+        }
+
+        if (booking.status == "PENDING") {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onCancelClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Hủy Đơn Hàng")
+                }
             }
         }
     }

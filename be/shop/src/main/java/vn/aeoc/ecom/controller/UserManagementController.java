@@ -22,8 +22,10 @@ public class UserManagementController {
     @IsAdmin
     public ResponseEntity<ApiResponse<Page<User>>> list(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) Boolean active,
             Pageable pageable) {
-        return Mapper.map(userService.getByCriteria(keyword, pageable), ApiResponse::okEntity);
+        return Mapper.map(userService.getByCriteria(keyword, role, active, pageable), ApiResponse::okEntity);
     }
 
     @PutMapping("/{id}")

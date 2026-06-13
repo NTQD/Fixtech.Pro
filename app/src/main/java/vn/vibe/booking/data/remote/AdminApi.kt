@@ -63,5 +63,40 @@ class AdminApi(client: OkHttpClient) : BaseApiService(client) {
 
     suspend fun deleteCategory(id: Long, token: String): String = delete("/admin/service-categories/$id", auth(token))
 
+    suspend fun getDashboardOverview(token: String): String = get("/api/v1/admin/dashboard/overview", auth(token))
+    
+    suspend fun getRevenueDetails(page: Int = 1, limit: Int = 20, token: String): String = get("/api/v1/admin/dashboard/revenue-details?page=$page&limit=$limit", auth(token))
+
+    suspend fun getInventoryItems(keyword: String? = null, page: Int = 1, limit: Int = 20, token: String): String {
+        val query = buildString {
+            append("?page=").append(page)
+            append("&limit=").append(limit)
+            if (!keyword.isNullOrBlank()) append("&keyword=").append(keyword)
+        }
+        return get("/api/v1/admin/inventory$query", auth(token))
+    }
+
+    suspend fun createInventoryItem(name: String, description: String?, price: Double, stock: Int, imageUrl: String?, token: String): String {
+        val body = JSONObject()
+            .put("name", name)
+            .put("description", description ?: "")
+            .put("price", price)
+            .put("stock", stock)
+            .put("imageUrl", imageUrl ?: "")
+        return post("/api/v1/admin/inventory", body, auth(token))
+    }
+
+    suspend fun updateInventoryItem(id: Long, name: String, description: String?, price: Double, stock: Int, imageUrl: String?, token: String): String {
+        val body = JSONObject()
+            .put("name", name)
+            .put("description", description ?: "")
+            .put("price", price)
+            .put("stock", stock)
+            .put("imageUrl", imageUrl ?: "")
+        return put("/api/v1/admin/inventory/$id", body, auth(token))
+    }
+
+    suspend fun deleteInventoryItem(id: Long, token: String): String = delete("/api/v1/admin/inventory/$id", auth(token))
+
     private fun auth(token: String) = mapOf("Authorization" to "Bearer $token")
 }

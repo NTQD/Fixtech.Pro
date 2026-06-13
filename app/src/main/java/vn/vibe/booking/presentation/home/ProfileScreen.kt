@@ -27,6 +27,7 @@ import vn.vibe.booking.domain.model.UserInfo
 fun ProfileScreen(
     userInfo: UserInfo?,
     onLogout: () -> Unit,
+    onViewBookingHistory: () -> Unit,
     onUpdateProfile: (name: String, email: String, password: String?) -> Unit = { _, _, _ -> }
 ) {
     LazyColumn(
@@ -41,7 +42,7 @@ fun ProfileScreen(
             ProfileDetailsSection(userInfo = userInfo)
         }
         item {
-            ProfileSettingsSection(onLogout = onLogout)
+            ProfileSettingsSection(onLogout = onLogout, onViewBookingHistory = onViewBookingHistory)
         }
     }
 }
@@ -207,7 +208,7 @@ fun ProfileInfoRow(icon: ImageVector, label: String, value: String) {
 }
 
 @Composable
-fun ProfileSettingsSection(onLogout: () -> Unit) {
+fun ProfileSettingsSection(onLogout: () -> Unit, onViewBookingHistory: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
             text = "Cài đặt & Hỗ trợ",
@@ -222,7 +223,7 @@ fun ProfileSettingsSection(onLogout: () -> Unit) {
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp)
         ) {
             Column(Modifier.padding(vertical = 8.dp)) {
-                ProfileSettingItem(icon = Icons.Default.History, title = "Lịch sử đặt lịch")
+                ProfileSettingItem(icon = Icons.Default.History, title = "Lịch sử đặt lịch", onClick = onViewBookingHistory)
                 ProfileSettingItem(icon = Icons.Default.QuestionMark, title = "Trung tâm trợ giúp")
                 ProfileSettingItem(icon = Icons.Default.Info, title = "Điều khoản dịch vụ")
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)

@@ -2,6 +2,7 @@ package vn.vibe.booking.presentation.admin
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,27 +24,46 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import vn.vibe.booking.presentation.home.HomeViewModel
+import vn.vibe.booking.domain.model.UiState
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun AdminDashboardScreen(
     viewModel: HomeViewModel,
     token: String?,
     onManageBookings: () -> Unit,
-    onManageUsers: () -> Unit
+    onManageUsers: () -> Unit,
+    onManageRevenue: () -> Unit,
+    onManageInventory: () -> Unit
 ) {
+    val dashboardState by viewModel.dashboardState.collectAsStateWithLifecycle()
     val bookingsState by viewModel.bookingsState.collectAsStateWithLifecycle()
     val usersState by viewModel.usersState.collectAsStateWithLifecycle()
-    val servicesState by viewModel.servicesState.collectAsStateWithLifecycle()
 
-    val totalBookings = bookingsState.items.size
+    LaunchedEffect(token) {
+        if (token != null) {
+            viewModel.loadDashboardOverview(token)
+            viewModel.loadBookings(token)
+            viewModel.loadUsers(token)
+        }
+    }
+
+    val overview = (dashboardState as? UiState.Success)?.data
+
+    val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
+    val totalRevenueStr = overview?.totalRevenue?.let { currencyFormatter.format(it) } ?: "0 đ"
+    val totalBookingsStr = overview?.totalBookings?.toString() ?: "0"
+    val totalUsersStr = if (overview != null && overview.totalUsers > 0) {
+        overview.totalUsers.toString()
+    } else {
+        usersState.total.toString()
+    }
+    val totalInventoryStr = overview?.totalInventoryItems?.toString() ?: "0"
+
     val pendingBookings = bookingsState.items.count { 
         it.status.equals("PENDING", ignoreCase = true) || it.status.contains("CHỜ", ignoreCase = true) 
     }
-    val completedBookings = bookingsState.items.count { 
-        it.status.equals("COMPLETED", ignoreCase = true) || it.status.contains("HOÀN THÀNH", ignoreCase = true) 
-    }
-    val totalUsers = usersState.items.size
-    val totalServices = servicesState.items.size
 
     Column(
         modifier = Modifier
@@ -64,48 +85,52 @@ fun AdminDashboardScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        // Stats Grid
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            StatCard(
-                title = "Bookings",
-                value = totalBookings.toString(),
-                icon = Icons.Default.DateRange,
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.weight(1f)
-            )
-            StatCard(
-                title = "Chờ xử lý",
-                value = pendingBookings.toString(),
-                icon = Icons.Default.Star,
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            StatCard(
-                title = "Users",
-                value = totalUsers.toString(),
-                icon = Icons.Default.Person,
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.weight(1f)
-            )
-            StatCard(
-                title = "Dịch vụ",
-                value = totalServices.toString(),
-                icon = Icons.Default.Build,
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f)
-            )
+        if (dashboardState is UiState.Loading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else {
+            // Stats Grid 2x2
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard(
+                    title = "Doanh thu",
+                    value = totalRevenueStr,
+                    icon = Icons.Default.Star,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.weight(1f).clickable { onManageRevenue() }
+                )
+                StatCard(
+                    title = "Bookings",
+                    value = totalBookingsStr,
+                    icon = Icons.Default.DateRange,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.weight(1f).clickable { onManageBookings() }
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard(
+                    title = "Users",
+                    value = totalUsersStr,
+                    icon = Icons.Default.Person,
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier.weight(1f).clickable { onManageUsers() }
+                )
+                StatCard(
+                    title = "Quản lý kho",
+                    value = totalInventoryStr,
+                    icon = Icons.Default.ShoppingCart,
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f).clickable { onManageInventory() }
+                )
+            }
         }
 
         HorizontalDivider()
@@ -234,7 +259,7 @@ fun StatCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.animateContentSize(),
+        modifier = modifier.defaultMinSize(minHeight = 110.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
         shape = RoundedCornerShape(16.dp)
     ) {
@@ -243,14 +268,16 @@ fun StatCard(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = value,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = contentColor
+                color = contentColor,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodySmall,
-                color = contentColor.copy(alpha = 0.7f)
+                style = MaterialTheme.typography.bodyMedium,
+                color = contentColor.copy(alpha = 0.8f)
             )
         }
     }

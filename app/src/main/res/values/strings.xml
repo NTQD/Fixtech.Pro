@@ -21,4 +21,18 @@
     <string name="success">Thành công</string>
     <string name="error">Đã xảy ra lỗi</string>
     <string name="retry">Thử lại</string>
+
+    <!-- Settings & Navigation -->
+    <string name="theme_settings">Giao diện</string>
+    <string name="language_settings">Ngôn ngữ</string>
+    <string name="theme_system">Hệ thống</string>
+    <string name="theme_light">Sáng</string>
+    <string name="theme_dark">Tối</string>
+    <string name="lang_vi">Tiếng Việt</string>
+    <string name="lang_en">English</string>
+    <string name="close">Đóng</string>
+    <string name="home_tab">Trang chủ</string>
+    <string name="services_tab">Dịch vụ</string>
+    <string name="bookings_tab">Lịch đặt</string>
+    <string name="profile_tab">Hồ sơ</string>
 </resources>

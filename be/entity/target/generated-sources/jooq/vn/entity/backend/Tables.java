@@ -4,10 +4,7 @@
 package vn.entity.backend;
 
 
-import vn.entity.backend.tables.Category;
-import vn.entity.backend.tables.Order;
-import vn.entity.backend.tables.OrderItem;
-import vn.entity.backend.tables.Product;
+import vn.entity.backend.tables.InventoryItem;
 import vn.entity.backend.tables.RepairBooking;
 import vn.entity.backend.tables.RepairBookingItem;
 import vn.entity.backend.tables.RepairBookingNote;
@@ -25,24 +22,9 @@ import vn.entity.backend.tables.User;
 public class Tables {
 
     /**
-     * The table <code>ecom.category</code>.
+     * The table <code>ecom.inventory_item</code>.
      */
-    public static final Category CATEGORY = Category.CATEGORY;
-
-    /**
-     * The table <code>ecom.order</code>.
-     */
-    public static final Order ORDER = Order.ORDER;
-
-    /**
-     * The table <code>ecom.order_item</code>.
-     */
-    public static final OrderItem ORDER_ITEM = OrderItem.ORDER_ITEM;
-
-    /**
-     * The table <code>ecom.product</code>.
-     */
-    public static final Product PRODUCT = Product.PRODUCT;
+    public static final InventoryItem INVENTORY_ITEM = InventoryItem.INVENTORY_ITEM;
 
     /**
      * The table <code>ecom.repair_booking</code>.

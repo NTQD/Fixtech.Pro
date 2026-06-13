@@ -26,10 +26,10 @@ public class UserService
         return repository.getById(id);
     }
 
-    public Page<User> getByCriteria(String keyword, Pageable pageable) {
+    public Page<User> getByCriteria(String keyword, String role, Boolean active, Pageable pageable) {
         return pageQuery(pageable,
-                () -> repository.getByCriteria(keyword, pageable),
-                () -> repository.countByCriteria(keyword));
+                () -> repository.getByCriteria(keyword, role, active, pageable),
+                () -> repository.countByCriteria(keyword, role, active));
     }
 
     @Override

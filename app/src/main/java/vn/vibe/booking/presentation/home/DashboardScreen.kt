@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import vn.vibe.booking.domain.model.UserInfo
 import vn.vibe.booking.data.remote.RepairServiceDto
 import vn.vibe.booking.data.remote.BookingSummaryDto
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import java.text.NumberFormat
 import java.util.Locale
 import java.text.SimpleDateFormat
@@ -30,10 +32,13 @@ fun DashboardScreen(
     services: List<RepairServiceDto>,
     bookings: List<BookingSummaryDto>,
     onQuickBookClick: () -> Unit,
-    onViewServicesClick: () -> Unit
+    onViewServicesClick: () -> Unit,
+    onServiceClick: (RepairServiceDto) -> Unit,
+    onViewInProgressClick: () -> Unit,
+    onViewCompletedClick: () -> Unit
 ) {
     val totalServices = services.size
-    val inProgressBookings = bookings.count { it.status == "PENDING" || it.status == "CONFIRMED" || it.status == "IN_PROGRESS" }
+    val inProgressBookings = bookings.count { it.status == "IN_PROGRESS" }
     val completedBookings = bookings.count { it.status == "COMPLETED" }
 
     LazyColumn(
@@ -48,12 +53,12 @@ fun DashboardScreen(
                 onQuickBookClick = onQuickBookClick
             )
         }
-        item { DashboardQuickStats(totalServices, inProgressBookings, completedBookings) }
+        item { DashboardQuickStats(totalServices, inProgressBookings, completedBookings, onViewServicesClick, onViewInProgressClick, onViewCompletedClick) }
         item { DashboardActionGrid(onQuickBookClick, onViewServicesClick) }
         item { DashboardSectionHeader("Trạng thái gần đây") }
         item { DashboardStatusTimeline(bookings.take(3)) }
         item { DashboardSectionHeader("Gợi ý dịch vụ") }
-        item { DashboardRecommendedServices(services.take(3)) }
+        item { DashboardRecommendedServices(services.take(3), onServiceClick) }
         
         if (!error.isNullOrBlank()) {
             item {
@@ -138,34 +143,50 @@ fun DashboardHero(userInfo: UserInfo?, isLoading: Boolean, onQuickBookClick: () 
 }
 
 @Composable
-fun DashboardQuickStats(totalServices: Int, inProgressBookings: Int, completedBookings: Int) {
+fun DashboardQuickStats(
+    totalServices: Int,
+    inProgressBookings: Int,
+    completedBookings: Int,
+    onServicesClick: () -> Unit,
+    onInProgressClick: () -> Unit,
+    onCompletedClick: () -> Unit
+) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         @Suppress("DEPRECATION")
-        DashboardStatCard(Modifier.weight(1f), totalServices.toString(), "Dịch vụ", Icons.Default.List)
-        DashboardStatCard(Modifier.weight(1f), String.format(Locale.US, "%02d", inProgressBookings), "Đang xử lý", Icons.Default.PendingActions)
-        DashboardStatCard(Modifier.weight(1f), completedBookings.toString(), "Hoàn thành", Icons.Default.CheckCircle)
+        DashboardStatCard(Modifier.weight(1f).fillMaxHeight(), totalServices.toString(), "Dịch vụ", Icons.Default.List, onServicesClick)
+        DashboardStatCard(Modifier.weight(1f).fillMaxHeight(), String.format(Locale.US, "%02d", inProgressBookings), "Đang xử lý", Icons.Default.PendingActions, onInProgressClick)
+        DashboardStatCard(Modifier.weight(1f).fillMaxHeight(), completedBookings.toString(), "Hoàn thành", Icons.Default.CheckCircle, onCompletedClick)
     }
 }
 
 @Composable
-fun DashboardStatCard(modifier: Modifier = Modifier, value: String, label: String, icon: ImageVector) {
+fun DashboardStatCard(modifier: Modifier = Modifier, value: String, label: String, icon: ImageVector, onClick: (() -> Unit)? = null) {
     ElevatedCard(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+        onClick = onClick ?: {}
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(12.dp).fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                label, 
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp), 
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                lineHeight = 12.sp
+            )
         }
     }
 }
@@ -259,7 +280,7 @@ fun DashboardTimelineItem(title: String, time: String, done: Boolean) {
 }
 
 @Composable
-fun DashboardRecommendedServices(services: List<RepairServiceDto>) {
+fun DashboardRecommendedServices(services: List<RepairServiceDto>, onServiceClick: (RepairServiceDto) -> Unit) {
     if (services.isEmpty()) {
         Text("Chưa có dịch vụ nào.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     } else {
@@ -269,7 +290,8 @@ fun DashboardRecommendedServices(services: List<RepairServiceDto>) {
                 DashboardServiceCard(
                     title = service.name,
                     description = service.shortDescription ?: "Không có mô tả",
-                    price = priceFormatter.format(service.basePrice)
+                    price = priceFormatter.format(service.basePrice),
+                    onClick = { onServiceClick(service) }
                 )
             }
         }
@@ -277,10 +299,11 @@ fun DashboardRecommendedServices(services: List<RepairServiceDto>) {
 }
 
 @Composable
-fun DashboardServiceCard(title: String, description: String, price: String) {
+fun DashboardServiceCard(title: String, description: String, price: String, onClick: (() -> Unit)? = null) {
     OutlinedCard(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick ?: {}
     ) {
         Row(
             modifier = Modifier.padding(16.dp),

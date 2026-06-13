@@ -64,7 +64,15 @@ abstract class BaseApiService(
     private fun execute(request: Request): String {
         client.newCall(request).execute().use { response ->
             val body = response.body?.string().orEmpty()
-            if (!response.isSuccessful) throw IOException("HTTP ${response.code}: $body")
+            if (!response.isSuccessful) {
+                var errorMsg = body
+                try {
+                    val json = JSONObject(body)
+                    if (json.has("message")) errorMsg = json.getString("message")
+                    else if (json.has("error")) errorMsg = json.getString("error")
+                } catch (e: Exception) {}
+                throw IOException(errorMsg.ifBlank { "Lỗi kết nối máy chủ" })
+            }
             return body
         }
     }

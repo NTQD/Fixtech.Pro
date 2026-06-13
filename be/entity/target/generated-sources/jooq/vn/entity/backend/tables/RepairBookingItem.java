@@ -10,13 +10,13 @@ import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Function7;
+import org.jooq.Function8;
 import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Records;
-import org.jooq.Row7;
+import org.jooq.Row8;
 import org.jooq.Schema;
 import org.jooq.SelectField;
 import org.jooq.Table;
@@ -77,7 +77,7 @@ public class RepairBookingItem extends TableImpl<RepairBookingItemRecord> {
     /**
      * The column <code>ecom.repair_booking_item.quantity</code>.
      */
-    public final TableField<RepairBookingItemRecord, Integer> QUANTITY = createField(DSL.name("quantity"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("1", SQLDataType.INTEGER)), this, "");
+    public final TableField<RepairBookingItemRecord, Integer> QUANTITY = createField(DSL.name("quantity"), SQLDataType.INTEGER.defaultValue(DSL.inline("1", SQLDataType.INTEGER)), this, "");
 
     /**
      * The column <code>ecom.repair_booking_item.estimated_price</code>.
@@ -88,6 +88,11 @@ public class RepairBookingItem extends TableImpl<RepairBookingItemRecord> {
      * The column <code>ecom.repair_booking_item.final_price</code>.
      */
     public final TableField<RepairBookingItemRecord, Long> FINAL_PRICE = createField(DSL.name("final_price"), SQLDataType.BIGINT.defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");
+
+    /**
+     * The column <code>ecom.repair_booking_item.inventory_item_id</code>.
+     */
+    public final TableField<RepairBookingItemRecord, Integer> INVENTORY_ITEM_ID = createField(DSL.name("inventory_item_id"), SQLDataType.INTEGER, this, "");
 
     private RepairBookingItem(Name alias, Table<RepairBookingItemRecord> aliased) {
         this(alias, aliased, null);
@@ -144,11 +149,12 @@ public class RepairBookingItem extends TableImpl<RepairBookingItemRecord> {
 
     @Override
     public List<ForeignKey<RepairBookingItemRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.FK_REPAIR_BOOKING_ITEM_BOOKING, Keys.FK_REPAIR_BOOKING_ITEM_SERVICE);
+        return Arrays.asList(Keys.FK_REPAIR_BOOKING_ITEM_BOOKING, Keys.FK_REPAIR_BOOKING_ITEM_SERVICE, Keys.FK_REPAIR_BOOKING_ITEM_INVENTORY);
     }
 
     private transient RepairBooking _repairBooking;
     private transient RepairService _repairService;
+    private transient InventoryItem _inventoryItem;
 
     /**
      * Get the implicit join path to the <code>ecom.repair_booking</code> table.
@@ -168,6 +174,16 @@ public class RepairBookingItem extends TableImpl<RepairBookingItemRecord> {
             _repairService = new RepairService(this, Keys.FK_REPAIR_BOOKING_ITEM_SERVICE);
 
         return _repairService;
+    }
+
+    /**
+     * Get the implicit join path to the <code>ecom.inventory_item</code> table.
+     */
+    public InventoryItem inventoryItem() {
+        if (_inventoryItem == null)
+            _inventoryItem = new InventoryItem(this, Keys.FK_REPAIR_BOOKING_ITEM_INVENTORY);
+
+        return _inventoryItem;
     }
 
     @Override
@@ -210,18 +226,18 @@ public class RepairBookingItem extends TableImpl<RepairBookingItemRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row7 type methods
+    // Row8 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row7<Integer, Integer, Integer, String, Integer, Long, Long> fieldsRow() {
-        return (Row7) super.fieldsRow();
+    public Row8<Integer, Integer, Integer, String, Integer, Long, Long, Integer> fieldsRow() {
+        return (Row8) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function7<? super Integer, ? super Integer, ? super Integer, ? super String, ? super Integer, ? super Long, ? super Long, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function8<? super Integer, ? super Integer, ? super Integer, ? super String, ? super Integer, ? super Long, ? super Long, ? super Integer, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -229,7 +245,7 @@ public class RepairBookingItem extends TableImpl<RepairBookingItemRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function7<? super Integer, ? super Integer, ? super Integer, ? super String, ? super Integer, ? super Long, ? super Long, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function8<? super Integer, ? super Integer, ? super Integer, ? super String, ? super Integer, ? super Long, ? super Long, ? super Integer, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

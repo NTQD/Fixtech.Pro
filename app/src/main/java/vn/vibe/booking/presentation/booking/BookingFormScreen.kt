@@ -1,10 +1,10 @@
 package vn.vibe.booking.presentation.booking
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -14,10 +14,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.util.Calendar
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import vn.vibe.booking.data.remote.RepairServiceDto
 import vn.vibe.booking.presentation.home.HomeViewModel
 
@@ -40,11 +43,39 @@ fun BookingFormScreen(
         }
     }
     
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(state.submitSuccess) {
         if (state.submitSuccess) {
-            formViewModel.resetState()
-            onSuccess()
+            showSuccessDialog = true
         }
+    }
+
+    if (showSuccessDialog) {
+        AlertDialog(
+            onDismissRequest = {},
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        androidx.compose.material.icons.Icons.Default.Check,
+                        contentDescription = null,
+                        tint = androidx.compose.ui.graphics.Color.Green
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Thành công")
+                }
+            },
+            text = { Text("Hệ thống đã ghi nhận đơn đặt lịch của bạn.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showSuccessDialog = false
+                    formViewModel.resetState()
+                    onSuccess()
+                }) {
+                    Text("Đóng")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -68,6 +99,7 @@ fun BookingFormScreen(
             Stepper(
                 currentStep = state.currentStep,
                 steps = listOf("Thông tin", "Thiết bị", "Dịch vụ", "Thời gian", "Xác nhận"),
+                onStepClick = { formViewModel.setStep(it) },
                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp)
             )
 
@@ -87,7 +119,7 @@ fun BookingFormScreen(
 }
 
 @Composable
-fun Stepper(currentStep: Int, steps: List<String>, modifier: Modifier = Modifier) {
+fun Stepper(currentStep: Int, steps: List<String>, onStepClick: (Int) -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -108,7 +140,8 @@ fun Stepper(currentStep: Int, steps: List<String>, modifier: Modifier = Modifier
                                 isActive -> MaterialTheme.colorScheme.primaryContainer
                                 else -> MaterialTheme.colorScheme.surfaceVariant
                             }
-                        ),
+                        )
+                        .clickable { onStepClick(index) },
                     contentAlignment = Alignment.Center
                 ) {
                     if (isCompleted) {
@@ -139,45 +172,47 @@ fun CustomerInfoStep(state: BookingFormState, viewModel: BookingFormViewModel) {
     var phone by remember { mutableStateOf(state.customerPhone) }
     var email by remember { mutableStateOf(state.customerEmail) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Thông tin liên hệ", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it; viewModel.updateCustomerInfo(name, phone, email) },
-            label = { Text("Họ và tên *") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        OutlinedTextField(
-            value = phone,
-            onValueChange = { phone = it; viewModel.updateCustomerInfo(name, phone, email) },
-            label = { Text("Số điện thoại *") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it; viewModel.updateCustomerInfo(name, phone, email) },
-            label = { Text("Email (Tùy chọn)") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-        
-        Button(
-            onClick = { viewModel.setStep(1) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = name.isNotBlank() && phone.isNotBlank()
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Tiếp tục")
+            Text("Thông tin liên hệ", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it; viewModel.updateCustomerInfo(name, phone, email) },
+                label = { Text("Họ và tên *") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { phone = it; viewModel.updateCustomerInfo(name, phone, email) },
+                label = { Text("Số điện thoại *") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it; viewModel.updateCustomerInfo(name, phone, email) },
+                label = { Text("Email (Tùy chọn)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+        }
+        
+        Box(modifier = Modifier.padding(24.dp)) {
+            Button(
+                onClick = { viewModel.setStep(1) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = name.isNotBlank() && phone.isNotBlank()
+            ) {
+                Text("Tiếp tục")
+            }
         }
     }
 }
@@ -189,49 +224,49 @@ fun DeviceInfoStep(state: BookingFormState, viewModel: BookingFormViewModel) {
     var model by remember { mutableStateOf(state.deviceModel) }
     var issue by remember { mutableStateOf(state.issueDescription) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Thông tin thiết bị", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        
-        OutlinedTextField(
-            value = type,
-            onValueChange = { type = it; viewModel.updateDeviceInfo(type, brand, model, issue) },
-            label = { Text("Loại thiết bị (vd: Laptop, Điện thoại) *") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Thông tin thiết bị", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            
             OutlinedTextField(
-                value = brand,
-                onValueChange = { brand = it; viewModel.updateDeviceInfo(type, brand, model, issue) },
-                label = { Text("Hãng *") },
-                modifier = Modifier.weight(1f),
+                value = type,
+                onValueChange = { type = it; viewModel.updateDeviceInfo(type, brand, model, issue) },
+                label = { Text("Loại thiết bị *") },
+                modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                OutlinedTextField(
+                    value = brand,
+                    onValueChange = { brand = it; viewModel.updateDeviceInfo(type, brand, model, issue) },
+                    label = { Text("Hãng *") },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = model,
+                    onValueChange = { model = it; viewModel.updateDeviceInfo(type, brand, model, issue) },
+                    label = { Text("Model *") },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true
+                )
+            }
             OutlinedTextField(
-                value = model,
-                onValueChange = { model = it; viewModel.updateDeviceInfo(type, brand, model, issue) },
-                label = { Text("Model *") },
-                modifier = Modifier.weight(1f),
-                singleLine = true
+                value = issue,
+                onValueChange = { issue = it; viewModel.updateDeviceInfo(type, brand, model, issue) },
+                label = { Text("Mô tả lỗi đang gặp phải *") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3
             )
         }
-        OutlinedTextField(
-            value = issue,
-            onValueChange = { issue = it; viewModel.updateDeviceInfo(type, brand, model, issue) },
-            label = { Text("Mô tả lỗi đang gặp phải *") },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
         
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(modifier = Modifier.padding(24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             OutlinedButton(onClick = { viewModel.setStep(0) }, modifier = Modifier.weight(1f)) {
                 Text("Quay lại")
             }
@@ -248,48 +283,50 @@ fun DeviceInfoStep(state: BookingFormState, viewModel: BookingFormViewModel) {
 
 @Composable
 fun ServicesStep(state: BookingFormState, viewModel: BookingFormViewModel, availableServices: List<RepairServiceDto>) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-    ) {
-        Text("Dịch vụ sửa chữa", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        if (state.selectedServices.isNotEmpty()) {
-            Text("Đã chọn (${state.selectedServices.size}):", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
-            state.selectedServices.forEach { s ->
-                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(s.name, modifier = Modifier.weight(1f))
-                    TextButton(onClick = { viewModel.removeService(s.id) }) { Text("Xóa", color = MaterialTheme.colorScheme.error) }
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text("Dịch vụ sửa chữa", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            if (state.selectedServices.isNotEmpty()) {
+                Text("Đã chọn (${state.selectedServices.size}):", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
+                state.selectedServices.forEach { s ->
+                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(s.name, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { viewModel.removeService(s.id) }) { Text("Xóa", color = MaterialTheme.colorScheme.error) }
+                    }
                 }
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             }
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-        }
 
-        Text("Chọn thêm dịch vụ:", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // LazyColumn for remaining services
-        // Ideally we would show a bottom sheet or a search bar, but for simplicity we list them here
-        Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            availableServices.filter { s -> !state.selectedServices.any { it.id == s.id } }.forEach { s ->
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                    onClick = { viewModel.addService(s) }
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(s.name, fontWeight = FontWeight.Medium)
-                        Text("${s.basePrice} đ", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall)
+            Text("Chọn thêm dịch vụ:", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // LazyColumn for remaining services
+            // Ideally we would show a bottom sheet or a search bar, but for simplicity we list them here
+            Column {
+                availableServices.filter { s -> !state.selectedServices.any { it.id == s.id } }.forEach { s ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        onClick = { viewModel.addService(s) }
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(s.name, fontWeight = FontWeight.Medium)
+                            Text("${s.basePrice} đ", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall)
+                        }
                     }
                 }
             }
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(modifier = Modifier.padding(24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             OutlinedButton(onClick = { viewModel.setStep(1) }, modifier = Modifier.weight(1f)) { Text("Quay lại") }
             Button(
                 onClick = { viewModel.setStep(3) },
@@ -309,48 +346,107 @@ fun ScheduleInfoStep(state: BookingFormState, viewModel: BookingFormViewModel) {
     var address by remember { mutableStateOf(state.address) }
     var note by remember { mutableStateOf(state.note) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Thời gian & Địa điểm", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+    
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                date = String.format(java.util.Locale.US, "%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                viewModel.updateScheduleInfo(date, timeSlot, address, note)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
+
+    val timePickerDialog = remember {
+        TimePickerDialog(
+            context,
+            android.R.style.Theme_Holo_Dialog_NoActionBar,
+            { _, hourOfDay, minute ->
+                timeSlot = String.format(java.util.Locale.US, "%02d:%02d", hourOfDay, minute)
+                viewModel.updateScheduleInfo(date, timeSlot, address, note)
+            },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true
+        )
+    }
+
+    fun formatDateForDisplay(dateStr: String): String {
+        if (dateStr.isBlank()) return ""
+        val parts = dateStr.split("-")
+        if (parts.size == 3) {
+            return "${parts[2]}/${parts[1]}/${parts[0]}"
+        }
+        return dateStr
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Thời gian & Địa điểm", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Box(modifier = Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = formatDateForDisplay(date),
+                        onValueChange = {},
+                        label = { Text("Ngày hẹn *") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        readOnly = true,
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                    Box(modifier = Modifier.matchParentSize().clickable { datePickerDialog.show() })
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = timeSlot,
+                        onValueChange = {},
+                        label = { Text("Giờ hẹn *") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        readOnly = true,
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                    Box(modifier = Modifier.matchParentSize().clickable { timePickerDialog.show() })
+                }
+            }
             OutlinedTextField(
-                value = date,
-                onValueChange = { date = it; viewModel.updateScheduleInfo(date, timeSlot, address, note) },
-                label = { Text("Ngày (dd/mm/yyyy) *") },
-                modifier = Modifier.weight(1f),
-                singleLine = true
+                value = address,
+                onValueChange = { address = it; viewModel.updateScheduleInfo(date, timeSlot, address, note) },
+                label = { Text("Địa chỉ lấy máy/Sửa tại nhà *") },
+                modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
-                value = timeSlot,
-                onValueChange = { timeSlot = it; viewModel.updateScheduleInfo(date, timeSlot, address, note) },
-                label = { Text("Giờ (vd: 09:00) *") },
-                modifier = Modifier.weight(1f),
-                singleLine = true
+                value = note,
+                onValueChange = { note = it; viewModel.updateScheduleInfo(date, timeSlot, address, note) },
+                label = { Text("Ghi chú thêm (Tùy chọn)") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 2
             )
         }
-        OutlinedTextField(
-            value = address,
-            onValueChange = { address = it; viewModel.updateScheduleInfo(date, timeSlot, address, note) },
-            label = { Text("Địa chỉ lấy máy/Sửa tại nhà *") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = note,
-            onValueChange = { note = it; viewModel.updateScheduleInfo(date, timeSlot, address, note) },
-            label = { Text("Ghi chú thêm (Tùy chọn)") },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 2
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
         
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(modifier = Modifier.padding(24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             OutlinedButton(onClick = { viewModel.setStep(2) }, modifier = Modifier.weight(1f)) {
                 Text("Quay lại")
             }
@@ -367,46 +463,55 @@ fun ScheduleInfoStep(state: BookingFormState, viewModel: BookingFormViewModel) {
 
 @Composable
 fun ConfirmationStep(state: BookingFormState, viewModel: BookingFormViewModel, token: String?) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Xác nhận thông tin", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        
-        Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Khách hàng: ${state.customerName} - ${state.customerPhone}")
-                Text("Thiết bị: ${state.deviceBrand} ${state.deviceModel} (${state.deviceType})")
-                Text("Lỗi: ${state.issueDescription}")
-                Text("Thời gian: ${state.preferredTimeSlot} ngày ${state.preferredDate}")
-                Text("Địa chỉ: ${state.address}")
-            }
+    fun formatDateForDisplay(dateStr: String): String {
+        if (dateStr.isBlank()) return ""
+        val parts = dateStr.split("-")
+        if (parts.size == 3) {
+            return "${parts[2]}/${parts[1]}/${parts[0]}"
         }
+        return dateStr
+    }
 
-        Text("Dịch vụ", fontWeight = FontWeight.Bold)
-        state.selectedServices.forEach { s ->
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Xác nhận thông tin", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            
+            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Khách hàng: ${state.customerName} - ${state.customerPhone}")
+                    Text("Thiết bị: ${state.deviceBrand} ${state.deviceModel} (${state.deviceType})")
+                    Text("Lỗi: ${state.issueDescription}")
+                    Text("Thời gian: ${state.preferredTimeSlot} ngày ${formatDateForDisplay(state.preferredDate)}")
+                    Text("Địa chỉ: ${state.address}")
+                }
+            }
+
+            Text("Dịch vụ", fontWeight = FontWeight.Bold)
+            state.selectedServices.forEach { s ->
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(s.name)
+                    Text("${s.basePrice} đ")
+                }
+            }
+            HorizontalDivider()
+            val total = state.selectedServices.sumOf { it.basePrice }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(s.name)
-                Text("${s.basePrice} đ")
+                Text("Tổng dự kiến", fontWeight = FontWeight.Bold)
+                Text("$total đ", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            }
+
+            if (state.submitError != null) {
+                Text(state.submitError, color = MaterialTheme.colorScheme.error)
             }
         }
-        HorizontalDivider()
-        val total = state.selectedServices.sumOf { it.basePrice }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Tổng dự kiến", fontWeight = FontWeight.Bold)
-            Text("$total đ", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-        }
-
-        if (state.submitError != null) {
-            Text(state.submitError, color = MaterialTheme.colorScheme.error)
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
         
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(modifier = Modifier.padding(24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             OutlinedButton(onClick = { viewModel.setStep(3) }, modifier = Modifier.weight(1f), enabled = !state.isSubmitting) {
                 Text("Sửa")
             }
@@ -418,7 +523,7 @@ fun ConfirmationStep(state: BookingFormState, viewModel: BookingFormViewModel, t
                 if (state.isSubmitting) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text("Hoàn tất Đặt lịch")
+                    Text("Hoàn tất")
                 }
             }
         }

@@ -21,4 +21,18 @@
     <string name="success">Success</string>
     <string name="error">An error occurred</string>
     <string name="retry">Retry</string>
+
+    <!-- Settings & Navigation -->
+    <string name="theme_settings">Theme</string>
+    <string name="language_settings">Language</string>
+    <string name="theme_system">System Default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="lang_vi">Tiếng Việt</string>
+    <string name="lang_en">English</string>
+    <string name="close">Close</string>
+    <string name="home_tab">Home</string>
+    <string name="services_tab">Services</string>
+    <string name="bookings_tab">Bookings</string>
+    <string name="profile_tab">Profile</string>
 </resources>

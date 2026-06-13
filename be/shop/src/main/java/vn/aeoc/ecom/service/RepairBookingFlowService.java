@@ -25,6 +25,7 @@ import vn.aeoc.ecom.repository.RepairBookingRepository;
 import vn.aeoc.ecom.repository.RepairBookingStatusHistoryRepository;
 import vn.aeoc.ecom.repository.RepairReviewRepository;
 import vn.aeoc.ecom.repository.RepairServiceRepository;
+import vn.aeoc.ecom.repository.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -40,12 +41,13 @@ public class RepairBookingFlowService {
     private final RepairBookingNoteRepository noteRepository;
     private final RepairReviewRepository reviewRepository;
     private final RepairServiceRepository repairServiceRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public RepairBooking createBooking(CreateBookingRequest request, User currentUser) {
         validateCreateBooking(request);
 
-        String bookingCode = generateBookingCode();
+        String bookingCode = "BK_TEMP_" + System.currentTimeMillis();
         AtomicLong totalPrice = new AtomicLong(0);
         AtomicLong totalMinutes = new AtomicLong(0);
 
@@ -70,13 +72,16 @@ public class RepairBookingFlowService {
         booking.setPreferredTimeSlot(request.getPreferredTimeSlot());
         booking.setAddress(request.getAddress());
         booking.setNote(request.getNote());
-        booking.setStatus(BookingStatusService.PENDING_CONFIRMATION);
+        booking.setStatus(BookingStatusService.PENDING);
         booking.setTotalEstimatedPrice(totalPrice.get());
         booking.setTotalEstimatedMinutes((int) totalMinutes.get());
         booking.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         booking.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
         RepairBooking saved = bookingRepository.insertReturning(booking);
+        
+        saved.setBookingCode(String.format("BK%06d", saved.getId()));
+        bookingRepository.update(saved.getId(), saved);
         for (CreateBookingItemRequest item : request.getItems()) {
             RepairService service = requireService(item.getServiceId());
             long qty = normalizeQuantity(item.getQuantity());
@@ -90,13 +95,16 @@ public class RepairBookingFlowService {
             itemRepository.insert(bookingItem);
         }
 
-        historyRepository.insert(createHistory(saved.getId(), null, BookingStatusService.PENDING_CONFIRMATION, "Tạo booking"));
+        historyRepository.insert(createHistory(saved.getId(), null, BookingStatusService.PENDING, "Tạo booking"));
         return saved;
     }
 
     @Transactional
     public void cancelBooking(Integer bookingId, BookingCancelRequest request) {
         RepairBooking booking = requireBooking(bookingId);
+        if (!BookingStatusService.PENDING.equals(booking.getStatus())) {
+            throw new AppException("Chỉ có thể hủy đơn hàng đang chờ xử lý", 400);
+        }
         BookingStatusService.validateTransition(booking.getStatus(), BookingStatusService.CANCELLED);
         bookingRepository.updateField(bookingId, vn.entity.backend.tables.RepairBooking.REPAIR_BOOKING.STATUS, BookingStatusService.CANCELLED);
         historyRepository.insert(createHistory(bookingId, booking.getStatus(), BookingStatusService.CANCELLED,
@@ -191,11 +199,30 @@ public class RepairBookingFlowService {
         if (request.getCustomerName() == null || request.getCustomerName().isBlank()) throw new AppException(ErrorCode.BAD_REQUEST);
         if (request.getCustomerPhone() == null || request.getCustomerPhone().isBlank()) throw new AppException(ErrorCode.BAD_REQUEST);
         if (request.getItems() == null || request.getItems().isEmpty()) throw new AppException(ErrorCode.BAD_REQUEST);
+        
+        String timeSlot = request.getPreferredTimeSlot();
+        if (timeSlot != null && !timeSlot.isBlank()) {
+            if (!timeSlot.matches("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                throw new AppException("Định dạng giờ không hợp lệ (vd: 09:00)", ErrorCode.BAD_REQUEST.getCode());
+            }
+            String[] parts = timeSlot.split(":");
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+            if (hour < 8 || hour > 22 || (hour == 22 && minute > 0)) {
+                throw new AppException("Chỉ cho phép đặt lịch trong giờ hành chính từ 08:00 đến 22:00", ErrorCode.BAD_REQUEST.getCode());
+            }
+            
+            java.time.LocalDate date = request.getPreferredDate();
+            if (date != null) {
+                Long techniciansCount = userRepository.countByRole("TECHNICIAN");
+                Long overlappingBookings = bookingRepository.countOverlappingBookings(date, timeSlot);
+                if (techniciansCount != null && overlappingBookings != null && overlappingBookings >= techniciansCount) {
+                    throw new AppException("Thời gian này các thợ đã kín lịch, vui lòng chọn thời gian khác", ErrorCode.BAD_REQUEST.getCode());
+                }
+            }
+        }
     }
 
-    private String generateBookingCode() {
-        return "BK" + System.currentTimeMillis();
-    }
 
     private RepairBookingStatusHistory createHistory(Integer bookingId, String from, String to, String note) {
         RepairBookingStatusHistory history = new RepairBookingStatusHistory();

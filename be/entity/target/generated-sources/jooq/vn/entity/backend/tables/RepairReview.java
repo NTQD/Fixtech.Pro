@@ -73,7 +73,7 @@ public class RepairReview extends TableImpl<RepairReviewRecord> {
     /**
      * The column <code>ecom.repair_review.customer_id</code>.
      */
-    public final TableField<RepairReviewRecord, Integer> CUSTOMER_ID = createField(DSL.name("customer_id"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<RepairReviewRecord, Integer> CUSTOMER_ID = createField(DSL.name("customer_id"), SQLDataType.INTEGER, this, "");
 
     /**
      * The column <code>ecom.repair_review.rating</code>.
@@ -83,7 +83,7 @@ public class RepairReview extends TableImpl<RepairReviewRecord> {
     /**
      * The column <code>ecom.repair_review.comment</code>.
      */
-    public final TableField<RepairReviewRecord, String> COMMENT = createField(DSL.name("comment"), SQLDataType.VARCHAR(2000), this, "");
+    public final TableField<RepairReviewRecord, String> COMMENT = createField(DSL.name("comment"), SQLDataType.VARCHAR(1000), this, "");
 
     /**
      * The column <code>ecom.repair_review.created_at</code>.
@@ -130,7 +130,7 @@ public class RepairReview extends TableImpl<RepairReviewRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.REPAIR_REVIEW_IDX_REPAIR_REVIEW_CUSTOMER_ID, Indexes.REPAIR_REVIEW_IDX_REPAIR_REVIEW_SERVICE_ID);
+        return Arrays.asList(Indexes.REPAIR_REVIEW_IDX_REPAIR_REVIEW_BOOKING_ID, Indexes.REPAIR_REVIEW_IDX_REPAIR_REVIEW_SERVICE_ID);
     }
 
     @Override
@@ -144,18 +144,12 @@ public class RepairReview extends TableImpl<RepairReviewRecord> {
     }
 
     @Override
-    public List<UniqueKey<RepairReviewRecord>> getUniqueKeys() {
-        return Arrays.asList(Keys.KEY_REPAIR_REVIEW_UK_REPAIR_REVIEW_BOOKING_ID);
-    }
-
-    @Override
     public List<ForeignKey<RepairReviewRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.FK_REPAIR_REVIEW_BOOKING, Keys.FK_REPAIR_REVIEW_SERVICE, Keys.FK_REPAIR_REVIEW_CUSTOMER);
+        return Arrays.asList(Keys.FK_REPAIR_REVIEW_BOOKING, Keys.FK_REPAIR_REVIEW_SERVICE);
     }
 
     private transient RepairBooking _repairBooking;
     private transient RepairService _repairService;
-    private transient User _user;
 
     /**
      * Get the implicit join path to the <code>ecom.repair_booking</code> table.
@@ -175,16 +169,6 @@ public class RepairReview extends TableImpl<RepairReviewRecord> {
             _repairService = new RepairService(this, Keys.FK_REPAIR_REVIEW_SERVICE);
 
         return _repairService;
-    }
-
-    /**
-     * Get the implicit join path to the <code>ecom.user</code> table.
-     */
-    public User user() {
-        if (_user == null)
-            _user = new User(this, Keys.FK_REPAIR_REVIEW_CUSTOMER);
-
-        return _user;
     }
 
     @Override

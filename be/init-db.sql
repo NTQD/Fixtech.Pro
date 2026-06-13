@@ -293,6 +293,45 @@ LOCK TABLES `user` WRITE;
 INSERT INTO `user` VALUES (1,'Administrator','1','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123',NULL,'ADMIN','2026-05-25 04:26:00',_binary ''),(2,'Administrator 2','0900000002','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','admin1@techfix.pro','ADMIN','2025-12-23 14:55:16',_binary ''),(3,'Technician 1','0900000003','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','tech@techfix.pro','TECHNICIAN','2025-12-23 14:55:16',_binary ''),(4,'Technician 2','0900000004','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','tech1@techfix.pro','TECHNICIAN','2025-12-23 14:55:16',_binary ''),(5,'Technician 3','0900000005','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','tech2@techfix.pro','TECHNICIAN','2025-12-23 14:55:16',_binary ''),(6,'Technician 4','0900000006','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','tech3@techfix.pro','TECHNICIAN','2025-12-23 14:55:16',_binary ''),(7,'tester QA','0377','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','test@mail.com','CUSTOMER','2025-12-23 14:55:16',_binary ''),(8,'Vu LN','0653214879','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','vu@mail.com','CUSTOMER','2025-12-23 15:07:46',_binary ''),(9,'Ptm Châu','0965874321','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','chau@mail.com','CUSTOMER','2025-12-23 15:11:27',_binary ''),(10,'Phương Anh','0645213987','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','phanh@mail.com','CUSTOMER','2025-12-23 15:15:07',_binary ''),(11,'Chu Tổng','096531287','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','tuan@mail.com','CUSTOMER','2025-12-23 15:18:37',_binary ''),(12,'Trường Le','0692531874','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','truong@mail.com','CUSTOMER','2025-12-23 15:20:52',_binary ''),(13,'Minh Anh','0645832179','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','manh@mail.com','CUSTOMER','2026-01-06 07:03:56',_binary ''),(14,'Minh Anh',NULL,'$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123','manh@gmail.com','CUSTOMER','2026-03-19 07:42:54',_binary ''),(15,'Trần Tích','2','$2a$10$Ezei/6tfBFfMGovNFVdd7.A4LWdh4E5qa9GwwtA5dkvykSTHgansa','123',NULL,NULL,'2026-06-12 16:42:26',_binary '');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_item`
+--
+
+DROP TABLE IF EXISTS `inventory_item`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_item` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `sku` varchar(100) DEFAULT NULL,
+  `cost_price` decimal(10,2) DEFAULT '0.00',
+  `selling_price` decimal(10,2) DEFAULT '0.00',
+  `stock_quantity` int DEFAULT '0',
+  `image_url` varchar(255) DEFAULT NULL,
+  `description` text,
+  `active` bit(1) DEFAULT b'1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_inventory_item_sku` (`sku`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_item`
+--
+
+LOCK TABLES `inventory_item` WRITE;
+/*!40000 ALTER TABLE `inventory_item` DISABLE KEYS */;
+INSERT INTO `inventory_item` VALUES 
+(1,'Màn hình iPhone 13 Pro Max','IP13PM-SCR',2000000.00,3500000.00,10,NULL,'Màn hình OLED chính hãng thay thế cho iPhone 13 Pro Max',_binary ' ','2026-06-13 10:00:00','2026-06-13 10:00:00'),
+(2,'Pin iPhone 13 Pro Max','IP13PM-BAT',500000.00,800000.00,25,NULL,'Pin dung lượng chuẩn cho iPhone 13 Pro Max',_binary ' ','2026-06-13 10:00:00','2026-06-13 10:00:00'),
+(3,'Mặt kính Samsung S22 Ultra','SS22U-GL',300000.00,600000.00,15,NULL,'Mặt kính cường lực thay thế cho Samsung S22 Ultra',_binary ' ','2026-06-13 10:00:00','2026-06-13 10:00:00'),
+(4,'Cáp sạc Type-C 20W','CBL-TC-20W',50000.00,150000.00,100,NULL,'Cáp sạc nhanh Type-C 20W',_binary ' ','2026-06-13 10:00:00','2026-06-13 10:00:00'),
+(5,'Miếng dán cường lực chống nhìn trộm','PROT-PRIV',20000.00,100000.00,50,NULL,'Kính cường lực chống nhìn trộm cho các dòng máy',_binary ' ','2026-06-13 10:00:00','2026-06-13 10:00:00');
+/*!40000 ALTER TABLE `inventory_item` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

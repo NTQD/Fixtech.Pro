@@ -1,7 +1,7 @@
 package vn.vibe.booking
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import dagger.hilt.android.AndroidEntryPoint
 import vn.vibe.booking.core.data.TokenManager
@@ -9,7 +9,7 @@ import vn.vibe.booking.presentation.app.BookingApp
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var tokenManager: TokenManager

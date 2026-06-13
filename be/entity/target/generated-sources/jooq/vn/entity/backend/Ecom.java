@@ -11,10 +11,7 @@ import org.jooq.Catalog;
 import org.jooq.Table;
 import org.jooq.impl.SchemaImpl;
 
-import vn.entity.backend.tables.Category;
-import vn.entity.backend.tables.Order;
-import vn.entity.backend.tables.OrderItem;
-import vn.entity.backend.tables.Product;
+import vn.entity.backend.tables.InventoryItem;
 import vn.entity.backend.tables.RepairBooking;
 import vn.entity.backend.tables.RepairBookingItem;
 import vn.entity.backend.tables.RepairBookingNote;
@@ -39,24 +36,9 @@ public class Ecom extends SchemaImpl {
     public static final Ecom ECOM = new Ecom();
 
     /**
-     * The table <code>ecom.category</code>.
+     * The table <code>ecom.inventory_item</code>.
      */
-    public final Category CATEGORY = Category.CATEGORY;
-
-    /**
-     * The table <code>ecom.order</code>.
-     */
-    public final Order ORDER = Order.ORDER;
-
-    /**
-     * The table <code>ecom.order_item</code>.
-     */
-    public final OrderItem ORDER_ITEM = OrderItem.ORDER_ITEM;
-
-    /**
-     * The table <code>ecom.product</code>.
-     */
-    public final Product PRODUCT = Product.PRODUCT;
+    public final InventoryItem INVENTORY_ITEM = InventoryItem.INVENTORY_ITEM;
 
     /**
      * The table <code>ecom.repair_booking</code>.
@@ -114,10 +96,7 @@ public class Ecom extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
-            Category.CATEGORY,
-            Order.ORDER,
-            OrderItem.ORDER_ITEM,
-            Product.PRODUCT,
+            InventoryItem.INVENTORY_ITEM,
             RepairBooking.REPAIR_BOOKING,
             RepairBookingItem.REPAIR_BOOKING_ITEM,
             RepairBookingNote.REPAIR_BOOKING_NOTE,

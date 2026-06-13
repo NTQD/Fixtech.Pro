@@ -66,14 +66,14 @@ public class RepairBookingNote extends TableImpl<RepairBookingNoteRecord> {
     public final TableField<RepairBookingNoteRecord, Integer> BOOKING_ID = createField(DSL.name("booking_id"), SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
+     * The column <code>ecom.repair_booking_note.note</code>.
+     */
+    public final TableField<RepairBookingNoteRecord, String> NOTE = createField(DSL.name("note"), SQLDataType.VARCHAR(1000).nullable(false), this, "");
+
+    /**
      * The column <code>ecom.repair_booking_note.created_by</code>.
      */
     public final TableField<RepairBookingNoteRecord, Integer> CREATED_BY = createField(DSL.name("created_by"), SQLDataType.INTEGER, this, "");
-
-    /**
-     * The column <code>ecom.repair_booking_note.note</code>.
-     */
-    public final TableField<RepairBookingNoteRecord, String> NOTE = createField(DSL.name("note"), SQLDataType.VARCHAR(2000).nullable(false), this, "");
 
     /**
      * The column <code>ecom.repair_booking_note.created_at</code>.
@@ -194,14 +194,14 @@ public class RepairBookingNote extends TableImpl<RepairBookingNoteRecord> {
     // -------------------------------------------------------------------------
 
     @Override
-    public Row5<Integer, Integer, Integer, String, LocalDateTime> fieldsRow() {
+    public Row5<Integer, Integer, String, Integer, LocalDateTime> fieldsRow() {
         return (Row5) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function5<? super Integer, ? super Integer, ? super Integer, ? super String, ? super LocalDateTime, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function5<? super Integer, ? super Integer, ? super String, ? super Integer, ? super LocalDateTime, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -209,7 +209,7 @@ public class RepairBookingNote extends TableImpl<RepairBookingNoteRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function5<? super Integer, ? super Integer, ? super Integer, ? super String, ? super LocalDateTime, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function5<? super Integer, ? super Integer, ? super String, ? super Integer, ? super LocalDateTime, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

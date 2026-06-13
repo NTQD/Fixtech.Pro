@@ -35,7 +35,7 @@
         <hikaricp.version>2.5.1</hikaricp.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <postgresql.version>42.7.4</postgresql.version>
-        <lombok.version>1.18.34</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
         <jjwt.version>0.12.6</jjwt.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <minio.version>8.6.0</minio.version>

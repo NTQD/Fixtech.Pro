@@ -26,7 +26,9 @@ import vn.vibe.booking.presentation.home.HomeViewModel
 fun AdminBookingManagementScreen(
     viewModel: HomeViewModel,
     token: String?,
-    onBack: () -> Unit
+    showTopBar: Boolean = true,
+    initialFilterStatus: String? = null,
+    onBack: () -> Unit = {}
 ) {
     val bookingsState by viewModel.bookingsState.collectAsStateWithLifecycle()
     val usersState by viewModel.usersState.collectAsStateWithLifecycle()
@@ -35,27 +37,35 @@ fun AdminBookingManagementScreen(
     var showConfirmDialog by remember { mutableStateOf(false) }
     var showAssignDialog by remember { mutableStateOf(false) }
     var showStatusDialog by remember { mutableStateOf(false) }
-    var filterStatus by remember { mutableStateOf<String?>(null) }
+    var filterStatus by remember { mutableStateOf(initialFilterStatus) }
+
+    LaunchedEffect(initialFilterStatus) {
+        if (initialFilterStatus != null) {
+            filterStatus = initialFilterStatus
+        }
+    }
 
     val statusFilters = listOf(null to "Tất cả", "PENDING" to "Chờ xử lý", "CONFIRMED" to "Đã xác nhận", "IN_PROGRESS" to "Đang sửa", "COMPLETED" to "Hoàn thành", "CANCELLED" to "Đã hủy")
 
-    BackHandler(onBack = onBack)
+    BackHandler(enabled = showTopBar, onBack = onBack)
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Quản lý Booking") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Trở lại")
+            if (showTopBar) {
+                TopAppBar(
+                    title = { Text("Quản lý Booking") },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Trở lại")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { viewModel.loadBookings(token) }) {
+                            Icon(Icons.Default.Refresh, contentDescription = "Tải lại")
+                        }
                     }
-                },
-                actions = {
-                    IconButton(onClick = { viewModel.loadBookings(token) }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Tải lại")
-                    }
-                }
-            )
+                )
+            }
         }
     ) { innerPadding ->
         Column(

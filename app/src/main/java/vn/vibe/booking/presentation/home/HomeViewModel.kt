@@ -58,6 +58,15 @@ class HomeViewModel @Inject constructor(
     private val _usersState = MutableStateFlow(PageState<AdminUserDto>())
     val usersState: StateFlow<PageState<AdminUserDto>> = _usersState.asStateFlow()
 
+    private val _dashboardState = MutableStateFlow<UiState<vn.vibe.booking.data.remote.DashboardOverviewDto>>(UiState.Idle)
+    val dashboardState: StateFlow<UiState<vn.vibe.booking.data.remote.DashboardOverviewDto>> = _dashboardState.asStateFlow()
+
+    private val _revenueDetailsState = MutableStateFlow(PageState<vn.vibe.booking.data.remote.RevenueDetailDto>())
+    val revenueDetailsState: StateFlow<PageState<vn.vibe.booking.data.remote.RevenueDetailDto>> = _revenueDetailsState.asStateFlow()
+
+    private val _inventoryState = MutableStateFlow(PageState<vn.vibe.booking.data.remote.InventoryItemDto>())
+    val inventoryState: StateFlow<PageState<vn.vibe.booking.data.remote.InventoryItemDto>> = _inventoryState.asStateFlow()
+
     fun loadUserInfo(token: String?) {
         if (token.isNullOrBlank()) return
         _userState.value = UiState.Loading
@@ -198,6 +207,88 @@ class HomeViewModel @Inject constructor(
                 _usersState.value = PageState(page = page, limit = limit, loading = false, error = e.message ?: "Không tải được users")
             }
         }
+    }
+
+    fun loadDashboardOverview(token: String?) {
+        if (token.isNullOrBlank()) return
+        _dashboardState.value = UiState.Loading
+        viewModelScope.launch {
+            _dashboardState.value = homeRepository.getDashboardOverview(token)
+        }
+    }
+
+    fun loadRevenueDetails(token: String?, page: Int = 1, limit: Int = 20) {
+        if (token.isNullOrBlank()) return
+        _revenueDetailsState.value = _revenueDetailsState.value.copy(loading = true, error = null)
+        viewModelScope.launch {
+            try {
+                when (val result = homeRepository.getRevenueDetails(token, page, limit)) {
+                    is UiState.Success -> {
+                        _revenueDetailsState.value = PageState(
+                            items = result.data,
+                            page = page,
+                            limit = limit,
+                            loading = false
+                        )
+                    }
+                    is UiState.Error -> {
+                        _revenueDetailsState.value = _revenueDetailsState.value.copy(loading = false, error = result.message)
+                    }
+                    else -> _revenueDetailsState.value = _revenueDetailsState.value.copy(loading = false)
+                }
+            } catch (e: Exception) {
+                _revenueDetailsState.value = _revenueDetailsState.value.copy(loading = false, error = e.message ?: "Lỗi tải doanh thu")
+            }
+        }
+    }
+
+    fun loadInventory(token: String?, keyword: String? = null, page: Int = 1, limit: Int = 20) {
+        if (token.isNullOrBlank()) return
+        _inventoryState.value = _inventoryState.value.copy(loading = true, error = null)
+        viewModelScope.launch {
+            try {
+                when (val result = homeRepository.getInventoryItems(token, keyword, page, limit)) {
+                    is UiState.Success -> {
+                        _inventoryState.value = PageState(
+                            items = result.data,
+                            page = page,
+                            limit = limit,
+                            loading = false
+                        )
+                    }
+                    is UiState.Error -> {
+                        _inventoryState.value = _inventoryState.value.copy(loading = false, error = result.message)
+                    }
+                    else -> _inventoryState.value = _inventoryState.value.copy(loading = false)
+                }
+            } catch (e: Exception) {
+                _inventoryState.value = _inventoryState.value.copy(loading = false, error = e.message ?: "Lỗi tải kho hàng")
+            }
+        }
+    }
+
+    fun createInventoryItem(token: String, name: String, description: String?, price: Double, stock: Int, imageUrl: String? = null, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.createInventoryItem(token, name, description, price, stock, imageUrl)
+            onDone()
+            loadInventory(token)
+        } catch (_: Exception) {}
+    }
+
+    fun updateInventoryItem(token: String, id: Long, name: String, description: String?, price: Double, stock: Int, imageUrl: String? = null, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.updateInventoryItem(token, id, name, description, price, stock, imageUrl)
+            onDone()
+            loadInventory(token)
+        } catch (_: Exception) {}
+    }
+
+    fun deleteInventoryItem(token: String, id: Long, onDone: () -> Unit) = viewModelScope.launch {
+        try {
+            homeRepository.deleteInventoryItem(token, id)
+            onDone()
+            loadInventory(token)
+        } catch (_: Exception) {}
     }
 
     fun createUser(token: String, name: String, phone: String?, email: String?, role: String?, active: Boolean?, onDone: () -> Unit) = viewModelScope.launch {
@@ -348,6 +439,63 @@ class HomeViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             onError(e.message ?: "Không gửi được ghi chú")
+        }
+    }
+
+    fun cancelBooking(token: String?, bookingId: Long, reason: String, onDone: () -> Unit, onError: (String) -> Unit) {
+        if (token.isNullOrBlank()) {
+            onError("Chưa đăng nhập")
+            return
+        }
+        viewModelScope.launch {
+            try {
+                when (val result = homeRepository.cancelBooking(token, bookingId, reason)) {
+                    is UiState.Success -> {
+                        onDone()
+                        loadBookingDetail(token, bookingId) // Refresh detail
+                    }
+                    is UiState.Error -> onError(result.message)
+                    else -> onError("Lỗi không xác định")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Lỗi hủy đơn")
+            }
+        }
+    }
+
+    fun createInventoryItem(token: String, name: String, description: String?, price: Double, stock: Int, imageUrl: String?, onDone: () -> Unit, onError: (String) -> Unit) = viewModelScope.launch {
+        try {
+            when (val result = homeRepository.createInventoryItem(token, name, description, price, stock, imageUrl)) {
+                is UiState.Success -> onDone()
+                is UiState.Error -> onError(result.message)
+                else -> onDone()
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Lỗi thêm linh kiện")
+        }
+    }
+
+    fun updateInventoryItem(token: String, id: Long, name: String, description: String?, price: Double, stock: Int, imageUrl: String?, onDone: () -> Unit, onError: (String) -> Unit) = viewModelScope.launch {
+        try {
+            when (val result = homeRepository.updateInventoryItem(token, id, name, description, price, stock, imageUrl)) {
+                is UiState.Success -> onDone()
+                is UiState.Error -> onError(result.message)
+                else -> onDone()
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Lỗi cập nhật linh kiện")
+        }
+    }
+
+    fun deleteInventoryItem(token: String, id: Long, onDone: () -> Unit, onError: (String) -> Unit) = viewModelScope.launch {
+        try {
+            when (val result = homeRepository.deleteInventoryItem(token, id)) {
+                is UiState.Success -> onDone()
+                is UiState.Error -> onError(result.message)
+                else -> onDone()
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Lỗi xóa linh kiện")
         }
     }
 

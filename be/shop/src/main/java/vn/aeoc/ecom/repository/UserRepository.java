@@ -21,7 +21,7 @@ public class UserRepository extends AbsMysqlRepository<UserRecord, User, Integer
         return USER;
     }
 
-    private Condition getWhereCondition(String keyword) {
+    private Condition getWhereCondition(String keyword, String role, Boolean active) {
         Condition condition = DSL.trueCondition();
 
         if (keyword != null && !keyword.isBlank()) {
@@ -29,16 +29,26 @@ public class UserRepository extends AbsMysqlRepository<UserRecord, User, Integer
             condition = condition.and(
                     DSL.lower(USER.NAME).like(likePattern).or(DSL.lower(USER.EMAIL).like(likePattern)).or(DSL.lower(USER.PHONE).like(likePattern)));
         }
+        if (role != null && !role.isBlank()) {
+            condition = condition.and(USER.ROLE.eq(role));
+        }
+        if (active != null) {
+            condition = condition.and(USER.ACTIVE.eq(active));
+        }
 
         return condition;
     }
 
-    public List<User> getByCriteria(String keyword, Pageable pageable) {
-        return getListByCriteria(getWhereCondition(keyword), USER.ID.desc(), pageable);
+    public List<User> getByCriteria(String keyword, String role, Boolean active, Pageable pageable) {
+        return getListByCriteria(getWhereCondition(keyword, role, active), USER.ID.desc(), pageable);
     }
 
-    public Long countByCriteria(String keyword) {
-        return getCountWithCriteria(getWhereCondition(keyword));
+    public Long countByCriteria(String keyword, String role, Boolean active) {
+        return getCountWithCriteria(getWhereCondition(keyword, role, active));
+    }
+
+    public Long countByRole(String role) {
+        return getCountWithCriteria(USER.ROLE.eq(role));
     }
 
     public boolean existsByPhone(String phone) {

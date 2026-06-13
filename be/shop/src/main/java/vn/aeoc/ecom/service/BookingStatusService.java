@@ -10,7 +10,7 @@ import java.util.Set;
 public final class BookingStatusService {
     private BookingStatusService() {}
 
-    public static final String PENDING_CONFIRMATION = "PENDING_CONFIRMATION";
+    public static final String PENDING = "PENDING";
     public static final String CONFIRMED = "CONFIRMED";
     public static final String ASSIGNED = "ASSIGNED";
     public static final String IN_PROGRESS = "IN_PROGRESS";
@@ -20,7 +20,7 @@ public final class BookingStatusService {
     public static final String REJECTED = "REJECTED";
 
     private static final Set<String> ALL = new HashSet<>(Arrays.asList(
-            PENDING_CONFIRMATION, CONFIRMED, ASSIGNED, IN_PROGRESS,
+            PENDING, CONFIRMED, ASSIGNED, IN_PROGRESS,
             WAITING_PARTS, COMPLETED, CANCELLED, REJECTED
     ));
 
@@ -41,7 +41,7 @@ public final class BookingStatusService {
         if (CANCELLED.equals(to) || REJECTED.equals(to)) {
             return;
         }
-        if (PENDING_CONFIRMATION.equals(from) && !(CONFIRMED.equals(to) || ASSIGNED.equals(to))) {
+        if (PENDING.equals(from) && !(CONFIRMED.equals(to) || ASSIGNED.equals(to))) {
             throw new AppException(ErrorCode.BAD_REQUEST);
         }
         if (CONFIRMED.equals(from) && !(ASSIGNED.equals(to) || IN_PROGRESS.equals(to) || CANCELLED.equals(to))) {

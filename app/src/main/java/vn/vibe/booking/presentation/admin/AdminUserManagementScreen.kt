@@ -34,6 +34,7 @@ fun AdminUserManagementScreen(
     var showCreateDialog by remember { mutableStateOf(false) }
     var editUser by remember { mutableStateOf<AdminUserDto?>(null) }
     var deleteUser by remember { mutableStateOf<AdminUserDto?>(null) }
+    var toggleActiveUser by remember { mutableStateOf<AdminUserDto?>(null) }
     var filterRole by remember { mutableStateOf<String?>(null) }
 
     val roleFilters = listOf(null to "Tất cả", "ADMIN" to "Admin", "TECHNICIAN" to "Kỹ thuật viên", "CUSTOMER" to "Khách hàng")
@@ -111,11 +112,7 @@ fun AdminUserManagementScreen(
                             onEdit = { editUser = user },
                             onDelete = { deleteUser = user },
                             onToggleActive = {
-                                token?.let {
-                                    viewModel.setUserActive(it, user.id, !user.active) {
-                                        viewModel.loadUsers(token, role = filterRole)
-                                    }
-                                }
+                                toggleActiveUser = user
                             }
                         )
                     }
@@ -180,6 +177,32 @@ fun AdminUserManagementScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { deleteUser = null }) { Text("Hủy") }
+                }
+            )
+        }
+
+        // Toggle Active Confirmation
+        toggleActiveUser?.let { tUser ->
+            val isBanning = tUser.active
+            AlertDialog(
+                onDismissRequest = { toggleActiveUser = null },
+                title = { Text(if (isBanning) "Cấm User" else "Mở khóa User") },
+                text = { Text(if (isBanning) "Bạn có chắc muốn cấm hoạt động user ${tUser.name}?" else "Bạn có chắc muốn mở khóa user ${tUser.name}?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            token?.let { t ->
+                                viewModel.setUserActive(t, tUser.id, !tUser.active) {
+                                    toggleActiveUser = null
+                                    viewModel.loadUsers(token, role = filterRole)
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = if (isBanning) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+                    ) { Text("Xác nhận") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { toggleActiveUser = null }) { Text("Hủy") }
                 }
             )
         }

@@ -26,7 +26,8 @@ import vn.vibe.booking.presentation.home.HomeViewModel
 @Composable
 fun MyBookingsScreen(
     viewModel: HomeViewModel,
-    token: String?
+    token: String?,
+    initialFilterStatus: String? = null
 ) {
     val bookingsState by viewModel.bookingsState.collectAsStateWithLifecycle()
 
@@ -41,6 +42,27 @@ fun MyBookingsScreen(
     var reviewMessage by remember { mutableStateOf<String?>(null) }
     
     var detailTargetId by remember { mutableStateOf<Long?>(null) }
+    var selectedFilter by remember { mutableStateOf(initialFilterStatus) }
+
+    LaunchedEffect(initialFilterStatus) {
+        if (initialFilterStatus != null) {
+            selectedFilter = initialFilterStatus
+        }
+    }
+
+    val statusFilters = listOf(
+        null to "Tất cả",
+        "PENDING" to "Chờ xác nhận",
+        "CONFIRMED" to "Đã xác nhận",
+        "IN_PROGRESS" to "Đang xử lý",
+        "COMPLETED" to "Hoàn thành",
+        "CANCELLED" to "Đã hủy"
+    )
+
+    val filteredBookings = remember(bookingsState.items, selectedFilter) {
+        if (selectedFilter == null) bookingsState.items
+        else bookingsState.items.filter { it.status.equals(selectedFilter, ignoreCase = true) }
+    }
 
     detailTargetId?.let { id ->
         BookingDetailScreen(
@@ -98,6 +120,24 @@ fun MyBookingsScreen(
             )
         }
 
+        item {
+            ScrollableTabRow(
+                selectedTabIndex = statusFilters.indexOfFirst { it.first == selectedFilter }.coerceAtLeast(0),
+                edgePadding = 0.dp,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                containerColor = Color.Transparent,
+                divider = {}
+            ) {
+                statusFilters.forEach { (status, label) ->
+                    Tab(
+                        selected = selectedFilter == status,
+                        onClick = { selectedFilter = status },
+                        text = { Text(label, fontWeight = if (selectedFilter == status) FontWeight.Bold else FontWeight.Normal) }
+                    )
+                }
+            }
+        }
+
         when {
             bookingsState.loading -> {
                 item {
@@ -121,11 +161,11 @@ fun MyBookingsScreen(
                     }
                 }
             }
-            bookingsState.items.isEmpty() -> {
+            filteredBookings.isEmpty() -> {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "Bạn chưa có lịch hẹn nào.",
+                            text = "Không có đơn hàng nào.",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -133,7 +173,7 @@ fun MyBookingsScreen(
                 }
             }
             else -> {
-                items(bookingsState.items) { booking ->
+                items(filteredBookings) { booking ->
                     BookingItemCard(
                         booking = booking,
                         onReviewClick = {
@@ -200,23 +240,27 @@ fun BookingItemCard(
                     Text("Tổng chi phí dự kiến", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("${booking.totalEstimatedPrice} đ", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
-                if (isCompleted) {
-                    Button(
-                        onClick = onReviewClick,
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Đánh giá")
-                    }
-                } else {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     OutlinedButton(
                         onClick = onDetailClick,
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text("Chi tiết")
+                    }
+                    if (isCompleted) {
+                        Button(
+                            onClick = onReviewClick,
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Đánh giá")
+                        }
                     }
                 }
             }

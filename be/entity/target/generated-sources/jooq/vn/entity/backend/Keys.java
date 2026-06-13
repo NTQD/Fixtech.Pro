@@ -10,10 +10,7 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
-import vn.entity.backend.tables.Category;
-import vn.entity.backend.tables.Order;
-import vn.entity.backend.tables.OrderItem;
-import vn.entity.backend.tables.Product;
+import vn.entity.backend.tables.InventoryItem;
 import vn.entity.backend.tables.RepairBooking;
 import vn.entity.backend.tables.RepairBookingItem;
 import vn.entity.backend.tables.RepairBookingNote;
@@ -22,10 +19,7 @@ import vn.entity.backend.tables.RepairReview;
 import vn.entity.backend.tables.RepairService;
 import vn.entity.backend.tables.RepairServiceCategory;
 import vn.entity.backend.tables.User;
-import vn.entity.backend.tables.records.CategoryRecord;
-import vn.entity.backend.tables.records.OrderItemRecord;
-import vn.entity.backend.tables.records.OrderRecord;
-import vn.entity.backend.tables.records.ProductRecord;
+import vn.entity.backend.tables.records.InventoryItemRecord;
 import vn.entity.backend.tables.records.RepairBookingItemRecord;
 import vn.entity.backend.tables.records.RepairBookingNoteRecord;
 import vn.entity.backend.tables.records.RepairBookingRecord;
@@ -47,18 +41,13 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final UniqueKey<CategoryRecord> KEY_CATEGORY_NAME = Internal.createUniqueKey(Category.CATEGORY, DSL.name("KEY_category_name"), new TableField[] { Category.CATEGORY.NAME }, true);
-    public static final UniqueKey<CategoryRecord> KEY_CATEGORY_PRIMARY = Internal.createUniqueKey(Category.CATEGORY, DSL.name("KEY_category_PRIMARY"), new TableField[] { Category.CATEGORY.ID }, true);
-    public static final UniqueKey<OrderRecord> KEY_ORDER_PRIMARY = Internal.createUniqueKey(Order.ORDER, DSL.name("KEY_order_PRIMARY"), new TableField[] { Order.ORDER.ID }, true);
-    public static final UniqueKey<OrderItemRecord> KEY_ORDER_ITEM_PRIMARY = Internal.createUniqueKey(OrderItem.ORDER_ITEM, DSL.name("KEY_order_item_PRIMARY"), new TableField[] { OrderItem.ORDER_ITEM.ID }, true);
-    public static final UniqueKey<ProductRecord> KEY_PRODUCT_PRIMARY = Internal.createUniqueKey(Product.PRODUCT, DSL.name("KEY_product_PRIMARY"), new TableField[] { Product.PRODUCT.ID }, true);
+    public static final UniqueKey<InventoryItemRecord> KEY_INVENTORY_ITEM_PRIMARY = Internal.createUniqueKey(InventoryItem.INVENTORY_ITEM, DSL.name("KEY_inventory_item_PRIMARY"), new TableField[] { InventoryItem.INVENTORY_ITEM.ID }, true);
     public static final UniqueKey<RepairBookingRecord> KEY_REPAIR_BOOKING_PRIMARY = Internal.createUniqueKey(RepairBooking.REPAIR_BOOKING, DSL.name("KEY_repair_booking_PRIMARY"), new TableField[] { RepairBooking.REPAIR_BOOKING.ID }, true);
     public static final UniqueKey<RepairBookingRecord> KEY_REPAIR_BOOKING_UK_REPAIR_BOOKING_CODE = Internal.createUniqueKey(RepairBooking.REPAIR_BOOKING, DSL.name("KEY_repair_booking_uk_repair_booking_code"), new TableField[] { RepairBooking.REPAIR_BOOKING.BOOKING_CODE }, true);
     public static final UniqueKey<RepairBookingItemRecord> KEY_REPAIR_BOOKING_ITEM_PRIMARY = Internal.createUniqueKey(RepairBookingItem.REPAIR_BOOKING_ITEM, DSL.name("KEY_repair_booking_item_PRIMARY"), new TableField[] { RepairBookingItem.REPAIR_BOOKING_ITEM.ID }, true);
     public static final UniqueKey<RepairBookingNoteRecord> KEY_REPAIR_BOOKING_NOTE_PRIMARY = Internal.createUniqueKey(RepairBookingNote.REPAIR_BOOKING_NOTE, DSL.name("KEY_repair_booking_note_PRIMARY"), new TableField[] { RepairBookingNote.REPAIR_BOOKING_NOTE.ID }, true);
     public static final UniqueKey<RepairBookingStatusHistoryRecord> KEY_REPAIR_BOOKING_STATUS_HISTORY_PRIMARY = Internal.createUniqueKey(RepairBookingStatusHistory.REPAIR_BOOKING_STATUS_HISTORY, DSL.name("KEY_repair_booking_status_history_PRIMARY"), new TableField[] { RepairBookingStatusHistory.REPAIR_BOOKING_STATUS_HISTORY.ID }, true);
     public static final UniqueKey<RepairReviewRecord> KEY_REPAIR_REVIEW_PRIMARY = Internal.createUniqueKey(RepairReview.REPAIR_REVIEW, DSL.name("KEY_repair_review_PRIMARY"), new TableField[] { RepairReview.REPAIR_REVIEW.ID }, true);
-    public static final UniqueKey<RepairReviewRecord> KEY_REPAIR_REVIEW_UK_REPAIR_REVIEW_BOOKING_ID = Internal.createUniqueKey(RepairReview.REPAIR_REVIEW, DSL.name("KEY_repair_review_uk_repair_review_booking_id"), new TableField[] { RepairReview.REPAIR_REVIEW.BOOKING_ID }, true);
     public static final UniqueKey<RepairServiceRecord> KEY_REPAIR_SERVICE_PRIMARY = Internal.createUniqueKey(RepairService.REPAIR_SERVICE, DSL.name("KEY_repair_service_PRIMARY"), new TableField[] { RepairService.REPAIR_SERVICE.ID }, true);
     public static final UniqueKey<RepairServiceCategoryRecord> KEY_REPAIR_SERVICE_CATEGORY_PRIMARY = Internal.createUniqueKey(RepairServiceCategory.REPAIR_SERVICE_CATEGORY, DSL.name("KEY_repair_service_category_PRIMARY"), new TableField[] { RepairServiceCategory.REPAIR_SERVICE_CATEGORY.ID }, true);
     public static final UniqueKey<RepairServiceCategoryRecord> KEY_REPAIR_SERVICE_CATEGORY_UK_REPAIR_SERVICE_CATEGORY_NAME = Internal.createUniqueKey(RepairServiceCategory.REPAIR_SERVICE_CATEGORY, DSL.name("KEY_repair_service_category_uk_repair_service_category_name"), new TableField[] { RepairServiceCategory.REPAIR_SERVICE_CATEGORY.NAME }, true);
@@ -70,14 +59,12 @@ public class Keys {
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final ForeignKey<OrderRecord, UserRecord> FK_ORDER_USER = Internal.createForeignKey(Order.ORDER, DSL.name("fk_order_user"), new TableField[] { Order.ORDER.USER_ID }, Keys.KEY_USER_PRIMARY, new TableField[] { User.USER.ID }, true);
-    public static final ForeignKey<ProductRecord, CategoryRecord> FK_PRODUCT_CATEGORY = Internal.createForeignKey(Product.PRODUCT, DSL.name("fk_product_category"), new TableField[] { Product.PRODUCT.CATEGORY_ID }, Keys.KEY_CATEGORY_PRIMARY, new TableField[] { Category.CATEGORY.ID }, true);
     public static final ForeignKey<RepairBookingItemRecord, RepairBookingRecord> FK_REPAIR_BOOKING_ITEM_BOOKING = Internal.createForeignKey(RepairBookingItem.REPAIR_BOOKING_ITEM, DSL.name("fk_repair_booking_item_booking"), new TableField[] { RepairBookingItem.REPAIR_BOOKING_ITEM.BOOKING_ID }, Keys.KEY_REPAIR_BOOKING_PRIMARY, new TableField[] { RepairBooking.REPAIR_BOOKING.ID }, true);
+    public static final ForeignKey<RepairBookingItemRecord, InventoryItemRecord> FK_REPAIR_BOOKING_ITEM_INVENTORY = Internal.createForeignKey(RepairBookingItem.REPAIR_BOOKING_ITEM, DSL.name("fk_repair_booking_item_inventory"), new TableField[] { RepairBookingItem.REPAIR_BOOKING_ITEM.INVENTORY_ITEM_ID }, Keys.KEY_INVENTORY_ITEM_PRIMARY, new TableField[] { InventoryItem.INVENTORY_ITEM.ID }, true);
     public static final ForeignKey<RepairBookingItemRecord, RepairServiceRecord> FK_REPAIR_BOOKING_ITEM_SERVICE = Internal.createForeignKey(RepairBookingItem.REPAIR_BOOKING_ITEM, DSL.name("fk_repair_booking_item_service"), new TableField[] { RepairBookingItem.REPAIR_BOOKING_ITEM.SERVICE_ID }, Keys.KEY_REPAIR_SERVICE_PRIMARY, new TableField[] { RepairService.REPAIR_SERVICE.ID }, true);
     public static final ForeignKey<RepairBookingNoteRecord, RepairBookingRecord> FK_REPAIR_BOOKING_NOTE_BOOKING = Internal.createForeignKey(RepairBookingNote.REPAIR_BOOKING_NOTE, DSL.name("fk_repair_booking_note_booking"), new TableField[] { RepairBookingNote.REPAIR_BOOKING_NOTE.BOOKING_ID }, Keys.KEY_REPAIR_BOOKING_PRIMARY, new TableField[] { RepairBooking.REPAIR_BOOKING.ID }, true);
     public static final ForeignKey<RepairBookingStatusHistoryRecord, RepairBookingRecord> FK_REPAIR_BOOKING_STATUS_HISTORY_BOOKING = Internal.createForeignKey(RepairBookingStatusHistory.REPAIR_BOOKING_STATUS_HISTORY, DSL.name("fk_repair_booking_status_history_booking"), new TableField[] { RepairBookingStatusHistory.REPAIR_BOOKING_STATUS_HISTORY.BOOKING_ID }, Keys.KEY_REPAIR_BOOKING_PRIMARY, new TableField[] { RepairBooking.REPAIR_BOOKING.ID }, true);
     public static final ForeignKey<RepairReviewRecord, RepairBookingRecord> FK_REPAIR_REVIEW_BOOKING = Internal.createForeignKey(RepairReview.REPAIR_REVIEW, DSL.name("fk_repair_review_booking"), new TableField[] { RepairReview.REPAIR_REVIEW.BOOKING_ID }, Keys.KEY_REPAIR_BOOKING_PRIMARY, new TableField[] { RepairBooking.REPAIR_BOOKING.ID }, true);
-    public static final ForeignKey<RepairReviewRecord, UserRecord> FK_REPAIR_REVIEW_CUSTOMER = Internal.createForeignKey(RepairReview.REPAIR_REVIEW, DSL.name("fk_repair_review_customer"), new TableField[] { RepairReview.REPAIR_REVIEW.CUSTOMER_ID }, Keys.KEY_USER_PRIMARY, new TableField[] { User.USER.ID }, true);
     public static final ForeignKey<RepairReviewRecord, RepairServiceRecord> FK_REPAIR_REVIEW_SERVICE = Internal.createForeignKey(RepairReview.REPAIR_REVIEW, DSL.name("fk_repair_review_service"), new TableField[] { RepairReview.REPAIR_REVIEW.SERVICE_ID }, Keys.KEY_REPAIR_SERVICE_PRIMARY, new TableField[] { RepairService.REPAIR_SERVICE.ID }, true);
     public static final ForeignKey<RepairServiceRecord, RepairServiceCategoryRecord> FK_REPAIR_SERVICE_CATEGORY = Internal.createForeignKey(RepairService.REPAIR_SERVICE, DSL.name("fk_repair_service_category"), new TableField[] { RepairService.REPAIR_SERVICE.CATEGORY_ID }, Keys.KEY_REPAIR_SERVICE_CATEGORY_PRIMARY, new TableField[] { RepairServiceCategory.REPAIR_SERVICE_CATEGORY.ID }, true);
 }

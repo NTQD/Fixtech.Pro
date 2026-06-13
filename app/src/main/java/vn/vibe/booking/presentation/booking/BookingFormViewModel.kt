@@ -75,6 +75,30 @@ class BookingFormViewModel @Inject constructor(
     fun submitBooking(token: String?) {
         if (token.isNullOrBlank()) return
         val currentState = _state.value
+        
+        if (currentState.customerName.isBlank() || currentState.customerPhone.isBlank() ||
+            currentState.deviceType.isBlank() || currentState.deviceBrand.isBlank() ||
+            currentState.deviceModel.isBlank() || currentState.issueDescription.isBlank() ||
+            currentState.preferredDate.isBlank() || currentState.preferredTimeSlot.isBlank() ||
+            currentState.address.isBlank()) {
+            _state.update { it.copy(submitError = "Vui lòng nhập đầy đủ thông tin bắt buộc (*)") }
+            return
+        }
+        
+        if (currentState.selectedServices.isEmpty()) {
+            _state.update { it.copy(submitError = "Vui lòng chọn ít nhất 1 dịch vụ") }
+            return
+        }
+
+        val timeParts = currentState.preferredTimeSlot.split(":")
+        if (timeParts.size == 2) {
+            val hour = timeParts[0].toIntOrNull() ?: 0
+            if (hour < 8 || hour >= 22) {
+                _state.update { it.copy(submitError = "Vui lòng chọn giờ hẹn trong khung giờ hành chính (08:00 - 22:00)") }
+                return
+            }
+        }
+
         _state.update { it.copy(isSubmitting = true, submitError = null) }
         viewModelScope.launch {
             val items = currentState.selectedServices.map {
