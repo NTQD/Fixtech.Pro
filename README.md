@@ -59,17 +59,13 @@ The project is divided into two main components:
 1. Launch Android Studio.
 2. Select **File > Open...** and select the `Fixtech.Pro` root directory.
 3. Sync the project with Gradle files (**File > Sync Project with Gradle Files**).
-4. Configure the server IP connection:
-   * Open the file [BackendConfig.kt](file:///e:/Mobile_App/AndroidStudioProjects/Fixtech.Pro/app/src/main/java/vn/vibe/booking/data/remote/BackendConfig.kt):
-     ```kotlin
-     package vn.vibe.booking.data.remote
-
-     object BackendConfig {
-         const val BASE_URL = "http://<YOUR_LOCAL_IP>:9100"
-     }
+4. Configure the server IP connection (Optional):
+   * By default, the app is configured to connect to the backend running on `http://10.0.2.2:9100/` (which automatically maps to the host's `localhost:9100` on Android Emulator). No additional configuration is required to run on an Emulator!
+   * If you want to run the app on a **physical Android device**, add the following property to your `local.properties` file in the root directory:
+     ```properties
+     api.url=http://<YOUR_HOST_COMPUTER_IP>:9100/
      ```
-   * Replace `<YOUR_LOCAL_IP>` with your computer's local IP address (e.g., `192.168.1.50`). 
-   * *Note: If you are running on the Android Emulator on the same computer as the backend, you can use `http://10.0.2.2:9100`.*
+     *(Replace `<YOUR_HOST_COMPUTER_IP>` with your computer's local IP address, e.g., `http://192.168.1.50:9100/`)*.
 5. Build and run the app:
    * Connect an Android device (with USB Debugging enabled) or start an Android Emulator.
    * Click the **Run** button (`Shift + F10`) to deploy.
@@ -131,17 +127,13 @@ Dự án được chia thành hai phần chính:
 1. Mở Android Studio.
 2. Chọn **File > Open...** và dẫn tới thư mục gốc `Fixtech.Pro`.
 3. Chờ dự án đồng bộ Gradle hoàn tất (**File > Sync Project with Gradle Files**).
-4. Cấu hình kết nối tới server backend:
-   * Mở file [BackendConfig.kt](file:///e:/Mobile_App/AndroidStudioProjects/Fixtech.Pro/app/src/main/java/vn/vibe/booking/data/remote/BackendConfig.kt):
-     ```kotlin
-     package vn.vibe.booking.data.remote
-
-     object BackendConfig {
-         const val BASE_URL = "http://<IP_CỦA_BẠN>:9100"
-     }
+4. Cấu hình kết nối tới máy chủ backend (Không bắt buộc):
+   * Mặc định, ứng dụng được cấu hình để kết nối tới backend tại địa chỉ `http://10.0.2.2:9100/` (tự động ánh xạ về `localhost:9100` của máy tính chạy Emulator). Bạn **không cần cấu hình gì thêm** nếu chạy trên Máy ảo (Emulator).
+   * Nếu bạn chạy ứng dụng trên **Thiết bị thật (máy thật)**, hãy thêm dòng cấu hình sau vào file `local.properties` ở thư mục gốc của dự án:
+     ```properties
+     api.url=http://<IP_MÁY_TÍNH_CỦA_BẠN>:9100/
      ```
-   * Thay thế `<IP_CỦA_BẠN>` bằng địa chỉ IP mạng nội bộ của máy tính bạn (ví dụ: `192.168.1.50`).
-   * *Lưu ý: Nếu chạy bằng máy ảo Android Emulator trên cùng máy tính chứa backend, bạn có thể sử dụng `http://10.0.2.2:9100`.*
+     *(Thay thế `<IP_MÁY_TÍNH_CỦA_BẠN>` bằng địa chỉ IP mạng nội bộ của máy tính của bạn, ví dụ: `http://192.168.1.50:9100/`)*.
 5. Build và chạy ứng dụng:
    * Kết nối thiết bị Android thật (đã bật Gỡ lỗi USB) hoặc khởi động máy ảo Android (Emulator).
    * Nhấn nút **Run** (`Shift + F10`) để cài đặt ứng dụng.
