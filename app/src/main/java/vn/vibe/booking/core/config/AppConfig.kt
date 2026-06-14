@@ -1,6 +1,8 @@
 package vn.vibe.booking.core.config
 
+import vn.vibe.booking.BuildConfig
+
 object AppConfig {
-    const val BASE_URL = "http://192.168.1.12:9100/"
+    val BASE_URL = BuildConfig.BASE_URL
     const val PREFS_NAME = "booking_prefs"
 }

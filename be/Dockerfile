@@ -12,12 +12,9 @@ RUN mvn -B -q -DskipTests -pl shop -am package
 FROM amazoncorretto:21.0.4
 WORKDIR /app
 COPY --from=build /app/shop/target/*.jar shop.jar
-COPY --from=build /app/entity/target/*.jar entity.jar
-COPY --from=build /app/auth-rpac/target/*.jar auth-rpac.jar
-COPY --from=build /app/base/target/*.jar base.jar
 ENV SPRING_PROFILES_ACTIVE=dev
 ENV SPRING_DATASOURCE_URL=jdbc:mysql://app-mobile-mysql:3306/ecom
 ENV SPRING_DATASOURCE_USERNAME=root
 ENV SPRING_DATASOURCE_PASSWORD=root
 
-ENTRYPOINT ["java", "-jar", "shop.jar", "-jar", "entity.jar", "-jar", "auth-rpac.jar", "-jar", "base.jar"]
+ENTRYPOINT ["java", "-jar", "shop.jar"]
