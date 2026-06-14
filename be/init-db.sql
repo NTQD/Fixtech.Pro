@@ -85,11 +85,14 @@ CREATE TABLE `repair_booking_item` (
   `quantity` int DEFAULT '1',
   `estimated_price` bigint DEFAULT '0',
   `final_price` bigint DEFAULT '0',
+  `inventory_item_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_repair_booking_item_booking_id` (`booking_id`),
   KEY `idx_repair_booking_item_service_id` (`service_id`),
+  KEY `idx_repair_booking_item_inventory_id` (`inventory_item_id`),
   CONSTRAINT `fk_repair_booking_item_booking` FOREIGN KEY (`booking_id`) REFERENCES `repair_booking` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_repair_booking_item_service` FOREIGN KEY (`service_id`) REFERENCES `repair_service` (`id`)
+  CONSTRAINT `fk_repair_booking_item_service` FOREIGN KEY (`service_id`) REFERENCES `repair_service` (`id`),
+  CONSTRAINT `fk_repair_booking_item_inventory` FOREIGN KEY (`inventory_item_id`) REFERENCES `inventory_item` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -99,7 +102,7 @@ CREATE TABLE `repair_booking_item` (
 
 LOCK TABLES `repair_booking_item` WRITE;
 /*!40000 ALTER TABLE `repair_booking_item` DISABLE KEYS */;
-INSERT INTO `repair_booking_item` VALUES (1,1,3,'Cài đặt Phần mềm',1,100000,100000),(2,2,4,'Nâng cấp Linh kiện',1,500000,500000),(3,3,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(4,4,2,'Sửa chữa Phần cứng',1,300000,300000),(5,5,2,'Sửa chữa Phần cứng',1,300000,300000),(6,6,4,'Nâng cấp Linh kiện',1,500000,500000),(7,7,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(8,8,2,'Sửa chữa Phần cứng',1,300000,300000),(9,9,2,'Sửa chữa Phần cứng',1,300000,300000),(10,10,4,'Nâng cấp Linh kiện',1,500000,500000),(11,11,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(12,12,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(13,13,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(14,14,4,'Nâng cấp Linh kiện',1,500000,500000),(15,15,2,'Sửa chữa Phần cứng',1,300000,300000),(16,16,3,'Cài đặt Phần mềm',1,100000,100000),(17,17,2,'Sửa chữa Phần cứng',1,300000,300000),(18,18,2,'Sửa chữa Phần cứng',1,300000,300000),(19,18,3,'Cài đặt Phần mềm',1,100000,100000),(20,19,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(21,20,2,'Sửa chữa Phần cứng',1,300000,300000),(22,21,2,'Sửa chữa Phần cứng',1,300000,300000),(23,22,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(24,23,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(25,24,4,'Nâng cấp Linh kiện',1,500000,500000),(26,25,2,'Sửa chữa Phần cứng',1,300000,300000),(27,26,2,'Sửa chữa Phần cứng',1,300000,300000),(28,27,2,'Sửa chữa Phần cứng',1,300000,300000),(29,28,2,'Sửa chữa Phần cứng',1,300000,300000),(30,29,2,'Sửa chữa Phần cứng',1,300000,300000),(31,30,2,'Sửa chữa Phần cứng',1,300000,300000),(32,31,2,'Sửa chữa Phần cứng',1,300000,300000),(33,32,2,'Sửa chữa Phần cứng',1,300000,300000),(34,33,2,'Sửa chữa Phần cứng',1,300000,300000),(35,34,2,'Sửa chữa Phần cứng',1,300000,300000),(36,35,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(37,1,3,'Cài đặt Phần mềm',1,100000,100000),(38,2,4,'Nâng cấp Linh kiện',1,500000,500000),(39,3,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(40,4,2,'Sửa chữa Phần cứng',1,300000,300000),(41,5,2,'Sửa chữa Phần cứng',1,300000,300000),(42,6,4,'Nâng cấp Linh kiện',1,500000,500000),(43,7,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(44,8,2,'Sửa chữa Phần cứng',1,300000,300000),(45,9,2,'Sửa chữa Phần cứng',1,300000,300000),(46,10,4,'Nâng cấp Linh kiện',1,500000,500000),(47,11,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(48,12,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(49,13,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(50,14,4,'Nâng cấp Linh kiện',1,500000,500000),(51,15,2,'Sửa chữa Phần cứng',1,300000,300000),(52,16,3,'Cài đặt Phần mềm',1,100000,100000),(53,17,2,'Sửa chữa Phần cứng',1,300000,300000),(54,18,2,'Sửa chữa Phần cứng',1,300000,300000),(55,18,3,'Cài đặt Phần mềm',1,100000,100000),(56,19,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(57,20,2,'Sửa chữa Phần cứng',1,300000,300000),(58,21,2,'Sửa chữa Phần cứng',1,300000,300000),(59,22,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(60,23,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(61,24,4,'Nâng cấp Linh kiện',1,500000,500000),(62,25,2,'Sửa chữa Phần cứng',1,300000,300000),(63,26,2,'Sửa chữa Phần cứng',1,300000,300000),(64,27,2,'Sửa chữa Phần cứng',1,300000,300000),(65,28,2,'Sửa chữa Phần cứng',1,300000,300000),(66,29,2,'Sửa chữa Phần cứng',1,300000,300000),(67,30,2,'Sửa chữa Phần cứng',1,300000,300000),(68,31,2,'Sửa chữa Phần cứng',1,300000,300000),(69,32,2,'Sửa chữa Phần cứng',1,300000,300000),(70,33,2,'Sửa chữa Phần cứng',1,300000,300000),(71,34,2,'Sửa chữa Phần cứng',1,300000,300000),(72,35,1,'Vệ sinh & Bảo dưỡng',1,150000,150000);
+INSERT INTO `repair_booking_item` (id, booking_id, service_id, service_name, quantity, estimated_price, final_price) VALUES (1,1,3,'Cài đặt Phần mềm',1,100000,100000),(2,2,4,'Nâng cấp Linh kiện',1,500000,500000),(3,3,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(4,4,2,'Sửa chữa Phần cứng',1,300000,300000),(5,5,2,'Sửa chữa Phần cứng',1,300000,300000),(6,6,4,'Nâng cấp Linh kiện',1,500000,500000),(7,7,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(8,8,2,'Sửa chữa Phần cứng',1,300000,300000),(9,9,2,'Sửa chữa Phần cứng',1,300000,300000),(10,10,4,'Nâng cấp Linh kiện',1,500000,500000),(11,11,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(12,12,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(13,13,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(14,14,4,'Nâng cấp Linh kiện',1,500000,500000),(15,15,2,'Sửa chữa Phần cứng',1,300000,300000),(16,16,3,'Cài đặt Phần mềm',1,100000,100000),(17,17,2,'Sửa chữa Phần cứng',1,300000,300000),(18,18,2,'Sửa chữa Phần cứng',1,300000,300000),(19,18,3,'Cài đặt Phần mềm',1,100000,100000),(20,19,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(21,20,2,'Sửa chữa Phần cứng',1,300000,300000),(22,21,2,'Sửa chữa Phần cứng',1,300000,300000),(23,22,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(24,23,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(25,24,4,'Nâng cấp Linh kiện',1,500000,500000),(26,25,2,'Sửa chữa Phần cứng',1,300000,300000),(27,26,2,'Sửa chữa Phần cứng',1,300000,300000),(28,27,2,'Sửa chữa Phần cứng',1,300000,300000),(29,28,2,'Sửa chữa Phần cứng',1,300000,300000),(30,29,2,'Sửa chữa Phần cứng',1,300000,300000),(31,30,2,'Sửa chữa Phần cứng',1,300000,300000),(32,31,2,'Sửa chữa Phần cứng',1,300000,300000),(33,32,2,'Sửa chữa Phần cứng',1,300000,300000),(34,33,2,'Sửa chữa Phần cứng',1,300000,300000),(35,34,2,'Sửa chữa Phần cứng',1,300000,300000),(36,35,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(37,1,3,'Cài đặt Phần mềm',1,100000,100000),(38,2,4,'Nâng cấp Linh kiện',1,500000,500000),(39,3,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(40,4,2,'Sửa chữa Phần cứng',1,300000,300000),(41,5,2,'Sửa chữa Phần cứng',1,300000,300000),(42,6,4,'Nâng cấp Linh kiện',1,500000,500000),(43,7,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(44,8,2,'Sửa chữa Phần cứng',1,300000,300000),(45,9,2,'Sửa chữa Phần cứng',1,300000,300000),(46,10,4,'Nâng cấp Linh kiện',1,500000,500000),(47,11,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(48,12,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(49,13,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(50,14,4,'Nâng cấp Linh kiện',1,500000,500000),(51,15,2,'Sửa chữa Phần cứng',1,300000,300000),(52,16,3,'Cài đặt Phần mềm',1,100000,100000),(53,17,2,'Sửa chữa Phần cứng',1,300000,300000),(54,18,2,'Sửa chữa Phần cứng',1,300000,300000),(55,18,3,'Cài đặt Phần mềm',1,100000,100000),(56,19,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(57,20,2,'Sửa chữa Phần cứng',1,300000,300000),(58,21,2,'Sửa chữa Phần cứng',1,300000,300000),(59,22,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(60,23,1,'Vệ sinh & Bảo dưỡng',1,150000,150000),(61,24,4,'Nâng cấp Linh kiện',1,500000,500000),(62,25,2,'Sửa chữa Phần cứng',1,300000,300000),(63,26,2,'Sửa chữa Phần cứng',1,300000,300000),(64,27,2,'Sửa chữa Phần cứng',1,300000,300000),(65,28,2,'Sửa chữa Phần cứng',1,300000,300000),(66,29,2,'Sửa chữa Phần cứng',1,300000,300000),(67,30,2,'Sửa chữa Phần cứng',1,300000,300000),(68,31,2,'Sửa chữa Phần cứng',1,300000,300000),(69,32,2,'Sửa chữa Phần cứng',1,300000,300000),(70,33,2,'Sửa chữa Phần cứng',1,300000,300000),(71,34,2,'Sửa chữa Phần cứng',1,300000,300000),(72,35,1,'Vệ sinh & Bảo dưỡng',1,150000,150000);
 /*!40000 ALTER TABLE `repair_booking_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -332,6 +335,24 @@ INSERT INTO `inventory_item` VALUES
 (5,'Miếng dán cường lực chống nhìn trộm','PROT-PRIV',20000.00,100000.00,50,NULL,'Kính cường lực chống nhìn trộm cho các dòng máy',_binary ' ','2026-06-13 10:00:00','2026-06-13 10:00:00');
 /*!40000 ALTER TABLE `inventory_item` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Constraints for table relationships with `user`
+--
+
+ALTER TABLE `repair_booking`
+  ADD CONSTRAINT `fk_repair_booking_customer` FOREIGN KEY (`customer_id`) REFERENCES `user` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_repair_booking_technician` FOREIGN KEY (`technician_id`) REFERENCES `user` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `repair_booking_note`
+  ADD CONSTRAINT `fk_repair_booking_note_user` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `repair_booking_status_history`
+  ADD CONSTRAINT `fk_repair_booking_status_history_user` FOREIGN KEY (`changed_by`) REFERENCES `user` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `repair_review`
+  ADD CONSTRAINT `fk_repair_review_customer` FOREIGN KEY (`customer_id`) REFERENCES `user` (`id`) ON DELETE SET NULL;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

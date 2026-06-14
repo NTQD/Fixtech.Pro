@@ -69,11 +69,13 @@ entity "repair_booking_item" {
     --
     * booking_id : INT (FK)
     * service_id : INT (FK)
+    inventory_item_id : INT (FK)
     service_name : VARCHAR(255)
     quantity : INT
     estimated_price : BIGINT
     final_price : BIGINT
 }
+
 
 entity "repair_booking_status_history" {
     * id : INT (PK)
@@ -106,12 +108,28 @@ entity "repair_review" {
     created_at : TIMESTAMP
 }
 
+entity "inventory_item" {
+    * id : INT (PK)
+    --
+    name : VARCHAR(255)
+    sku : VARCHAR(100) (UNIQUE)
+    cost_price : DECIMAL(10,2)
+    selling_price : DECIMAL(10,2)
+    stock_quantity : INT
+    image_url : VARCHAR(255)
+    description : TEXT
+    active : BIT(1)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
 ' Relationships
 repair_service_category ||--o{ repair_service : "has"
 user ||--o{ repair_booking : "books (as customer)"
 user ||--o{ repair_booking : "assigned (as tech)"
 repair_booking ||--|{ repair_booking_item : "contains"
 repair_service ||--o{ repair_booking_item : "referenced in"
+inventory_item ||--o{ repair_booking_item : "used in"
 repair_booking ||--o{ repair_booking_status_history : "tracks"
 user ||--o{ repair_booking_status_history : "changed by"
 repair_booking ||--o{ repair_booking_note : "has note"
