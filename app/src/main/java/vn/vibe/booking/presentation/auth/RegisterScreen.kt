@@ -1,10 +1,12 @@
 package vn.vibe.booking.presentation.auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +27,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -68,20 +70,16 @@ fun RegisterScreen(
         }
     }
 
-    val background = Brush.linearGradient(
-        colors = listOf(Color(0xFF050816), Color(0xFF111827), Color(0xFF1E1B4B))
-    )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(background)
+            .background(MaterialTheme.colorScheme.background)
             .padding(contentPadding)
             .padding(20.dp),
         contentAlignment = Alignment.Center
     ) {
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF0B1220)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
             shape = RoundedCornerShape(32.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
             modifier = Modifier.fillMaxWidth()
@@ -90,8 +88,8 @@ fun RegisterScreen(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Text("Tạo tài khoản", style = MaterialTheme.typography.headlineMedium, color = Color.White)
-                Text("Đăng ký nhanh chóng để bắt đầu đặt lịch sửa laptop.", color = Color(0xFF94A3B8))
+                Text("Tạo tài khoản", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface)
+                Text("Đăng ký nhanh chóng để bắt đầu đặt lịch sửa laptop.", color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -178,20 +176,29 @@ fun RegisterScreen(
                         CircularProgressIndicator(
                             modifier = Modifier.height(18.dp),
                             strokeWidth = 2.dp,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     } else {
                         Text("Đăng ký")
                     }
                 }
 
-                Button(
-                    onClick = onNavigateToLogin,
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF111827)),
-                    shape = RoundedCornerShape(18.dp)
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Đã có tài khoản? Quay lại đăng nhập", color = Color.White)
+                    Text(
+                        text = "Đã có tài khoản? ",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "Đăng nhập",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable(onClick = onNavigateToLogin)
+                    )
                 }
             }
         }
@@ -201,6 +208,6 @@ fun RegisterScreen(
 @Composable
 private fun ErrorText(message: String?) {
     if (!message.isNullOrBlank()) {
-        Text(message, color = Color(0xFFFCA5A5), style = MaterialTheme.typography.bodyMedium)
+        Text(message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
     }
 }
