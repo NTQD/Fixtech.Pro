@@ -1,6 +1,7 @@
 package vn.vibe.booking.presentation.admin
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,9 +15,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import vn.vibe.booking.presentation.theme.ErrorColor
+import vn.vibe.booking.presentation.theme.PrimaryBlue
+import vn.vibe.booking.presentation.theme.SuccessColor
+import vn.vibe.booking.presentation.theme.WarningColor
 import vn.vibe.booking.data.remote.AdminUserDto
 import vn.vibe.booking.data.remote.BookingSummaryDto
 import vn.vibe.booking.presentation.home.HomeViewModel
@@ -283,76 +289,135 @@ fun AdminBookingCard(
 ) {
     val isPending = booking.status.equals("PENDING", ignoreCase = true) || booking.status.contains("CHỜ", ignoreCase = true)
     val isConfirmed = booking.status.equals("CONFIRMED", ignoreCase = true)
+    val isInProgress = booking.status.equals("IN_PROGRESS", ignoreCase = true)
+    val isCompleted = booking.status.equals("COMPLETED", ignoreCase = true) || booking.status.contains("HOÀN THÀNH", ignoreCase = true)
+    val isCancelled = booking.status.equals("CANCELLED", ignoreCase = true)
+
+    val indicatorColor = when {
+        isPending -> ErrorColor
+        isConfirmed -> PrimaryBlue
+        isInProgress -> WarningColor
+        isCompleted -> SuccessColor
+        else -> MaterialTheme.colorScheme.outline
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isPending) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-            else MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(booking.bookingCode, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleSmall)
-                StatusChip(booking.status)
-            }
-
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                booking.preferredDate?.let {
-                    Text("📅 $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                booking.preferredTimeSlot?.let {
-                    Text("🕐 $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-
-            Text(
-                "Tổng: ${booking.totalEstimatedPrice} đ",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(5.dp)
+                    .fillMaxHeight()
+                    .background(indicatorColor)
             )
 
-            HorizontalDivider()
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (isPending) {
-                    Button(
-                        onClick = onConfirm,
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-                    ) {
-                        Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Xác nhận", style = MaterialTheme.typography.labelMedium)
-                    }
-                }
-                if (isPending || isConfirmed) {
-                    OutlinedButton(
-                        onClick = onAssign,
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-                    ) {
-                        Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Phân công", style = MaterialTheme.typography.labelMedium)
-                    }
-                }
-                TextButton(
-                    onClick = onUpdateStatus,
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Đổi TT", style = MaterialTheme.typography.labelMedium)
+                    Text(
+                        text = booking.bookingCode,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    StatusChip(booking.status)
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    booking.preferredDate?.let {
+                        Text(
+                            text = "📅 $it",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    booking.preferredTimeSlot?.let {
+                        Text(
+                            text = "🕐 $it",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Tổng chi phí dự kiến:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "${booking.totalEstimatedPrice} đ",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isPending) {
+                        Button(
+                            onClick = onConfirm,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(vertical = 8.dp)
+                        ) {
+                            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Xác nhận", style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                    if (isPending || isConfirmed) {
+                        OutlinedButton(
+                            onClick = onAssign,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(vertical = 8.dp)
+                        ) {
+                            Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Phân công", style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                    TextButton(
+                        onClick = onUpdateStatus,
+                        modifier = if (isPending || isConfirmed) Modifier.weight(0.8f) else Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        Text("Đổi TT", style = MaterialTheme.typography.labelMedium)
+                    }
                 }
             }
         }
@@ -363,15 +428,15 @@ fun AdminBookingCard(
 fun StatusChip(status: String) {
     val (color, label) = when {
         status.equals("PENDING", ignoreCase = true) || status.contains("CHỜ", ignoreCase = true) ->
-            MaterialTheme.colorScheme.error to "Chờ xử lý"
+            ErrorColor to "Chờ xử lý"
         status.equals("CONFIRMED", ignoreCase = true) ->
-            MaterialTheme.colorScheme.tertiary to "Đã xác nhận"
+            PrimaryBlue to "Đã xác nhận"
         status.equals("IN_PROGRESS", ignoreCase = true) ->
-            MaterialTheme.colorScheme.primary to "Đang sửa"
+            WarningColor to "Đang sửa"
         status.equals("COMPLETED", ignoreCase = true) || status.contains("HOÀN THÀNH", ignoreCase = true) ->
-            MaterialTheme.colorScheme.secondary to "Hoàn thành"
+            SuccessColor to "Hoàn thành"
         status.equals("CANCELLED", ignoreCase = true) ->
-            MaterialTheme.colorScheme.outline to "Đã hủy"
+            Color(0xFF64748B) to "Đã hủy"
         else -> MaterialTheme.colorScheme.onSurfaceVariant to status
     }
     SuggestionChip(
